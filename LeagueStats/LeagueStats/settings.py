@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from django.contrib import auth
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -190,7 +191,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Custom user model
-AUTH_USER_MODEL = "authentication.CustomUser"
+AUTH_USER_MODEL = "auth.User"
 
 
 # Internationalization
