@@ -1,0 +1,57 @@
+body {
+    height: 100%;
+}
+
+#root {
+    height: 100%;
+}
+
+.site {
+    height: 100%;
+}
+
+.navbar-brand {
+    padding-left: 10px !important;
+    padding-right: 30px; !important;
+    font-size: xx-large !important;
+}
+
+.nav-link {
+    font-size: 20px;
+}
+
+main {
+    height: 100%;
+}
+
+.footer {
+    height: 10%;
+}
+
+
+.container {
+    height: 100%;
+}
+
+.full-height {
+    padding: 20px;
+    height: 100%;
+}
+
+.center-vertically {
+    height: fit-content;
+    margin: auto;
+}
+
+.padding {
+    padding: 10px;
+}
+
+.margin-t {
+    margin-top: 10px;
+}
+
+.stick-right {
+    margin-left: auto;
+    margin-right: 20px;
+}
