@@ -1,0 +1,13 @@
+app-env
+.DS_Store
+.idea
+
+#node modules
+node_modules/
+
+#cached files
+LeagueStats/filebased-cache
+*.pyc
+
+#built files
+LeagueStats/frontend/static/frontend/public/

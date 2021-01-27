@@ -34,7 +34,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('user', 'puuid', 'game_region', 'location')
+        fields = ('user', 'puuid', 'game_region', 'city', 'country', 'state', 'zipcode', 'level', 'icon_id')
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')

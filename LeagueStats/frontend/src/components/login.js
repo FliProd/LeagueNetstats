@@ -1,7 +1,8 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import {axiosInstance} from "../axiosApi";
-import {Row, Button, Form, Alert} from "react-bootstrap";
-import {Card, Grid} from "tabler-react";
+import { Button, Form, Alert } from "react-bootstrap";
+import { Grid, Paper, Box} from "@material-ui/core";
+import SummonerList from "./summoner";
 
 class Login extends Component {
     constructor(props) {
@@ -15,6 +16,7 @@ class Login extends Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.renderForm = this.renderForm.bind(this);
     }
 
     handleChange(event) {
@@ -24,7 +26,7 @@ class Login extends Component {
     async handleSubmit(event) {
         event.preventDefault();
         try {
-            const response = await axiosInstance.post('/token/obtain/', {
+            const response = await axiosInstance.post('/api/token/obtain/', {
                 username: this.state.username,
                 password: this.state.password
             });
@@ -40,28 +42,42 @@ class Login extends Component {
         }
     }
 
-    render() {
+    renderForm() {
         return (
-            <Grid>
-                <Row className={"full-height"}>
-                    <Card className={"align-self-center padding"}>
-                        <h2>Login</h2>
-                        <Form onSubmit={this.handleSubmit}>
-                            <Form.Group controlId="formBasicEmail">
-                                <Form.Label>Username</Form.Label>
-                                <Form.Control name="username" type="text" value={this.state.username} onChange={this.handleChange}/>
-                            </Form.Group>
-                            <Form.Group controlId="formBasicPassword">
-                                <Form.Label>Password</Form.Label>
-                                <Form.Control name="password" type="password" value={this.state.password} onChange={this.handleChange}/>
-                            </Form.Group>
-                            {this.state.error_occurred && <Alert className={"margin-t"} variant={"danger"}>{this.state.error_description}</Alert>}
-                            <Button className={"margin-t"} variant={'dark'} type={'Submit'}>
-                                Submit
-                            </Button>
-                        </Form>
-                    </Card>
-                </Row>
+            <Fragment>
+                <h2>Login</h2>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Group controlId="formBasicEmail">
+                        <Form.Label>Username</Form.Label>
+                        <Form.Control name="username" type="text" value={this.state.username}
+                                      onChange={this.handleChange}/>
+                    </Form.Group>
+                    <Form.Group controlId="formBasicPassword">
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control name="password" type="password" value={this.state.password}
+                                      onChange={this.handleChange}/>
+                    </Form.Group>
+                    {this.state.error_occurred &&
+                    <Alert className={"margin-t"} variant={"danger"}>{this.state.error_description}</Alert>}
+                    <Button className={"margin-t"} variant={'dark'} type={'Submit'}>
+                        Submit
+                    </Button>
+                </Form>
+            </Fragment>
+        )
+    }
+
+    render() {
+        const Form = this.renderForm();
+        return (
+            <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
+                <Grid item md={6}>
+                    <Paper variant="outlined">
+                        <Box p={2}>
+                            {Form}
+                        </Box>
+                    </Paper>
+                </Grid>
             </Grid>
         );
     }

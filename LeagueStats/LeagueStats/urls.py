@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authentication.urls')),
     path('riotapi/', include('riotapi.urls')),
+    path('geo/', include('geo.urls')),
     path('', include('frontend.urls')),
 ]

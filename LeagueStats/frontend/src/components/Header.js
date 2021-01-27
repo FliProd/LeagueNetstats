@@ -12,7 +12,7 @@ class Header extends Component {
 
     async handleLogout() {
         try {
-            const response = await axiosInstance.post('/blacklist/', {
+            const response = await axiosInstance.post('/api/blacklist/', {
                 "refresh_token": localStorage.getItem("refresh_token")
             });
             localStorage.removeItem('access_token');
