@@ -5,6 +5,7 @@ import Login from "./login";
 import Signup from "./signup";
 import Home from "./home";
 import Header from "./header";
+import Account from "./account";
 
 
 class App extends Component {
@@ -20,6 +21,7 @@ class App extends Component {
                         <Switch>
                             <Route exact path={"/login/"} component={Login}/>
                             <Route exact path={"/signup/"} component={Signup}/>
+                            <Route exact path={"/account/"} component={Account}/>
                             <Route path={"/"} component={Home}/>
                         </Switch>
                     </Container>

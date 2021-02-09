@@ -15,8 +15,6 @@ class discreteLocation(APIView):
             coords = (request.data['location']['latitude'],request.data['location']['longitude'])
             location = geolocator.reverse(coords, exactly_one=True)
             address = location.raw['address']
-            print(address)
-            print(location)
             zipcode = address.get('postcode', '')
             city = address.get('city', '')
             state = address.get('state', '')

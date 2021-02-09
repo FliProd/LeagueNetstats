@@ -1,8 +1,9 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import User
-from .models import Profile
-#add more context to jwt (favorite color in this case)
+from .models import Profile, CustomUser
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
@@ -13,12 +14,19 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = ('email', 'username', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            },
+            'email': {
+                 'validators': [UnicodeUsernameValidator()],
+            }
+        }
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -28,9 +36,17 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class ProfileSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        instance.username = validated_data.get('username')
+        instance.email = validated_data.get('email')
+        if validated_data.get('password') is not None:
+            instance.set_password(validated_data.get('password'))
+        instance.save()
+        return instance
 
-    user = UserSerializer(required=True)
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer(required=True)
 
     class Meta:
         model = Profile
@@ -38,7 +54,25 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        user = UserSerializer.create(UserSerializer(), validated_data=user_data)
+        user_serializer = CustomUserSerializer()
+        user = user_serializer.create(validated_data=user_data)
         profile = self.Meta.model(user=user, **validated_data)
         profile.save()
         return profile
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user')
+        user = instance.user
+        user_serializer = CustomUserSerializer()
+        user_serializer.update(instance=user, validated_data=user_data)
+
+        instance.puuid = validated_data.get('puuid')
+        instance.level = validated_data.get('level')
+        instance.game_region = validated_data.get('game_region')
+        instance.icon_id = validated_data.get('icon_id')
+        instance.country = validated_data.get('country')
+        instance.state = validated_data.get('state')
+        instance.city = validated_data.get('city')
+        instance.zipcode = validated_data.get('zipcode')
+        instance.save()
+        return instance

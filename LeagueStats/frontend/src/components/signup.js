@@ -15,32 +15,24 @@ class Signup extends Component {
                 password: "",
                 email: "",
             },
-            possible_accounts: [{
-                'name': 'Summonername',
-                'puuid': '',
-                'icon_id': 29,
-                'level': '1',
-                'region': 'Region'
-            }],
-            account: -1,
+            account: {},
+            typing_timeout: '',
+            loading: false,
             location: {
                 city: "",
                 state: "",
                 country: "",
-                zipcode: "",
+                zipcode: 0,
             },
-
             location_msg: "",
-            typing_timeout: 0,
-            loading: false,
         };
+        this.summonerListElement = React.createRef();
 
-        this.translateLocation = this.translateLocation.bind(this)
+        this.handleLocation = this.handleLocation.bind(this)
         this.handleChange = this.handleChange.bind(this);
-        this.handleLocation = this.handleLocation.bind(this);
+        this.getLocation = this.getLocation.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.getSummonerInfo = this.getSummonerInfo.bind(this);
-        this.handleChooseSummoner = this.handleChooseSummoner.bind(this);
+        this.setSummoner = this.setSummoner.bind(this);
         this.renderForm = this.renderForm.bind(this);
     }
 
@@ -53,39 +45,22 @@ class Signup extends Component {
             if (this.state.typing_timeout) {
                 clearTimeout(this.state.typing_timeout);
             }
-            this.setState(prevstate => {
-                prevstate.user[event.target.name] = event.target.value;
-                prevstate.typing_timeout = setTimeout(this.getSummonerInfo, 2000);
-                return prevstate;
-            });
-        }
-
-    }
-
-    async getSummonerInfo() {
-        try {
-            this.setState({loading: true});
-            const response = await axiosInstance.get('/riotapi/summoner/'.concat(this.state.user.username))
             this.setState({
-                possible_accounts: response.data.possible_accounts,
-                loading: false,
-            });
-        } catch (error) {
-            this.setState({
-                errors: error.response.data,
+                typing_timeout: setTimeout(() => {
+                    this.summonerListElement.current.getSummonerInfo(event.target.value);
+                }, 2000),
             });
         }
+
     }
 
-    handleChooseSummoner(index) {
-        if(this.state.account == index) {
-            this.setState({account: -1});
-        } else {
-            this.setState({account: index});
-        }
+    setSummoner(summoner) {
+        console.log('heii');
+        this.setState({account: summoner});
+        console.log(this.state)
     }
 
-    async translateLocation(latitude, longitude) {
+    async handleLocation(latitude, longitude) {
         try {
             const response = await axiosInstance.post('/geo/discreteLocation/', {
                 location: {
@@ -104,16 +79,17 @@ class Signup extends Component {
         } catch (error) {
             this.setState({
                 errors: error.response.data,
+                location_msg: "Something went wrong while handling your Location.",
             });
         }
     }
 
-    handleLocation(event) {
+    getLocation(event) {
         if (event.target.checked) {
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
                     position => {
-                        this.translateLocation(position.coords.latitude, position.coords.longitude);
+                        this.handleLocation(position.coords.latitude, position.coords.longitude);
                     },
                     (error) => {
                         this.setState({
@@ -123,7 +99,7 @@ class Signup extends Component {
                 );
             } else {
                 this.setState({
-                    location_msg: "We cant access your location. Try giving the right permission to your Browser",
+                    location_msg: "We cant access your location. Try giving the right permission to your Browser.",
                 });
             }
         } else {
@@ -143,10 +119,11 @@ class Signup extends Component {
 
         try {
 
-            if(this.state.account == -1 || this.state.possible_accounts[0].name == "Summonername") {
+            if(this.state.account.puuid == undefined) {
                 throw TypeError;
             }
-            const account = this.state.possible_accounts[this.state.account];
+
+            const account = this.state.account;
 
             const response = await axiosInstance.post('/api/profile/create/', {
                 user: {
@@ -154,6 +131,7 @@ class Signup extends Component {
                     email: this.state.user.email,
                     password: this.state.user.password,
                 },
+
                 puuid: account.puuid,
                 game_region: account.region,
                 level: account.level,
@@ -162,11 +140,12 @@ class Signup extends Component {
                 state: this.state.location.state,
                 country: this.state.location.country,
                 zipcode: this.state.location.zipcode,
+
             });
 
             if (response.status != StatusCodes.BAD_REQUEST) {
                 const response = await axiosInstance.post('/api/token/obtain/', {
-                    username: this.state.user.username,
+                    email: this.state.user.email,
                     password: this.state.user.password
                 });
                 axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access;
@@ -178,15 +157,9 @@ class Signup extends Component {
             }
         } catch (error) {
             if (error == TypeError) {
-                if (this.state.possible_accounts.length > 1 || this.state.possible_accounts[0].name != "Summonername") {
-                    this.setState({
-                        errors: {account: "Choose your Summoner from the List."},
-                    });
-                } else {
-                    this.setState({
-                        errors: {account: "Enter a valid Summoner name."},
-                    });
-                }
+                this.setState({
+                    errors: {account: "Give a valid Summonername and choose a Summoner."},
+                });
             } else {
                 this.setState({
                     errors: error.response.data,
@@ -226,7 +199,7 @@ class Signup extends Component {
                     }
                     <Form.Group controlId="formBasicCheckbox">
                         <Form.Check className={"padding"} type="checkbox" label="Allow my location to be saved."
-                                    onChange={this.handleLocation}/>
+                                    onChange={this.getLocation}/>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.location) &&
                         <Alert variant={"danger"}>{this.state.location_msg}</Alert>
@@ -254,10 +227,11 @@ class Signup extends Component {
                 <Grid item md={6}>
                     <Paper variant="outlined">
                         <SummonerList
-                            possible_accounts={this.state.possible_accounts}
-                            onChooseSummoner={(i) => this.handleChooseSummoner(i)}
+                            ref={this.summonerListElement}
+                            setSummoner={(summoner) => this.setSummoner(summoner)}
+                            askname={false}
+                            name={this.state.username}
                             loading={this.state.loading}
-                            marked={this.state.account}
                         />
                         {(this.state.errors && this.state.errors.account) &&
                             <Alert variant={"danger"}>{this.state.errors.account}</Alert>

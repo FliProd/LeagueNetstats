@@ -8,7 +8,6 @@ import time
 
 class Summoner(APIView):
     permission_classes = (permissions.AllowAny,)
-    authentication_classes = ()
 
     def get(self, request, name):
 
@@ -28,6 +27,8 @@ class Summoner(APIView):
 
             except NotFoundError:
                 print('Notfounderror')
+            except AttributeError:
+                print('API Key Problems')
 
         if len(possible_accounts) > 0:
             return Response({"possible_accounts": possible_accounts}, status=status.HTTP_200_OK)

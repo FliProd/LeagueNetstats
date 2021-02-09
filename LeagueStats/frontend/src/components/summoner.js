@@ -11,7 +11,7 @@ import {
     Button,
     CircularProgress,
     Typography,
-    LinearProgress,
+    LinearProgress, TextField,
 } from "@material-ui/core";
 
 
@@ -32,7 +32,73 @@ function Summoner(props) {
 }
 
 class SummonerList extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            possible_accounts: [{
+                'name': 'Summonername',
+                'puuid': '',
+                'icon_id': 29,
+                'level': '',
+                'region': 'Region'
+            }],
+            account: -1,
+            loading: props.loading,
+            name: !props.askname && props.name,
+            typing_timeout: "",
+            askName: props.askname,
+        };
 
+        this.handleChange = this.handleChange.bind(this);
+        this.getSummonerInfo = this.getSummonerInfo.bind(this);
+        this.handleChooseSummoner = this.handleChooseSummoner.bind(this);
+        this.handleNoReply = this.handleNoReply.bind(this);
+        this.renderSummoner = this.renderSummoner.bind(this);
+
+    }
+
+    handleChange(event) {
+        if (this.state.typing_timeout) {
+            clearTimeout(this.state.typing_timeout);
+        }
+        this.setState({
+            name: event.target.value,
+            typing_timeout: setTimeout(() => this.getSummonerInfo(this.state.name), 1000),
+        });
+    }
+
+    async getSummonerInfo(name) {
+        const timeout = setTimeout(this.handleNoReply, 20000);
+        this.setState({loading: true});
+        console.log(this.state);
+        try {
+            const response = await axiosInstance.get('/riotapi/summoner/'.concat(name))
+            clearTimeout(timeout);
+            this.setState({
+                possible_accounts: response.data.possible_accounts,
+                loading: false,
+            });
+        } catch (error) {
+            clearTimeout(timeout);
+        }
+    }
+
+    handleNoReply() {
+        this.setState({
+            loading: false,
+            errors: {account: "There has been a Problem reaching the League of Legends API."},
+        });
+    }
+
+    handleChooseSummoner(index) {
+        if(this.state.account == index) {
+            this.setState({account: -1});
+        } else {
+            this.setState({account: index});
+            console.log(this.state.possible_accounts[index])
+            this.props.setSummoner(this.state.possible_accounts[index]);
+        }
+    }
 
     renderSummoner(summoner, index, marked) {
         let style;
@@ -40,7 +106,7 @@ class SummonerList extends Component {
             style = {'backgroundColor': "#919191"};
         }
         return (
-            <ListItem style={style} key={summoner.region} button onClick={() => this.props.onChooseSummoner(index)}>
+            <ListItem style={style} key={summoner.region} button onClick={() => this.handleChooseSummoner(index)}>
                 <Summoner
                     name={summoner.name}
                     level={summoner.level}
@@ -52,12 +118,11 @@ class SummonerList extends Component {
     }
 
     render() {
-
-        let list = this.props.possible_accounts.map((summoner, index) => {
-            return this.renderSummoner(summoner, index, (index == this.props.marked));
+        let list = this.state.possible_accounts.map((summoner, index) => {
+            return this.renderSummoner(summoner, index, (index == this.state.account));
         });
 
-        if (this.props.loading) {
+        if (this.state.loading) {
             list = (
                 <Box display={"flex"} justifyContent={"center"} alignItems={"center"}>
                     <CircularProgress style={{"color": "black"}}/>
@@ -65,10 +130,26 @@ class SummonerList extends Component {
             )
         }
 
+        let userinterface;
+        //load textfield for typing name
+        if (this.state.askName) {
+            userinterface = (
+                <Fragment>
+                    <Box display={"flex"} justifyContent={"center"} alignItems={"center"}><Typography pb={1}>Find & Mark your Profile</Typography></Box>
+                    <TextField size={"small"} label={"Summonername"} variant="outlined"
+                               fullWidth name={"name"}
+                               onChange={this.handleChange}
+                    />
+                </Fragment>
+            )
+        } else {
+            userinterface = (<Box display={"flex"} justifyContent={"center"} alignItems={"center"}><Typography pb={1}>Mark your Profile</Typography></Box>)
+        }
+        console.log('rendered summoner');
         return (
             <Fragment>
-                <Box textAlign={"center"}>
-                    <Typography>Mark your Profile</Typography>
+                <Box>
+                    {userinterface}
                 </Box>
                 <List style={this.style}>
                     {list}

@@ -1,16 +1,17 @@
 import axios from 'axios'
 
 const baseURL = 'http://127.0.0.1:8000/'
+const csrftoken = getCookie('csrftoken');
 
 export const axiosInstance = axios.create({
     baseURL: baseURL,
     headers: {
         'Authorization': localStorage.getItem('access_token') ? "JWT " + localStorage.getItem('access_token') : null,
         'Content-Type': 'application/json',
-        'accept': 'application/json'
+        'accept': 'application/json',
+        'X-CSRFToken': csrftoken
     }
 });
-
 
 axiosInstance.interceptors.response.use(
     response => response,
@@ -29,17 +30,18 @@ axiosInstance.interceptors.response.use(
             const refreshToken = localStorage.getItem('refresh_token');
 
             if (refreshToken) {
+                console.log(refreshToken);
+                console.log(refreshToken.split('.')[1]);
                 const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
 
                 // exp date in token is expressed in seconds, while now() returns milliseconds:
                 const now = Math.ceil(Date.now() / 1000);
                 console.log(tokenParts.exp);
-
                 if (tokenParts.exp > now) {
                     return axiosInstance
-                        .post('/token/refresh/', {refresh: refreshToken})
+                        .post('api/token/refresh/', {refresh: refreshToken, csrftoken: csrftoken})
                         .then((response) => {
-
+                            console.log(response);
                             localStorage.setItem('access_token', response.data.access);
                             localStorage.setItem('refresh_token', response.data.refresh);
 
@@ -67,4 +69,20 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-export default axiosInstance
+export default axiosInstance;
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

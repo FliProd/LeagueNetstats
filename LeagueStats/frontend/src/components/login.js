@@ -8,7 +8,7 @@ class Login extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: "",
+            email: "",
             password: "",
             error_description: "",
             error_occurred: "",
@@ -27,7 +27,7 @@ class Login extends Component {
         event.preventDefault();
         try {
             const response = await axiosInstance.post('/api/token/obtain/', {
-                username: this.state.username,
+                email: this.state.email,
                 password: this.state.password
             });
             axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access;
@@ -48,8 +48,8 @@ class Login extends Component {
                 <h2>Login</h2>
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group controlId="formBasicEmail">
-                        <Form.Label>Username</Form.Label>
-                        <Form.Control name="username" type="text" value={this.state.username}
+                        <Form.Label>Email</Form.Label>
+                        <Form.Control name="email" type="text" value={this.state.email}
                                       onChange={this.handleChange}/>
                     </Form.Group>
                     <Form.Group controlId="formBasicPassword">
