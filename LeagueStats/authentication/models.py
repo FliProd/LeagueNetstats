@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from django_cassiopeia import cassiopeia as cass
 
 #change email to be unique and username to not be unique
+# TODO: change user id to be random
 class CustomUser(AbstractUser):
 
     USERNAME_FIELD = 'email'
@@ -22,6 +23,7 @@ class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='profile')
 
     puuid = models.CharField(max_length=512)
+    account_id = models.CharField(max_length=512)
     game_region = models.CharField(max_length=512)
     level = models.PositiveIntegerField()
     icon_id = models.PositiveIntegerField()

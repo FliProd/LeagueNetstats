@@ -1,6 +1,7 @@
 import React, {Component, Fragment} from "react";
 import {axiosInstance} from "../axiosApi";
-import {Image} from "react-bootstrap";
+import {Alert, Image} from "react-bootstrap";
+import {StatusCodes} from 'http-status-codes';
 import {
     List,
     ListItem,
@@ -70,15 +71,24 @@ class SummonerList extends Component {
     async getSummonerInfo(name) {
         const timeout = setTimeout(this.handleNoReply, 20000);
         this.setState({loading: true});
-        console.log(this.state);
         try {
             const response = await axiosInstance.get('/riotapi/summoner/'.concat(name))
             clearTimeout(timeout);
+            console.log(response.status)
+            console.log('1')
+            console.log(response)
+
             this.setState({
                 possible_accounts: response.data.possible_accounts,
                 loading: false,
             });
         } catch (error) {
+            if (response.status == StatusCodes.NOT_FOUND) {
+                this.setState({
+                    loading: false,
+                    errors: {account: "There exists no Summoner with this Summonername."},
+                });
+            }
             clearTimeout(timeout);
         }
     }
@@ -91,11 +101,10 @@ class SummonerList extends Component {
     }
 
     handleChooseSummoner(index) {
-        if(this.state.account == index) {
+        if (this.state.account == index) {
             this.setState({account: -1});
         } else {
             this.setState({account: index});
-            console.log(this.state.possible_accounts[index])
             this.props.setSummoner(this.state.possible_accounts[index]);
         }
     }
@@ -135,7 +144,8 @@ class SummonerList extends Component {
         if (this.state.askName) {
             userinterface = (
                 <Fragment>
-                    <Box display={"flex"} justifyContent={"center"} alignItems={"center"}><Typography pb={1}>Find & Mark your Profile</Typography></Box>
+                    <Box display={"flex"} justifyContent={"center"} alignItems={"center"}><Typography pb={1}>Find & Mark
+                        your Profile</Typography></Box>
                     <TextField size={"small"} label={"Summonername"} variant="outlined"
                                fullWidth name={"name"}
                                onChange={this.handleChange}
@@ -143,9 +153,10 @@ class SummonerList extends Component {
                 </Fragment>
             )
         } else {
-            userinterface = (<Box display={"flex"} justifyContent={"center"} alignItems={"center"}><Typography pb={1}>Mark your Profile</Typography></Box>)
+            userinterface = (
+                <Box display={"flex"} justifyContent={"center"} alignItems={"center"}><Typography pb={1}>Mark your
+                    Profile</Typography></Box>)
         }
-        console.log('rendered summoner');
         return (
             <Fragment>
                 <Box>
@@ -154,6 +165,8 @@ class SummonerList extends Component {
                 <List style={this.style}>
                     {list}
                 </List>
+                {this.state.errors && this.state.errors.account &&
+                <Alert variant={"danger"}>{this.state.errors.account}</Alert>}
             </Fragment>
         );
     }

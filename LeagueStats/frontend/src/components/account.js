@@ -76,6 +76,7 @@ class Account extends Component {
             prevstate.game_info.game_region = summoner.region;
             prevstate.game_info.icon_id = summoner.icon_id;
             prevstate.game_info.puuid = summoner.puuid;
+            prevstate.game_info.account_id = summoner.account_id;
             prevstate.user.username = summoner.name;
             return prevstate;
         });
@@ -175,6 +176,7 @@ class Account extends Component {
         const location = this.state.location;
 
         try {
+            console.log(game_info)
             const response = await axiosInstance.put('/api/profile/get/' + this.getUserId(), {
                 user: {
                     username: user.username,
@@ -182,6 +184,7 @@ class Account extends Component {
                     password: user.password,
                 },
                 puuid: game_info.puuid,
+                account_id: game_info.account_id,
                 game_region: game_info.game_region,
                 level: game_info.level,
                 icon_id: game_info.icon_id,

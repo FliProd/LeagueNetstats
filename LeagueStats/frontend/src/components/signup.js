@@ -24,7 +24,6 @@ class Signup extends Component {
                 country: "",
                 zipcode: 0,
             },
-            location_msg: "",
         };
         this.summonerListElement = React.createRef();
 
@@ -55,9 +54,7 @@ class Signup extends Component {
     }
 
     setSummoner(summoner) {
-        console.log('heii');
         this.setState({account: summoner});
-        console.log(this.state)
     }
 
     async handleLocation(latitude, longitude) {
@@ -78,8 +75,7 @@ class Signup extends Component {
             })
         } catch (error) {
             this.setState({
-                errors: error.response.data,
-                location_msg: "Something went wrong while handling your Location.",
+                errors: {location: "Something went wrong while handling your Location."},
             });
         }
     }
@@ -88,18 +84,18 @@ class Signup extends Component {
         if (event.target.checked) {
             if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition(
-                    position => {
+                    (position) => {
                         this.handleLocation(position.coords.latitude, position.coords.longitude);
                     },
                     (error) => {
                         this.setState({
-                            location_msg: error.message
+                            errors: {location: error.message},
                         });
                     }
                 );
             } else {
                 this.setState({
-                    location_msg: "We cant access your location. Try giving the right permission to your Browser.",
+                    errors: {location: "Your Location cant be accessed. Try giving the right permission to your Browser."},
                 });
             }
         } else {
@@ -118,6 +114,12 @@ class Signup extends Component {
         event.preventDefault();
 
         try {
+            if(this.state.location.country == "") {
+                this.setState({
+                    errors: {location: 'Your Location cant be loaded. Make sure your Browser and Operating System have allowed Locaiton access for this site.'},
+                })
+                return
+            }
 
             if(this.state.account.puuid == undefined) {
                 throw TypeError;
@@ -133,6 +135,7 @@ class Signup extends Component {
                 },
 
                 puuid: account.puuid,
+                account_id: account.account_id,
                 game_region: account.region,
                 level: account.level,
                 icon_id: account.icon_id,
@@ -202,7 +205,7 @@ class Signup extends Component {
                                     onChange={this.getLocation}/>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.location) &&
-                        <Alert variant={"danger"}>{this.state.location_msg}</Alert>
+                        <Alert variant={"danger"}>{this.state.errors.location}</Alert>
                     }
                     <Button variant={'dark'} type={'Submit'}>
                         Submit

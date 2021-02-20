@@ -50,7 +50,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('user', 'puuid', 'game_region', 'city', 'country', 'state', 'zipcode', 'level', 'icon_id')
+        fields = ('user', 'puuid', 'account_id', 'game_region', 'city', 'country', 'state', 'zipcode', 'level', 'icon_id')
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
@@ -67,6 +67,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         user_serializer.update(instance=user, validated_data=user_data)
 
         instance.puuid = validated_data.get('puuid')
+        instance.account_id = validated_data.get('account_id')
         instance.level = validated_data.get('level')
         instance.game_region = validated_data.get('game_region')
         instance.icon_id = validated_data.get('icon_id')

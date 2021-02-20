@@ -30,18 +30,16 @@ axiosInstance.interceptors.response.use(
             const refreshToken = localStorage.getItem('refresh_token');
 
             if (refreshToken) {
-                console.log(refreshToken);
-                console.log(refreshToken.split('.')[1]);
                 const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
 
                 // exp date in token is expressed in seconds, while now() returns milliseconds:
                 const now = Math.ceil(Date.now() / 1000);
-                console.log(tokenParts.exp);
+
                 if (tokenParts.exp > now) {
                     return axiosInstance
                         .post('api/token/refresh/', {refresh: refreshToken, csrftoken: csrftoken})
                         .then((response) => {
-                            console.log(response);
+
                             localStorage.setItem('access_token', response.data.access);
                             localStorage.setItem('refresh_token', response.data.refresh);
 

@@ -1,0 +1,11 @@
+{
+  "title": "Match",
+  "description": "general information about a match",
+  "additionalProperties": false,
+  "properties": {
+    "gameId": {
+      "type": "int"
+    },
+    "summonerName": "object"
+  }
+}
