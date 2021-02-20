@@ -19,6 +19,10 @@ class NetworkLog(models.Model):
     loss = ArrayField(models.FloatField)
 
 
-class Timeline(models.Model):
+class Event(models.Model):
     match_id = models.ForeignKey(to_field=Match.match_id, on_delete=models.CASCADE)
-    champion_kills = ArrayField(models.CharField())
+    x = models.PositiveIntegerField()
+    y = models.PositiveIntegerField()
+    activeParticipant = models.CharField(max_length=2)
+    passiveParticipant = models.CharField(max_length=2)
+    assistingParticipants = ArrayField(models.CharField(max_length=2))

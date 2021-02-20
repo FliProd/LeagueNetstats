@@ -47,7 +47,7 @@ def parse_netlog(file):
             'out_bandwidth': out_bandwidth, 'loss': loss_percentage_window}
 
 
-def parse_event(event, pov_id):
+def parse_event(event, pov_id, events):
     if event.type == 'CHAMPION_KILL':
         evjson = {
             "timestamp": event.timestamp,
@@ -178,34 +178,7 @@ def get_base_ingame_stats(timeline, log_owner_id):
     farm = []
     player_frames = []
     timestamps = []
-    events = {'PLAYER_CHAMPION_KILL': [],
-              'PLAYER_CHAMPION_DEATH': [],
-              'CHAMPION_KILL': [],
-              'PLAYER_WARD_PLACED': [],
-              'WARD_PLACED': [],
-              'PLAYER_WARD_KILL': [],
-              'WARD_KILL': [],
-              'PLAYER_BUILDING_KILL': [],
-              'BUILDING_KILL': [],
-              'PLAYER_ELITE_MONSTER_KILL': [],
-              'ELITE_MONSTER_KILL': [],
-              'PLAYER_ITEM_PURCHASED': [],
-              'ITEM_PURCHASED': [],
-              'PLAYER_ITEM_SOLD': [],
-              'ITEM_SOLD': [],
-              'PLAYER_ITEM_DESTROYED': [],
-              'ITEM_DESTROYED': [],
-              'PLAYER_ITEM_UNDO': [],
-              'ITEM_UNDO': [],
-              'PLAYER_SKILL_LEVEL_UP': [],
-              'SKILL_LEVEL_UP': [],
-              'PLAYER_ASCENDED_EVENT': [],
-              'ASCENDED_EVENT': [],
-              'PLAYER_CAPTURE_POINT': [],
-              'CAPTURE_POINT': [],
-              'PLAYER_PORO_KING_SUMMON': [],
-              'PORO_KING_SUMMON': []
-              }
+    events = []
 
     for frame in timeline.frames:
         owner_frame = frame.participant_frames[log_owner_id]
@@ -218,7 +191,7 @@ def get_base_ingame_stats(timeline, log_owner_id):
         farm.append(owner_frame.creep_score + owner_frame.neutral_minions_killed)
 
         for event in frame.events:
-            (evjson, eventclass) = parse_event(event, log_owner_id)
+            (evjson, eventclass) = parse_event(event, log_owner_id, events)
             events.get(eventclass).append(evjson)
 
     return timestamps, exp, gold, farm, events
