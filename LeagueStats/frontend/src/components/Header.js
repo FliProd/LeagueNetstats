@@ -35,6 +35,7 @@ class Header extends Component {
                         <Link className={"nav-link"} to={"/login/"}>Login</Link>
                         <Link className={"nav-link"} to={"/signup/"}>Signup</Link>
                         <Link className={"nav-link"} to={"/account/"}>Account</Link>
+                        <Link className={"nav-link"} to={"/dashboard/"}>Dashboard</Link>
                         <Button className="stick-right" variant="light" onClick={this.handleLogout}>Logout</Button>
                     </Nav>
                 </Navbar.Collapse>

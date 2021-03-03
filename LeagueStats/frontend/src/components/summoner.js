@@ -74,9 +74,6 @@ class SummonerList extends Component {
         try {
             const response = await axiosInstance.get('/riotapi/summoner/'.concat(name))
             clearTimeout(timeout);
-            console.log(response.status)
-            console.log('1')
-            console.log(response)
 
             this.setState({
                 possible_accounts: response.data.possible_accounts,

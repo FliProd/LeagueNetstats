@@ -59,6 +59,7 @@ class Signup extends Component {
 
     async handleLocation(latitude, longitude) {
         try {
+            console.log('handlelocation');
             const response = await axiosInstance.post('/geo/discreteLocation/', {
                 location: {
                     latitude: latitude,
@@ -73,6 +74,7 @@ class Signup extends Component {
                     zipcode: response.data.zipcode,
                 }
             })
+            console.log(this.state);
         } catch (error) {
             this.setState({
                 errors: {location: "Something went wrong while handling your Location."},
@@ -81,18 +83,23 @@ class Signup extends Component {
     }
 
     getLocation(event) {
+        console.log('getLocation');
         if (event.target.checked) {
             if ("geolocation" in navigator) {
+                console.log('requesting');
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
+                        console.log('successcallback')
                         this.handleLocation(position.coords.latitude, position.coords.longitude);
                     },
                     (error) => {
                         this.setState({
                             errors: {location: error.message},
                         });
+                        console.log(error)
                     }
                 );
+                console.log('requested');
             } else {
                 this.setState({
                     errors: {location: "Your Location cant be accessed. Try giving the right permission to your Browser."},
@@ -202,7 +209,7 @@ class Signup extends Component {
                     }
                     <Form.Group controlId="formBasicCheckbox">
                         <Form.Check className={"padding"} type="checkbox" label="Allow my location to be saved."
-                                    onChange={this.getLocation}/>
+                                    onChange={(event) => {this.getLocation(event)}}/>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.location) &&
                         <Alert variant={"danger"}>{this.state.errors.location}</Alert>

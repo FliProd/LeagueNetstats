@@ -1,11 +1,12 @@
-import React, { Component} from "react";
-import { Switch, Route, Link } from "react-router-dom";
-import { Container } from "react-bootstrap";
-import Login from "./login";
-import Signup from "./signup";
-import Home from "./home";
-import Header from "./header";
-import Account from "./account";
+import React, { Component} from "react"
+import { Switch, Route, Link } from "react-router-dom"
+import { Container } from "react-bootstrap"
+import Login from "./login"
+import Signup from "./signup"
+import Home from "./home"
+import Header from "./header"
+import Account from "./account"
+import MiniDrawer from "./dashboard"
 
 
 class App extends Component {
@@ -23,11 +24,12 @@ class App extends Component {
                             <Route exact path={"/signup/"} component={Signup}/>
                             <Route exact path={"/account/"} component={Account}/>
                             <Route path={"/"} component={Home}/>
+                            <Route path={"/dashboard"} component={MiniDrawer} />
                         </Switch>
                     </Container>
                 </main>
-            </div>);
+            </div>)
     }
 }
 
-export default App;
+export default App

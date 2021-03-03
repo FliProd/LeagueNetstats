@@ -170,10 +170,11 @@ class Upload extends Component {
 
     // TODO: try sending post request for each file, if its fast enough a progressbar could easily be implemented
     async handleSubmit() {
-        console.log(this.state);
         let formdata = new FormData();
         this.state.files.forEach((file, index) => formdata.append('File_' + index, file));
-        formdata.append('date_match_map',JSON.stringify(this.state.date_match_map));
+        formdata.append('date_match_map', JSON.stringify(this.state.date_match_map));
+        console.log(this.state.date_match_map);
+        console.log(formdata.get('date_match_map'));
         try {
             const response = await axiosInstance.post('riotapi/match/create/', formdata, {
                 headers: {
@@ -204,7 +205,7 @@ class Upload extends Component {
                             Upload
                         </Button>
                         <Button variant={"contained"} type={"Submit"}
-                                onClick={() => this.setState({matches: [], files: [], found: false, cancelled: true})}>
+                                onClick={() => this.setState({matches: [], files: [], date_match_map: {}, found: false, cancelled: true})}>
                             Cancel
                         </Button>
                     </Box>

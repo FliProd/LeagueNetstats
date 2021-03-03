@@ -4,25 +4,54 @@ from authentication.models import CustomUser
 
 
 class Match(models.Model):
-    email = models.ForeignKey(to_field=CustomUser.email, on_delete=models.CASCADE())
-    match_id = models.PositiveIntegerField(unique=True)
-    match_json = models.TextField()
+    user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
+    match_id = models.PositiveIntegerField()
+    queue_id = models.CharField(max_length=32)
+    game_type = models.CharField(max_length=64)
+    game_duration = models.BigIntegerField()
+    platform_id = models.CharField(max_length=8)
+    game_start = models.BigIntegerField()
+    season_id = models.CharField(max_length=32)
+    map_id = models.PositiveSmallIntegerField()
+    game_mode = models.CharField(max_length=64)
+    participants = ArrayField(models.TextField(), max_length=10)
+
+    class Meta:
+        unique_together = ('user_id', 'match_id')
 
 
 class NetworkLog(models.Model):
-    match_id = models.ForeignKey(to_field=Match.match_id, on_delete=models.CASCADE)
-    time = ArrayField(models.IntegerField)
-    ping = ArrayField(models.IntegerField)
-    jitter = ArrayField(models.IntegerField)
-    in_bandwidth = ArrayField(models.FloatField)
-    out_bandwid = ArrayField(models.FloatField)
-    loss = ArrayField(models.FloatField)
+    match_id = models.PositiveIntegerField()
+    user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
+    time = models.IntegerField()
+    ping = models.IntegerField()
+    jitter = models.IntegerField()
+    in_bandwidth = models.FloatField()
+    out_bandwidth = models.FloatField()
+    loss = models.FloatField()
 
 
 class Event(models.Model):
-    match_id = models.ForeignKey(to_field=Match.match_id, on_delete=models.CASCADE)
+    match_id = models.PositiveIntegerField()
+    user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
+    timestamp = models.PositiveBigIntegerField()
     x = models.PositiveIntegerField()
     y = models.PositiveIntegerField()
-    activeParticipant = models.CharField(max_length=2)
-    passiveParticipant = models.CharField(max_length=2)
-    assistingParticipants = ArrayField(models.CharField(max_length=2))
+    active_participant = models.CharField(blank=True, null=True, max_length=16)
+    passive_participant = models.CharField(blank=True, null=True, max_length=16)
+    assisting_participants = ArrayField(models.PositiveIntegerField(), blank=True, null=True)
+    type = models.CharField(max_length=32)
+
+
+class Frame(models.Model):
+    match_id = models.PositiveIntegerField()
+    user_id = models.ForeignKey(to=CustomUser, db_column='user_id',on_delete=models.CASCADE)
+    timestamp = models.PositiveIntegerField()
+    exp = models.PositiveIntegerField()
+    gold = models.IntegerField()
+    creep_score = models.IntegerField()
+    neutral_score = models.IntegerField()
+    level = models.IntegerField()
+
+
+

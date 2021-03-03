@@ -32,6 +32,7 @@ class LogoutAndBlacklistRefreshTokenForUserView(APIView):
 class Account(APIView):
     permission_classes = [IsPostOrIsAuthenticated]
 
+    #TODO: make sure everything is encrypted
     def post(self, request, format='json'):
         serializer = ProfileSerializer(data=request.data)
         if serializer.is_valid():
@@ -75,7 +76,7 @@ class Account(APIView):
             return self.checkUnique(email=new_email)
         return True
 
-    # TODO fix row level security (custompermissions)
+    # TODO fix row level security (do it with request.user)
     def rowLevelSecurity(self, old_instance, user_id):
         old_username = old_instance.username
         return old_username == CustomUser.objects.get(user_id=user_id)

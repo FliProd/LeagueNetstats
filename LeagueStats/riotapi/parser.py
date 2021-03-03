@@ -2,21 +2,13 @@ import re
 import json
 
 
-def parse_netlog(file):
+def parse_netlog(file, match_id, user_id):
     regex = re.compile('\d\d\d\d-\d\d-\d\dT\d\d-\d\d-\d\d')
 
-    time = [0]
+    windows = []
     incoming = [0]
     outgoing = [0]
-    ping = [0]
-
-    # Information per window
-    loss_percentage_window = [0]
-    jitter_window = [0]
-
-    # Computed values
-    out_bandwidth = [0]
-    in_bandwidth = [0]
+    time = [0]
 
     filetext = file.read()
     filetext = filetext.decode('UTF-8')
@@ -26,172 +18,259 @@ def parse_netlog(file):
             continue
 
         tokens = line.split(',')
-        # try:
+
         time.append(int(tokens[0]))
         incoming.append(int(tokens[2]))
         outgoing.append(int(tokens[3]))
-        ping.append(int(tokens[8]))
+
+        time_window = int(tokens[0])
+        ping_window = int(tokens[8])
+        jitter_window = int(tokens[16])
 
         try:
-            loss_percentage_window.append(float(tokens[15]))
+            loss_percentage_window = float(tokens[15])
         except ValueError as e:
             # fill in zero for -nan(ind) error in netlog
-            loss_percentage_window.append(float(0))
+            loss_percentage_window = float(0)
 
-        jitter_window.append(int(tokens[16]))
+        in_bandwidth_window = (incoming[-1] - incoming[-2]) / ((time[-1] - time[-2]))
+        out_bandwidth_window = (outgoing[-1] - outgoing[-2]) / ((time[-1] - time[-2]))
 
-        in_bandwidth.append((8.0 * (incoming[-1] - incoming[-2])) / (time[-1] - time[-2]))
-        out_bandwidth.append((8.0 * (outgoing[-1] - outgoing[-2])) / (time[-1] - time[-2]))
+        windows.append({'match_id': match_id,
+                        'user_id': user_id,
+                        'time': time_window,
+                        'ping': ping_window,
+                        'jitter': jitter_window,
+                        'in_bandwidth': in_bandwidth_window,
+                        'out_bandwidth': out_bandwidth_window,
+                        'loss': loss_percentage_window})
 
-    return {'time': time, 'ping': ping, 'jitter': jitter_window, 'in_bandwidth': in_bandwidth,
-            'out_bandwidth': out_bandwidth, 'loss': loss_percentage_window}
+    return windows
 
 
-def parse_event(event, pov_id, events):
+def parse_match(match, user_id):
+    match_to_save = {'user_id': user_id,
+                     'match_id': match.id,
+                     'queue_id': match.queue.value,
+                     'game_type': match.type.value,
+                     'game_duration': int(match.duration.total_seconds() * 1000),
+                     'game_start': match.creation.timestamp,
+                     'platform_id': match.platform.value,
+                     'season_id': match.season.value,
+                     'map_id': match.map.id,
+                     'game_mode': match.mode.value,
+                     'participants': []
+                     }
+
+    for participant in match.participants:
+        participant_to_save = {'name': participant.summoner.name,
+                               'profile_icon_id': participant.summoner.profile_icon.id,
+                               'id': participant.id,
+                               'champion': participant.champion.id,
+                               'role': participant.role.value,
+                               'kills': participant.stats.kills,
+                               'deaths': participant.stats.deaths,
+                               'assists': participant.stats.assists,
+                               'total_dmg': participant.stats.total_damage_dealt,
+                               'total_damage_taken': participant.stats.total_damage_taken,
+                               'gold_earned': participant.stats.gold_earned,
+                               }
+        match_to_save['participants'].append(json.dumps(participant_to_save))
+
+    return match_to_save
+
+
+def parse_event(event, pov_id, match_id, events, user_id):
     if event.type == 'CHAMPION_KILL':
-        evjson = {
-            "timestamp": event.timestamp,
-            "position": {
-                "x": event.position.x,
-                "y": event.position.x
-            },
-            "killerId": event.killer_id,
-            "victimId": event.victim_id,
-            "assistingParticipantIds": event.assisting_participants,
-        }
-        if (event.killerId == pov_id):
-            return (evjson, 'PLAYER_CHAMPION_KILL')
-        elif (event.victimId == pov_id):
-            return (evjson, 'PLAYER_CHAMPION_DEATH')
-        else:
-            return (evjson, 'CHAMPION_KILL')
+        if (event.killer_id == pov_id or event.victim_id == pov_id):
+            type = 'CHAMPION_KILL' if event.killer_id == pov_id else 'CHAMPION_DEATH'
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": int(event.position.x),
+                "y": int(event.position.y),
+                "active_participant": event.killer_id,
+                "passive_participant": event.victim_id,
+                "assisting_participants": event.assisting_participants,
+                "type": type,
+            })
     elif event.type == 'WARD_PLACED':
-        evjson = {
-            "timestamp": event.timestamp,
-            "creatorId": event.creator_id,
-        }
-        return (evjson, 'WARD_PLACED')
+        if (event.creator_id == pov_id):
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.creator_id,
+                "passive_participant": '',
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'WARD_KILL':
-        evjson = {
-            "timestamp": event.timestamp,
-            "killerId": event.killer_id,
-        }
-        return (evjson, 'WARD_KILL')
+        if (event.killer_id == pov_id):
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.killer_id,
+                "passive_participant": '',
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'BUILDING_KILL':
-        evjson = {
-            "timestamp": event.timestamp,
-            "position": {
-                "x": event.position.x,
-                "y": event.position.x
-            },
-            "killerId": event.killer_id,
-            "assistingParticipantIds": event.assisting_participants,
-            "towerType": event.tower_type,
-        }
-        if event.killerId == pov_id:
-            return (evjson, 'PLAYER_BUILDING_KILL')
-        else:
-            return (evjson, 'BUILDING_KILL')
+        if (event.killer_id == pov_id):
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": int(event.position.x),
+                "y": int(event.position.y),
+                "active_participant": event.killer_id,
+                "passive_participant": event.building_type,
+                "assisting_participants": event.assisting_participants,
+                "type": event.type,
+            })
     elif event.type == 'ELITE_MONSTER_KILL':
-        evjson = {
-            "timestamp": event.timestamp,
-            "position": {
-                "x": event.position.x,
-                "y": event.position.x
-            },
-            "killerId": event.killer_id,
-        }
-        if event.killerId == pov_id:
-            return (evjson, 'PLAYER_ELITE_MONSTER_KILL')
-        else:
-            return (evjson, 'ELITE_MONSTER_KILL')
+        if (event.killer_id == pov_id):
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": int(event.position.x),
+                "y": int(event.position.y),
+                "active_participant": event.killer_id,
+                "passive_participant": event.monster_sub_type,
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'ITEM_PURCHASED':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
-        if event.participantId == pov_id:
-            return (evjson, 'PLAYER_ITEM_PURCHASED')
-        else:
-            return (evjson, 'ITEM_PURCHASED')
+        if event.participant_id == pov_id:
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": event.item_id,
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'ITEM_SOLD':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
-        if event.participantId == pov_id:
-            return (evjson, 'PLAYER_ITEM_SOLD')
-        else:
-            return (evjson, 'ITEM_SOLD')
+        if event.participant_id == pov_id:
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": event.item_id,
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'ITEM_DESTROYED':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
-        if event.participantId == pov_id:
-            return (evjson, 'PLAYER_ITEM_DESTROYED')
-        else:
-            return (evjson, 'ITEM_DESTROYED')
+        if event.participant_id == pov_id:
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": event.item_id,
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'ITEM_UNDO':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
-        if event.participantId == pov_id:
-            return (evjson, 'PLAYER_ITEM_UNDO')
-        else:
-            return (evjson, 'ITEM_UNDO')
+        if event.participant_id == pov_id:
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": '',
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'SKILL_LEVEL_UP':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
-        if event.participantId == pov_id:
-            return (evjson, 'PLAYER_SKILL_LEVEL_UP')
-        else:
-            return (evjson, 'SKILL_LEVEL_UP')
+        if event.participant_id == pov_id:
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": '',
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'ASCENDED_EVENT':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
         if event.participantId == pov_id or event.killerId == pov_id:
-            return (evjson, 'PLAYER_ASCENDED_EVENT')
-        else:
-            return (evjson, 'ASCENDED_EVENT')
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": '',
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'CAPTURE_POINT':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
         if event.participantId == pov_id or event.killerId == pov_id:
-            return (evjson, 'PLAYER_CAPTURE_POINT')
-        else:
-            return (evjson, 'CAPTURE_POINT')
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": '',
+                "assisting_participants": [],
+                "type": event.type,
+            })
     elif event.type == 'PORO_KING_SUMMON':
-        evjson = {
-            "timestamp": event.timestamp,
-        }
-
         if event.participantId == pov_id or event.killerId == pov_id:
-            return (evjson, 'PLAYER_PORO_KING_SUMMON')
-        else:
-            return (evjson, 'PORO_KING_SUMMON')
+            events.append({
+                "match_id": match_id,
+                "user_id": user_id,
+                "timestamp": int(event.timestamp.total_seconds() * 1000),
+                "x": 0,
+                "y": 0,
+                "active_participant": event.participant_id,
+                "passive_participant": '',
+                "assisting_participants": [],
+                "type": event.type,
+            })
 
 
-def get_base_ingame_stats(timeline, log_owner_id):
-    exp = []
-    gold = []
-    farm = []
-    player_frames = []
-    timestamps = []
+def parse_timeline(timeline, log_owner_id, match_id, user_id):
     events = []
+    frames = []
 
     for frame in timeline.frames:
         owner_frame = frame.participant_frames[log_owner_id]
-
-        timestamps.append(1.0 / (1000 * 60) * frame.timestamp)
-        player_frames.append(owner_frame)
-
-        gold.append(owner_frame.gold_earned)
-        exp.append(owner_frame.experience)
-        farm.append(owner_frame.creep_score + owner_frame.neutral_minions_killed)
+        frames.append({
+            'user_id': user_id,
+            'match_id': match_id,
+            'timestamp': int(frame.timestamp.total_seconds() * 1000),
+            'exp': owner_frame.experience,
+            'gold': owner_frame.gold_earned,
+            'creep_score': owner_frame.creep_score,
+            'neutral_score': owner_frame.neutral_minions_killed,
+            'level': owner_frame.level,
+        })
 
         for event in frame.events:
-            (evjson, eventclass) = parse_event(event, log_owner_id, events)
-            events.get(eventclass).append(evjson)
+            parse_event(event, log_owner_id, match_id, events, user_id)
 
-    return timestamps, exp, gold, farm, events
+    return frames, events

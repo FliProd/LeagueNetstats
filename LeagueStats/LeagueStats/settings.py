@@ -46,12 +46,13 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'django_cassiopeia',
     'geo',
+    'riotapi',
 ]
 
 CASSIOPEIA_VERSION_FROM_MATCH = "patch"
 CASSIOPEIA_DEFAULT_REGION = "NA"
 CASSIOPEIA_LOGGING = {
-    "PRINT_CALLS": True,
+    "PRINT_CALLS": False,
     "PRINT_RIOT_API_KEY": True,  # dont set to true in production
     "DEFAULT": "WARNING",
     "CORE": "WARNING"
@@ -162,6 +163,7 @@ DATABASES = {
         'PASSWORD': 'password',
         'HOST': 'localhost',
         'PORT': '',
+        'ATOMIC_REQUESTS': True,
     },
 }
 
