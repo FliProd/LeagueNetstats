@@ -1,189 +1,241 @@
-import React from 'react'
+import React, {Component, Fragment} from 'react'
 import clsx from 'clsx'
-import { makeStyles, useTheme } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
-import AppBar from '@material-ui/core/AppBar'
-import Toolbar from '@material-ui/core/Toolbar'
-import List from '@material-ui/core/List'
-import CssBaseline from '@material-ui/core/CssBaseline'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
-import IconButton from '@material-ui/core/IconButton'
-import MenuIcon from '@material-ui/icons/Menu'
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
-import ChevronRightIcon from '@material-ui/icons/ChevronRight'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import InboxIcon from '@material-ui/icons/MoveToInbox'
-import MailIcon from '@material-ui/icons/Mail'
+import {withStyles} from "@material-ui/core/styles";
+import {Typography, Box, PropTypes, Container} from "@material-ui/core";
+import {Grid} from "@material-ui/core";
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faChevronRight, faChevronLeft} from '@fortawesome/free-solid-svg-icons'
+import axiosInstance from "../axiosApi";
+import VS from './dashboard_components/vs'
+import ApexChart from "./apexchart";
+import MapPlot from "./mapplot";
+import Upload from "./upload";
 
-const drawerWidth = 240
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  hide: {
-    display: 'none',
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-  },
-  drawerOpen: {
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: 'hidden',
-    width: theme.spacing(7) + 1,
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9) + 1,
+const styles = theme => ({
+    root: {
+        display: 'flex',
     },
-  },
-  toolbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
-}))
+    full_width: {
+        width: '100%',
+    },
+    full_height: {
+        height: '100%'
+    },
+    container: {
+        paddingTop: 4,
+        paddingBottom: 4,
+    },
+    padded: {
+        padding: 4,
+    },
+    games_row: {
+        width: '100%',
+    },
+    graph_row: {
+        width: '100%',
+    },
+    map_row: {
+        width: '100%',
+    },
+    teams: {
+        flexGrow: 20
+    },
+    arrows: {
+        flexGrow: 1
+    },
+    graph: {
+        flexGrow: 10,
+    },
+    averages: {
+        flexGrow: 3,
+    }
+})
 
-export default function MiniDrawer() {
-  const classes = useStyles()
-  const theme = useTheme()
-  const [open, setOpen] = React.useState(false)
+class Dashboard extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            match_ids: [],
+            match: {},
+            match_loaded: false,
+            index: 0,
+            change_match: false,
+        }
+    }
 
-  const handleDrawerOpen = () => {
-    setOpen(true)
-  }
+    async componentDidMount() {
+        try {
+            const match_ids_response = await axiosInstance.get('riotapi/matches/get/')
 
-  const handleDrawerClose = () => {
-    setOpen(false)
-  }
+            if (match_ids_response.data.match_ids.length == 0) {
+                this.setState({
+                    errors: 'You havent uploaded any matches jet.'
+                })
+                return
+            } else {
+                this.setState({
+                    match_ids: match_ids_response.data.match_ids,
+                })
+                this.loadMatch(this.state.index)
+            }
 
-  return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        className={clsx(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, {
-              [classes.hide]: open,
-            })}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            Mini variant drawer
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        })}
-        classes={{
-          paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          }),
-        }}
-      >
-        <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
-        </div>
-        <Divider />
-        <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-          facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-          gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-          donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-          Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-          imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-          arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-          donec massa sapien faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
-          facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
-          tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
-          consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-          vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
-          hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
-          tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-          nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
-          accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
-      </main>
-    </div>
-  )
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('dashboard updated')
+        if(prevState.change_match == true) {
+            this.setState({change_match: false})
+        }
+    }
+
+    async loadMatch(index) {
+        try {
+            const match_response = await axiosInstance.get('riotapi/match/get/' + this.state.match_ids[index])
+
+            const teams = JSON.parse(match_response.data.match.teams)
+            delete match_response.data.match.participants
+            this.setState({
+                match: {
+                    networklogs: JSON.parse(match_response.data.networklogs),
+                    frames: JSON.parse(match_response.data.frames),
+                    events: JSON.parse(match_response.data.events),
+                    game_info: match_response.data.match,
+                    teams: teams,
+                },
+                match_loaded: true,
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    changeMatch(direction) {
+        let index = this.state.index
+        let start_index = index
+
+        index = direction == 'next' ? index + 1 : index - 1
+        if (index < 0) {
+            index = 0
+        } else if (index >= this.state.match_ids.length) {
+            index = this.state.match_ids.length - 1
+        }
+        if (start_index != index) {
+            this.loadMatch(index)
+            this.setState({
+                change_match: true,
+                index: index
+            })
+        }
+    }
+
+
+    renderGamesRow() {
+        const classes = this.props.classes
+
+        return (
+            <Grid container className={clsx(classes.container, classes.full_width)}>
+                <Grid item className={clsx(classes.padded, classes.arrows)}>
+                    <StyledItemBox>
+                        <FontAwesomeIcon icon={faChevronLeft} size="5x" onClick={() => this.changeMatch('next')}/>
+                    </StyledItemBox>
+                </Grid>
+                <Grid item className={clsx(classes.padded, classes.teams)}>
+                    <StyledItemBox>
+                        {this.state.match.teams &&
+                        <VS teams={this.state.match.teams} time={this.state.match.game_info.game_start}/>
+                        }
+                    </StyledItemBox>
+                </Grid>
+                <Grid item className={clsx(classes.padded, classes.arrows)}>
+                    <StyledItemBox>
+                        <FontAwesomeIcon icon={faChevronRight} size="5x" onClick={() => this.changeMatch('previous')}/>
+                    </StyledItemBox>
+                </Grid>
+            </Grid>
+
+        )
+    }
+
+    renderGraphRow() {
+        const classes = this.props.classes
+
+        return (
+            <Grid container className={clsx(classes.container, classes.graph_row)}>
+                <Grid item md={10} className={clsx(classes.padded, classes.graph)}>
+                    <StyledItemBox>
+                        <ApexChart data={this.state.match} new_data={this.state.change_match}/>
+                    </StyledItemBox>
+                </Grid>
+                <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                    <StyledItemBox>
+                        <Typography> hi</Typography>
+                    </StyledItemBox>
+                </Grid>
+            </Grid>
+        )
+    }
+
+    renderMapRow() {
+        const classes = this.props.classes
+
+        return (
+            <Grid container className={clsx(classes.container, classes.map_row)}>
+                <Grid item md={4} className={clsx(classes.padded)}>
+                    <StyledItemBox>
+                        <MapPlot events={this.state.match.events}/>
+                    </StyledItemBox>
+                </Grid>
+                <Grid item md={8} className={clsx(classes.padded)}>
+                    <StyledItemBox>
+                        <Upload />
+                    </StyledItemBox>
+                </Grid>
+            </Grid>
+        )
+    }
+
+    render() {
+        const classes = this.props.classes
+
+        return (
+            <Fragment>
+                {this.renderGamesRow()}
+                {this.renderGraphRow()}
+                {this.renderMapRow()}
+            </Fragment>
+        )
+    }
 }
+
+export default withStyles(styles)(Dashboard)
+
+
+const ItemBoxStyles = (theme) => ({
+    border: {
+        borderWidth: theme.border.width,
+        borderColor: theme.border.color,
+        borderStyle: 'solid',
+        height: '100%'
+    },
+    centerContent: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+})
+
+
+function ItemBox(props) {
+    const {classes} = props;
+
+    return (
+        <Box className={clsx(classes.border, classes.centerContent)}>
+            {props.children && props.children}
+        </Box>)
+}
+
+const StyledItemBox = withStyles(ItemBoxStyles)(ItemBox)

@@ -45,8 +45,8 @@ class Account(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request, pk, format='json'):
-        profile = get_object_or_404(Profile, user_id=pk)
+    def put(self, request, format='json'):
+        profile = get_object_or_404(Profile, user_id=request.user.id)
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
             if self.checkUniqueNewEmail(profile.user.email, request.data['user']['email']):
@@ -58,8 +58,8 @@ class Account(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request, pk):
-        profile = get_object_or_404(Profile, user_id=pk)
+    def get(self, request):
+        profile = get_object_or_404(Profile, user_id=request.user.id)
         serializer = ProfileSerializer(profile)
         return Response(serializer.data)
 

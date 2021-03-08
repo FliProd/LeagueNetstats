@@ -74,7 +74,6 @@ class Signup extends Component {
                     zipcode: response.data.zipcode,
                 }
             })
-            console.log(this.state);
         } catch (error) {
             this.setState({
                 errors: {location: "Something went wrong while handling your Location."},

@@ -137,7 +137,6 @@ class Event extends Component {
         let event_parts = {}
         event_parts.active_participant = Event.renderParticipant(event.active_participant)
         event_parts.passive_participant = Event.renderItemIcon(event.passive_participant)
-        console.log(event.type)
         switch (event.type) {
             case 'ITEM_PURCHASED':
                 event_parts.relation = event_parts.relation = (<Typography> purchased </Typography>)

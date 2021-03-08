@@ -14,7 +14,7 @@ class Match(models.Model):
     season_id = models.CharField(max_length=32)
     map_id = models.PositiveSmallIntegerField()
     game_mode = models.CharField(max_length=64)
-    participants = ArrayField(models.TextField(), max_length=10)
+    teams = models.TextField()
 
     class Meta:
         unique_together = ('user_id', 'match_id')

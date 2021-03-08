@@ -80,7 +80,6 @@ class Account extends Component {
             prevstate.user.username = summoner.name;
             return prevstate;
         });
-        console.log(this.state);
     }
 
     async componentDidMount() {
@@ -176,7 +175,6 @@ class Account extends Component {
         const location = this.state.location;
 
         try {
-            console.log(game_info)
             const response = await axiosInstance.put('/api/profile/get/' + this.getUserId(), {
                 user: {
                     username: user.username,

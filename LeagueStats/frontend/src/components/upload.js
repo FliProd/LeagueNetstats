@@ -173,8 +173,6 @@ class Upload extends Component {
         let formdata = new FormData();
         this.state.files.forEach((file, index) => formdata.append('File_' + index, file));
         formdata.append('date_match_map', JSON.stringify(this.state.date_match_map));
-        console.log(this.state.date_match_map);
-        console.log(formdata.get('date_match_map'));
         try {
             const response = await axiosInstance.post('riotapi/match/create/', formdata, {
                 headers: {

@@ -4,6 +4,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 
@@ -29,4 +30,13 @@ nav {
 
 .filepicker {
     width: 200px;
+}
+
+.MenuDrawer-root-1 {
+    height: 0px;
+}
+
+.resize-triggers {
+    height: min-content;
+    width: min-content;
 }

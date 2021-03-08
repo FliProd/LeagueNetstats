@@ -62,15 +62,16 @@ class MatchView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        total_start = time.time()
         profile = get_object_or_404(Profile, user=request.user)
         region = translateRegion(profile.game_region)
         summoner = cass.Summoner(account_id=profile.account_id, region=region)
-        print(profile.account_id)
-        print(region)
         match_ids = json.loads(request.data['date_match_map'])
         user_id = request.user.id
-        print(request.user.id)
+
+        response = {
+            'errors': [],
+            'successes': [],
+        }
 
         for filename in request.FILES:
 
@@ -109,11 +110,7 @@ class MatchView(APIView):
                 frames = frameserializer.save()
 
                 if match and netlogs and events and frames:
-                    return Response({'match': matchserializer.data,
-                                              'events': eventserializer.data,
-                                              'frames': frameserializer.data,
-                                              'networklogs': netlogserializer.data
-                                              }, status=status.HTTP_200_OK)
+                    response['successes'].append(match_date)
             else:
                 errors = {
                     'matchserializer': matchserializer.errors,
@@ -122,10 +119,14 @@ class MatchView(APIView):
                     'frameserializer': frameserializer.errors,
 
                 }
-                return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+                response['errors'].append(errors)
+
+        if len(response['successes']) > 0:
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, pk):
-        start = time.time()
         user_id = request.user.id
         match_id = pk
 
@@ -143,7 +144,6 @@ class MatchView(APIView):
             networklogs = list(NetworkLog.objects.filter(match_id=match_id, user_id=user_id).order_by('time'))
             networklogs = json.dumps(NetworkLogSerializer(networklogs, many=True).data)
 
-            end = time.time()
             return Response({'match': match,
                              'events': events,
                              'frames': frames,
@@ -168,3 +168,17 @@ def translateRegion(region):
                'Region.turkey': 'TR',
                'Region.russia': 'RU'}
     return mapping[region]
+
+
+class MatchesByUserId(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        matches = Match.objects.filter(user_id=request.user.id).order_by('game_start').reverse()
+
+        match_ids = []
+        for match in matches:
+            match_ids.append(match.match_id)
+
+        return Response({'match_ids': match_ids}, status=status.HTTP_200_OK)
+

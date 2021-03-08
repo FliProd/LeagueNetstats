@@ -21,13 +21,13 @@ class MapPlot extends Component {
                     toolbar: {
                         show: false,
                     },
-                    height: 500,
-                    width: 500,
+                    height: 300,
+                    width: 300,
                     type: 'scatter',
                     zoom: {
                         enabled: false,
                     },
-                    background: 'url(http://ddragon.leagueoflegends.com/cdn/6.8.1/img/map/map11.png)'
+                    background: 'url(/static/img/map_300x300.png)'
                 },
                 xaxis: {
                     labels: {
@@ -60,7 +60,7 @@ class MapPlot extends Component {
                     show: false,
                 },
                 tooltip: {
-                    enabled: false,
+                    enabled: true,
                 }
             },
         }
@@ -75,10 +75,10 @@ class MapPlot extends Component {
 
     static getDerivedStateFromProps(props, state) {
         if (!state.loaded) {
-            console.log('getDerivedStateFromProps')
+            //console.log('getDerivedStateFromProps')
             let events
             if (props.events != undefined) {
-                events = JSON.parse(props.events)
+                events = props.events
             }
 
             let kills = []
@@ -102,14 +102,14 @@ class MapPlot extends Component {
 
             return state
         } else {
-            console.log('getDerivedStateFromProps state not loaded')
+            //console.log('getDerivedStateFromProps state not loaded')
             return null
         }
     }
 
 
     render() {
-        console.log('render')
+        //console.log('render')
         if (this.state.loaded) {
             const element = React.createRef() ? this.chartRef.current : this.chartRef
             this.chart = new ApexCharts(element, this.state.options)

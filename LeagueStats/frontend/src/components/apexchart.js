@@ -30,7 +30,7 @@ class ApexChart extends Component {
             loaded_data: false,
             added_data: false,
             loaded_event: undefined,
-            chart_series: {},
+            chart_data: {},
             all_events: {
                 'CHAMPION_KILL': [],
                 'CHAMPION_DEATH': [],
@@ -118,6 +118,7 @@ class ApexChart extends Component {
         this.updateChart = this.updateChart.bind(this)
         this.handleYAxis = this.handleYAxis.bind(this)
         this.setEvent = this.setEvent.bind(this)
+
 
     }
 
@@ -228,8 +229,10 @@ class ApexChart extends Component {
                     'OUT_BANDWIDTH': {type: 'line', name: 'OUT_BANDWIDTH', data: []},
                     'LOSS': {type: 'line', name: 'LOSS', data: []}
                 }
+                state.chart_data = {}
 
                 state.options = ApexChart.setOptions()
+                console.log('cleared annotations')
             } else {
                 errors = true
             }
@@ -289,19 +292,7 @@ class ApexChart extends Component {
                         'y': ApexChart.calculateY(event.type, event.timestamp)
                     })*/
                     state.all_events[event.type].push(event)
-                    state.all_annotations[event.type].push({
-                        id: event.type + event.timestamp,
-                        x: ApexChart.translateTime(event.timestamp),
-                        borderColor: ApexChart.getColor(event.type),
-                        label: {
-                            borderColor: ApexChart.getColor(event.type),
-                            orientation: 'vertical',
-                            text: event.type,
-                            style: {
-                                cssClass: 'annotation'
-                            }
-                        }
-                    })
+                    state.all_annotations[event.type].push(ApexChart.createAnnotation(event))
                 })
             } else {
                 errors = true
@@ -324,40 +315,50 @@ class ApexChart extends Component {
         }
     }
 
-
+    /* Activity
+    1. loads series according to datashown into chart options
+    2. creates chart from options
+    3. adds annotations according to datashown
+    */
     prepareChart() {
         console.log('prepare chart')
-
-        for (const [key, value] of Object.entries(this.state.all_series)) {
-            if (this.state.data_shown[key] && value.data.length > 0 && this.state.chart_series[key] == undefined) {
-                this.state.chart_series[key] = true
-                this.state.options.series.push(value)
-                this.handleYAxis(value, true)
+        for (const [type, series] of Object.entries(this.state.all_series)) {
+            if (this.state.data_shown[type] && series.data.length > 0 && this.state.chart_data[type] == undefined) {
+                this.state.chart_data[type] = true
+                this.state.options.series.push(series)
+                this.handleYAxis(series, true)
             }
         }
 
-        if(this.chart != null) {
-            delete this.chart
+        for (const [type, annotations] of Object.entries(this.state.all_annotations)) {
+            if (this.state.data_shown[type] && annotations.length > 0 && this.state.chart_data[type] == undefined) {
+                this.state.chart_data[type] = true
+                this.state.options.annotations.xaxis = this.state.options.annotations.xaxis.concat(annotations)
+            }
         }
+
         const element = React.createRef ? this.chartRef.current : this.chartRef
-        this.chart = new ApexCharts(element, this.state.options)
-        this.chart.render()
-
-        for (const [type, annotation_arr] of Object.entries(this.state.all_annotations)) {
-            if (this.state.data_shown[type]) {
-                annotation_arr.map(annotation => this.chart.addXaxisAnnotation(annotation, true))
-            }
+        if (this.chart != null) {
+            this.chart.updateOptions(this.state.options)
+        } else {
+            this.chart = new ApexCharts(element, this.state.options)
+            this.chart.render()
         }
     }
 
     //hide and showseries is not working correctly
+    /* Activity
+    adds/removes an annotation to/from the chart
+    or
+    adds/removes a series from options (and its axis) and updates the chart
+    */
     updateChart(name, add) {
         console.log('update chart')
         if (ApexChart.isAnnotation(name)) {
             if (add) {
-                this.state.all_annotations[name].map(annotation => this.chart.addXaxisAnnotation(annotation, true))
+                this.state.options.annotations.xaxis = this.state.options.annotations.xaxis.concat(this.state.all_annotations[name])
             } else {
-                this.state.all_annotations[name].map(annotation => this.chart.removeAnnotation(annotation.id))
+                this.state.options.annotations.xaxis = this.state.options.annotations.xaxis.filter(annotation => annotation.type != name)
             }
         } else {
             if (add) {
@@ -377,9 +378,10 @@ class ApexChart extends Component {
                 this.handleYAxis(seriesToRemove, false)
 
             }
-            this.chart.updateOptions(this.state.options)
         }
+        this.chart.updateOptions(this.state.options)
     }
+
 
     //checks if a event annotaion got clicked
     handleClick(event, chartContext, config, setEvent) {
@@ -447,6 +449,27 @@ class ApexChart extends Component {
         return axis
     }
 
+    static createAnnotation(event) {
+        const color = ApexChart.getColor(event.type)
+        return {
+            id: event.type + event.timestamp,
+            type: event.type,
+            x: ApexChart.translateTime(event.timestamp),
+            strokeDashArray: 0,
+            borderColor: color,
+            fillColor: color,
+            label: {
+                borderColor: color,
+                orientation: 'vertical',
+                text: event.type,
+                style: {
+                    cssClass: 'annotation',
+                    background: color
+                },
+            }
+        }
+    }
+
     setVisibility(name) {
         this.setState(prevstate => prevstate.data_shown[name] = !prevstate.data_shown[name])
         this.updateChart(name, !this.state.data_shown[name])
@@ -491,7 +514,7 @@ class ApexChart extends Component {
         console.log('render')
         if (this.state.loaded_data && !this.state.added_data || this.props.new_data) {
             this.prepareChart()
-            this.state.added_data = false
+            this.state.added_data = true
         }
 
         return (
@@ -563,44 +586,31 @@ class ApexChart extends Component {
     }
 
     static getColor(type) {
-        return '#775DD0'
-    }
-
-    static calculateY(type, timestamp) {
         switch (type) {
             case 'CHAMPION_KILL':
-                return 10
             case 'CHAMPION_DEATH':
-                return 20
+                return '#d63d54'
             case 'WARD_PLACED':
-                return 30
             case 'WARD_KILLED':
-                return 40
             case 'BUILDING_KILL':
-                return 50
             case 'ELITE_MONSTER_KILL':
-                return 60
+                return '#12bf80'
             case 'ITEM_PURCHASED':
-                return 70
             case 'ITEM_SOLD':
-                return 80
             case 'ITEM_DESTROYED':
-                return 90
             case 'ITEM_UNDO':
-                return 100
+                return '#6c5263'
             case 'SKILL_LEVEL_UP':
-                return 110
             case 'CAPTURE_POINT':
-                return 120
             case 'PORO_KING_SUMMON':
-                return 130
             case 'ASCENDED_EVENT':
-                return 140
+                return '#f2ab39'
         }
-        //TODO: plot events on graph
+        return '#f2ab39'
     }
 
-    static (value, {series, seriesIndex, dataPointIndex, w}) {
+
+    static(value, {series, seriesIndex, dataPointIndex, w}) {
         const seriesName = w.globals.seriesNames[seriesIndex]
         const units = {
             'EXP': 'XP',

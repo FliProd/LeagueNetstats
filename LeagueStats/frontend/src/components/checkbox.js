@@ -2,80 +2,69 @@ import React, {Component, Fragment} from "react";
 import {axiosInstance} from "../axiosApi";
 import {CheckBox} from "@material-ui/icons";
 import {Box, Checkbox, Grid, Typography} from "@material-ui/core";
+import clsx from "clsx";
+import {withStyles} from "@material-ui/core/styles";
+
+const styles = theme => ({
+    unchecked: {
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.primary.main,
+    },
+    checked: {
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.background.default,
+    },
+    checkbox: {
+        width: 'min-content',
+        height: 'min-content',
+        flexGrow: 1
+    },
+    containerBox: {
+        width: '100%',
+        flexWrap: 'wrap'
+    }
+})
 
 class CheckboxList extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            groups: {
-                'MATCH_GRAPHS': [],
-                'NETWORK_GRAPHS': [],
-                'MATCH_EVENTS': []
-            }
+            groups: this.props.groups
         }
-        this.getGroup = this.getGroup.bind(this)
-
-        Object.keys(this.props.checked).map((name, index) => {
-            this.state.groups[this.getGroup(name)].push({name: name, index: index})
-        })
-    }
-
-
-    getGroup(name) {
-        const groups = {
-            'MATCH_GRAPHS': ['EXP', 'GOLD', 'CREEP', 'NEUTRAL', 'LEVEL'],
-            'NETWORK_GRAPHS': ['IN_BANDWIDTH', 'OUT_BANDWIDTH', 'PING', 'JITTER', 'LOSS'],
-            'MATCH_EVENTS': ['CHAMPION_KILL', 'CHAMPION_DEATH', 'WARD_PLACED', 'WARD_KILLED', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'ITEM_PURCHASED', 'ITEM_SOLD', 'ITEM_DESTROYED', 'ITEM_UNDO', 'SKILL_LEVEL_UP', 'CAPTURE_POINT', 'PORO_KING_SUMMON', 'ASCENDED_EVENT']
-        }
-
-        for (let group_name in groups) {
-            if (groups[group_name].includes(name)) {
-                return group_name
-            }
-        }
-        return false
     }
 
     render() {
-        const checkbox_groups = []
-        for (const [group_name, group] of Object.entries(this.state.groups)) {
+        const classes = this.props.classes
+        let checkbox_groups = []
+        for (const [group_name, group] of Object.entries(this.props.groups)) {
             checkbox_groups.push(
-                <Box border={1}>
-                    <Box display={"flex"} justifyContent={"center"} pt={1}>
-                        <Typography>{group_name}</Typography>
-                    </Box>
-                    <Grid container direction={"row"} justify={"center"} alignItems={"center"}>
-                        {group.map(checkbox => {
-                            const checked = this.props.checked[checkbox.name];
-                            const background_color = checked ? "#000000" : "#FFFFFF"
-                            const textcolor = checked ? "#FFFFFF" : "#000000"
-                            return (
-                                <Grid item>
+                <Box display={'flex'} flexDirection={this.props.direction} justifyContent={"center"} alignItems={"center"} className={classes.containerBox}>
+                    {group.map(checkbox => {
+                        const checked = this.props.checked[checkbox];
+                        return (
 
-                                    <Box style={{"cursor": "pointer", color: textcolor, backgroundColor: background_color}} checked={checked}
-                                         py={0.5} px={1}
-                                         name={checkbox.name} key={checkbox.index}
-                                         onClick={(event) => {
-                                             this.props.setVisibility(checkbox.name)
-                                         }}>
-                                        {checkbox.name}
-                                    </Box>
-                                </Grid>
-                            )
-                        })}
-                    </Grid>
+                            <Box display={"flex"} className={clsx(classes.checkbox, {
+                                [classes.checked]: checked,
+                                [classes.unchecked]: !checked
+                            })}
+                                 checked={checked}
+                                 py={0.5} px={1}
+                                 name={checkbox} key={checkbox}
+                                 onClick={(event) => {
+                                     this.props.setVisibility(checkbox)
+                                 }}>
+                                <Typography variant={'body2'}>{checkbox}</Typography>
+                            </Box>
+                        )
+                    })}
                 </Box>
             )
         }
-        return (
-            <Box>
-                {checkbox_groups}
-            </Box>
-        )
+        return checkbox_groups
     }
 
 }
 
 
-export default CheckboxList;
+export default withStyles(styles)(CheckboxList);
 
