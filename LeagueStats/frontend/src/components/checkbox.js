@@ -20,9 +20,13 @@ const styles = theme => ({
         flexGrow: 1
     },
     containerBox: {
+        marginTop: '10%',
         width: '100%',
         flexWrap: 'wrap'
-    }
+    },
+    full_width: {
+        width: '100%',
+    },
 })
 
 class CheckboxList extends Component {
@@ -38,7 +42,11 @@ class CheckboxList extends Component {
         let checkbox_groups = []
         for (const [group_name, group] of Object.entries(this.props.groups)) {
             checkbox_groups.push(
-                <Box display={'flex'} flexDirection={this.props.direction} justifyContent={"center"} alignItems={"center"} className={classes.containerBox}>
+                <Box display={'flex'} flexDirection={'row'} justifyContent={"stretch"}
+                     alignItems={"center"} className={classes.containerBox} key={group_name}>
+                    <Typography variant={'h5'} align={'center'} className={classes.full_width}>
+                        {this.props.title}
+                    </Typography>
                     {group.map(checkbox => {
                         const checked = this.props.checked[checkbox];
                         return (

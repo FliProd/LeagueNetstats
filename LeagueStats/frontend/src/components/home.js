@@ -20,7 +20,7 @@ class Home extends Component {
     async componentDidMount() {
         let match_id = 940412459
         try {
-            const response = await axiosInstance.get('riotapi/match/get/'.concat(match_id))
+            const response = await axiosInstance.get('/riotapi/match/get/'.concat(match_id))
             this.setState({match: response.data})
             console.log('loaded data')
         } catch (error) {

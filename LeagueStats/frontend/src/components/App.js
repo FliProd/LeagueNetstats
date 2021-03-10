@@ -3,6 +3,7 @@ import {Switch, Route} from "react-router-dom"
 import {ThemeProvider, createMuiTheme, withStyles, responsiveFontSizes} from '@material-ui/core/styles';
 import {Container} from "react-bootstrap"
 import Login from "./login"
+import Logout from "./logout"
 import Signup from "./signup"
 import Home from "./home"
 import Account from "./account"
@@ -70,7 +71,9 @@ class App extends Component {
     }
 
     componentDidMount() {
-        this.getAccount()
+        if(window.location.pathname != '/login/') {
+            this.getAccount()
+        }
     }
 
     async getAccount() {
@@ -105,10 +108,11 @@ class App extends Component {
                     <main className={this.props.classes.container}>
                         <Switch>
                             <Route exact path={"/login/"} component={Login}/>
+                            <Route exact path={"/logout/"} component={Logout}/>
                             <Route exact path={"/signup/"} component={Signup}/>
                             <Route exact path={"/account/"} component={Account}/>
-                            <Route path={"/dashboard"} component={Dashboard}/>
-                            <Route path={"/"} render={() => <Dashboard profile={this.state.profile} />} />
+                            <Route path={"/dashboard"} render={() => <Dashboard profile={this.state.profile}/>}/>
+                            <Route path={"/"} render={() => <Dashboard profile={this.state.profile}/>}/>
                         </Switch>
                     </main>
                 </ThemeProvider>

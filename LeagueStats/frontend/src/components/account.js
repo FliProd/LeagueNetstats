@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {axiosInstance} from "../axiosApi";
-import {Alert, Image} from "react-bootstrap";
+import {Alert, Form, Image} from "react-bootstrap";
 import {
     Paper,
     Box,
@@ -58,15 +58,8 @@ class Account extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleLocation = this.handleLocation.bind(this);
         this.getLocation = this.getLocation.bind(this);
-        this.getUserId = this.getUserId.bind(this);
         this.setAncholEl = this.setAncholEl.bind(this);
 
-    }
-
-    getUserId() {
-        const refreshToken = localStorage.getItem('refresh_token');
-        const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
-        return tokenParts.user_id;
     }
 
 
@@ -83,11 +76,12 @@ class Account extends Component {
     }
 
     async componentDidMount() {
-        const response = await axiosInstance.get('/api/profile/get/' + this.getUserId());
+        const response = await axiosInstance.get('/api/profile/get/');
         this.setState({
             user: response.data.user,
             game_info: {
                 puuid: response.data.puuid,
+                account_id: response.data.account_id,
                 game_region: response.data.game_region,
                 icon_id: response.data.icon_id,
                 level: response.data.level,
@@ -175,7 +169,7 @@ class Account extends Component {
         const location = this.state.location;
 
         try {
-            const response = await axiosInstance.put('/api/profile/get/' + this.getUserId(), {
+            const response = await axiosInstance.put('api/profile/get/', {
                 user: {
                     username: user.username,
                     email: user.email,
@@ -199,6 +193,7 @@ class Account extends Component {
     }
 
     renderSummoner() {
+        console.log(this.state)
         return (
             <Fragment>
                 <Grid container spacing={2} direction={"row"} display={"flex"} justify={"center"}
@@ -274,11 +269,10 @@ class Account extends Component {
                         <Grid container direction={"row"}>
                             <Grid item md={11}>
                                 {this.state.edited["email"] && (
-                                     <TextField size={"small"} label={"Email"} name={"email"}
-                                           variant="outlined" value={this.state.user.email}
-                                           fullWidth onChange={this.handleChange}
-                                           disabled={!this.state.edited["email"]}/>
-                                )}
+                                    <Form.Group controlId="formBasicEmail">
+                                    <Form.Control name="email" type="text" value={this.state.user.email} onChange={this.handleChange}/>
+                                    </Form.Group>
+                                    )}
                                 {!this.state.edited["email"] && (
                                     <Typography>{this.state.user.email}</Typography>
                                 )}
@@ -294,13 +288,9 @@ class Account extends Component {
                         <Grid container direction={"row"}>
                             <Grid item md={11}>
                                 {this.state.edited["password"] && (
-                                     <TextField size={"small"} type={"password"}
-                                           name={"password"}
-                                           label={"Password"} variant="outlined"
-                                           value={this.state.user.username}
-                                           fullWidth
-                                           onChange={this.handleChange}
-                                           disabled={!this.state.edited["password"]}/>
+                                    <Form.Group controlId="formBasicEmail">
+                                    <Form.Control name="password" type="text" value={'************'} onChange={this.handleChange}/>
+                                    </Form.Group>
                                 )}
                                 {!this.state.edited["password"] && (
                                     <Typography>*********</Typography>
@@ -316,6 +306,7 @@ class Account extends Component {
                     </Grid>
                 </Grid>
             </Fragment>
+
         )
     }
 

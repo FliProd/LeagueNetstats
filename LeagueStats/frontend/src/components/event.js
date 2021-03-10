@@ -191,23 +191,23 @@ class Event extends Component {
             const rendered_event = this.state.renderers[this.props.event.type](this.props.event)
             const time = this.renderTime(ApexChart.translateTime(this.props.event.time))
             return (
-                <Box border={1}>
+                <Box>
                     <Grid container>
                         <Grid item md={1}>
                             {time}
                         </Grid>
                         <Grid container direction={"row"} item md={10}>
-                            <Grid item md={rendered_event.len_act_part}>
+                            <Grid item md={rendered_event.len_act_part} key={'active_participant'}>
                                 {rendered_event.active_participant}
                             </Grid>
-                            <Grid item md={rendered_event.len_relation}>
+                            <Grid item md={rendered_event.len_relation} key={'relation'}>
                                 <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"}
                                      height={"100%"}>
                                     {rendered_event.relation}
                                 </Box>
                             </Grid>
                             {rendered_event.passive_participant &&
-                            <Grid item md={rendered_event.len_pass_part}>
+                            <Grid item md={rendered_event.len_pass_part} key={'passive_participant'}>
                                 <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"} height={"100%"}>
 
                                 {rendered_event.passive_participant}
@@ -215,7 +215,7 @@ class Event extends Component {
 
                             </Grid>}
                             {rendered_event.additional_info &&
-                            <Grid item md={rendered_event.len_add_info}>
+                            <Grid item md={rendered_event.len_add_info} key={'additional_info'}>
                                 {rendered_event.additional_info}
                             </Grid>}
                         </Grid>

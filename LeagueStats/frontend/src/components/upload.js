@@ -174,7 +174,7 @@ class Upload extends Component {
         this.state.files.forEach((file, index) => formdata.append('File_' + index, file));
         formdata.append('date_match_map', JSON.stringify(this.state.date_match_map));
         try {
-            const response = await axiosInstance.post('riotapi/match/create/', formdata, {
+            const response = await axiosInstance.post('/riotapi/match/create/', formdata, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }

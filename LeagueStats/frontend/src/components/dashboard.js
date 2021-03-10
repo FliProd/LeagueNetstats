@@ -10,6 +10,7 @@ import VS from './dashboard_components/vs'
 import ApexChart from "./apexchart";
 import MapPlot from "./mapplot";
 import Upload from "./upload";
+import Ranking from "./dashboard_components/ranking"
 
 
 const styles = theme => ({
@@ -21,10 +22,6 @@ const styles = theme => ({
     },
     full_height: {
         height: '100%'
-    },
-    container: {
-        paddingTop: 4,
-        paddingBottom: 4,
     },
     padded: {
         padding: 4,
@@ -44,12 +41,6 @@ const styles = theme => ({
     arrows: {
         flexGrow: 1
     },
-    graph: {
-        flexGrow: 10,
-    },
-    averages: {
-        flexGrow: 3,
-    }
 })
 
 class Dashboard extends Component {
@@ -57,6 +48,7 @@ class Dashboard extends Component {
         super(props)
         this.state = {
             match_ids: [],
+            match_cache: {},
             match: {},
             match_loaded: false,
             index: 0,
@@ -66,7 +58,7 @@ class Dashboard extends Component {
 
     async componentDidMount() {
         try {
-            const match_ids_response = await axiosInstance.get('riotapi/matches/get/')
+            const match_ids_response = await axiosInstance.get('/riotapi/matches/get/')
 
             if (match_ids_response.data.match_ids.length == 0) {
                 this.setState({
@@ -86,30 +78,43 @@ class Dashboard extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('dashboard updated')
-        if(prevState.change_match == true) {
+        if (prevState.change_match == true) {
             this.setState({change_match: false})
         }
     }
 
     async loadMatch(index) {
-        try {
-            const match_response = await axiosInstance.get('riotapi/match/get/' + this.state.match_ids[index])
+        const match_id = this.state.match_ids[index]
+        const cached_match = this.state.match_cache[match_id]
 
-            const teams = JSON.parse(match_response.data.match.teams)
-            delete match_response.data.match.participants
+        if (cached_match != undefined) {
             this.setState({
-                match: {
+                match: cached_match,
+                match_loaded: true,
+            })
+        } else {
+            try {
+                const match_response = await axiosInstance.get('/riotapi/match/get/' + match_id)
+
+                const teams = JSON.parse(match_response.data.match.teams)
+                delete match_response.data.match.participants
+                const match = {
                     networklogs: JSON.parse(match_response.data.networklogs),
                     frames: JSON.parse(match_response.data.frames),
                     events: JSON.parse(match_response.data.events),
                     game_info: match_response.data.match,
                     teams: teams,
-                },
-                match_loaded: true,
-            })
-        } catch (error) {
-            console.log(error)
+                }
+                this.setState(prevstate => {
+                    prevstate.match = match
+                    prevstate.match_cache[match_id] = match
+                    prevstate.match_loaded = true
+                    return prevstate
+                })
+
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -164,19 +169,68 @@ class Dashboard extends Component {
         const classes = this.props.classes
 
         return (
-            <Grid container className={clsx(classes.container, classes.graph_row)}>
-                <Grid item md={10} className={clsx(classes.padded, classes.graph)}>
-                    <StyledItemBox>
-                        <ApexChart data={this.state.match} new_data={this.state.change_match}/>
-                    </StyledItemBox>
-                </Grid>
-                <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
-                    <StyledItemBox>
-                        <Typography> hi</Typography>
-                    </StyledItemBox>
-                </Grid>
+            <Grid item md={'auto'} className={clsx(classes.graph_row, classes.padded)}>
+                <StyledItemBox>
+                    <ApexChart data={this.state.match} new_data={this.state.change_match}/>
+                </StyledItemBox>
             </Grid>
         )
+    }
+
+    renderAvgRow() {
+        const classes = this.props.classes
+        if (this.state.match.networklogs != undefined) {
+            let {
+                avg_ping,
+                min_ping,
+                max_ping,
+                avg_jitter,
+                avg_loss,
+                avg_up,
+                avg_down
+            } = Dashboard.calcNetstats(this.state.match.networklogs)
+
+            return (
+                <Grid container>
+                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                        <StyledItemBox>
+                            <StyledInfoBox data={{name: 'avg_ping', value: avg_ping, unit: 'ms'}}/>
+                        </StyledItemBox>
+                    </Grid>
+                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                        <StyledItemBox>
+                            <StyledInfoBox data={{name: 'avg_up', value: avg_up, unit: 'kB/s'}}/>
+                        </StyledItemBox>
+                    </Grid>
+                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                        <StyledItemBox>
+                            <StyledInfoBox data={{name: 'avg_down', value: avg_down, unit: 'kB/s'}}/>
+                        </StyledItemBox>
+                    </Grid>
+                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                        <StyledItemBox>
+                            <StyledInfoBox data={{name: 'avg_jitter', value: avg_jitter, unit: 'ms'}}/>
+                        </StyledItemBox>
+                    </Grid>
+                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                        <StyledItemBox>
+                            <StyledInfoBox data={{name: 'avg_loss', value: avg_loss, unit: 'packages'}}/>
+                        </StyledItemBox>
+                    </Grid>
+                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                        <StyledItemBox>
+                            <StyledInfoBox data={[{name: 'min_ping', value: min_ping, unit: 'ms'}, {
+                                name: 'max_ping',
+                                value: max_ping,
+                                unit: 'ms'
+                            }]}/>
+                        </StyledItemBox>
+                    </Grid>
+                </Grid>
+            )
+        }
+
+
     }
 
     renderMapRow() {
@@ -184,14 +238,14 @@ class Dashboard extends Component {
 
         return (
             <Grid container className={clsx(classes.container, classes.map_row)}>
-                <Grid item md={4} className={clsx(classes.padded)}>
+                <Grid item className={clsx(classes.padded)}>
                     <StyledItemBox>
-                        <MapPlot events={this.state.match.events}/>
+                        <MapPlot events={this.state.match.events} new_data={this.state.change_match}/>
                     </StyledItemBox>
                 </Grid>
-                <Grid item md={8} className={clsx(classes.padded)}>
+                <Grid item md className={clsx(classes.padded)}>
                     <StyledItemBox>
-                        <Upload />
+                        <Ranking match={this.state.match.game_info} teams={this.state.match.teams}/>
                     </StyledItemBox>
                 </Grid>
             </Grid>
@@ -202,12 +256,42 @@ class Dashboard extends Component {
         const classes = this.props.classes
 
         return (
-            <Fragment>
+            <Box display={'flex'} flexDirection={'column'}>
                 {this.renderGamesRow()}
                 {this.renderGraphRow()}
+                {this.renderAvgRow()}
                 {this.renderMapRow()}
-            </Fragment>
+            </Box>
         )
+    }
+
+    static calcNetstats(networklogs) {
+        let stats = {
+            avg_ping: 0,
+            min_ping: 0,
+            max_ping: 0,
+            avg_jitter: 0,
+            avg_loss: 0,
+            avg_up: 0,
+            avg_down: 0,
+        }
+        networklogs.forEach(log => {
+            stats.avg_ping += log.ping
+            stats.min_ping = log.ping < stats.min_ping ? log.ping : stats.min_ping
+            stats.max_ping = log.ping > stats.max_ping ? log.ping : stats.max_ping
+            stats.avg_jitter += log.jitter
+            stats.avg_loss += log.loss
+            stats.avg_up += log.out_bandwidth
+            stats.avg_down += log.in_bandwidth
+        })
+        const length = networklogs.length
+        stats.avg_ping /= length
+        stats.avg_jitter /= length
+        stats.avg_loss /= length
+        stats.avg_up /= length
+        stats.avg_down /= length
+
+        return stats
     }
 }
 
@@ -228,7 +312,6 @@ const ItemBoxStyles = (theme) => ({
     }
 })
 
-
 function ItemBox(props) {
     const {classes} = props;
 
@@ -239,3 +322,45 @@ function ItemBox(props) {
 }
 
 const StyledItemBox = withStyles(ItemBoxStyles)(ItemBox)
+
+
+const InfoBoxStyles = (theme) => ({
+    full_width: {
+        width: '100%',
+    },
+    padded: {
+        paddingLeft: 8
+    }
+})
+
+function Infobox(props) {
+    const {classes} = props
+
+    if (props.data.length) {
+        return (
+            <Box display={'flex'} flexDirection={'column'} alignItems={'center'} justifyContent={'center'}
+                 className={classes.full_width}>
+                <Box display={'flex'} flexDirection={'row'} alignItems={'center'} justifyContent={'space-around'}
+                     className={classes.full_width}>
+                    <Typography variant={'h6'}>{props.data[0].name}</Typography>
+                    <Typography>{Math.round(props.data[0].value * 100) / 100} {props.data[0].unit}</Typography>
+                </Box>
+                <Box display={'flex'} flexDirection={'row'} alignItems={'center'} justifyContent={'space-around'}
+                     className={classes.full_width}>
+                    <Typography align={"left"} variant={'h6'}>{props.data[1].name}</Typography>
+                    <Typography>{Math.round(props.data[1].value * 100) / 100} {props.data[1].unit}</Typography>
+                </Box>
+            </Box>
+        )
+    } else {
+        return (
+            <Box display={'flex'} flexDirection={'column'} alignItems={'center'} justifyContent={'center'}
+                 className={clsx(classes.full_width, classes.padded)}>
+                <Typography className={classes.full_width} variant={'h5'}>{props.data.name}</Typography>
+                <Typography>{Math.round(props.data.value * 100) / 100} {props.data.unit}</Typography>
+            </Box>
+        )
+    }
+}
+
+const StyledInfoBox = withStyles(InfoBoxStyles)(Infobox)

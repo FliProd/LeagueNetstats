@@ -305,7 +305,6 @@ class ApexChart extends Component {
                 })
             } else {
                 errors = true
-                console.log('errors')
             }
 
             if (!errors) {

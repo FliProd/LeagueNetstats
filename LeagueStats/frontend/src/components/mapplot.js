@@ -11,58 +11,7 @@ class MapPlot extends Component {
             chart_series: {},
             kills: [],
             deaths: [],
-            options: {
-                series: [
-                    {name: "CHAMPION_KILLS", data: []},
-                    {name: "CHAMPION_DEATHS", data: []},
-                    {name: "BUILDING_KILL", data: []},
-                ],
-                chart: {
-                    toolbar: {
-                        show: false,
-                    },
-                    height: 300,
-                    width: 300,
-                    type: 'scatter',
-                    zoom: {
-                        enabled: false,
-                    },
-                    background: 'url(/static/img/map_300x300.png)'
-                },
-                xaxis: {
-                    labels: {
-                        show: false,
-                    },
-                    axisBorder: {
-                        show: false,
-                    },
-                    axisTicks: {
-                        show: false,
-                    },
-                    tooltip: {
-                        enabled: false
-                    },
-                    min: 0,
-                    max: 15000,
-                },
-                yaxis: {
-                    tooltip: {
-                        enabled: false
-                    },
-                    show: false,
-                    min: 0,
-                    max: 15000,
-                },
-                legend: {
-                    show: false
-                },
-                grid: {
-                    show: false,
-                },
-                tooltip: {
-                    enabled: true,
-                }
-            },
+            options: MapPlot.setOptions(),
         }
         //TODO go over this references
         if (React.createRef) {
@@ -72,13 +21,77 @@ class MapPlot extends Component {
         }
     }
 
+    static setOptions() {
+        return {
+            series: [
+                {name: "CHAMPION_KILLS", data: []},
+                {name: "CHAMPION_DEATHS", data: []},
+                {name: "BUILDING_KILL", data: []},
+            ],
+            chart: {
+                parentHeightOffset: 0,
+                toolbar: {
+                    show: false,
+                },
+                height: 400,
+                width: 400,
+                type: 'scatter',
+                zoom: {
+                    enabled: false,
+                },
+                background: 'url(/static/img/map_400x400.png)'
+            },
+            xaxis: {
+                labels: {
+                    show: false,
+                },
+                axisBorder: {
+                    show: false,
+                },
+                axisTicks: {
+                    show: false,
+                },
+                tooltip: {
+                    enabled: false
+                },
+                min: 0,
+                max: 15000,
+            },
+            yaxis: {
+                tooltip: {
+                    enabled: false
+                },
+                show: false,
+                min: 0,
+                max: 15000,
+            },
+            legend: {
+                show: false
+            },
+            grid: {
+                show: false,
+            },
+            tooltip: {
+                x: {
+                    show: false,
+                },
+                y: {
+                    formatter: () => '',
+                    title: {
+                        formatter: (seriesName) => seriesName,
+                    },
+                },
+            }
+        }
+    }
 
     static getDerivedStateFromProps(props, state) {
-        if (!state.loaded) {
+        if (!state.loaded || props.new_data) {
             //console.log('getDerivedStateFromProps')
             let events
             if (props.events != undefined) {
                 events = props.events
+                state.options = MapPlot.setOptions()
             }
 
             let kills = []
@@ -110,23 +123,22 @@ class MapPlot extends Component {
 
     render() {
         //console.log('render')
-        if (this.state.loaded) {
+        if (this.state.loaded || this.props.new_data) {
             const element = React.createRef() ? this.chartRef.current : this.chartRef
-            this.chart = new ApexCharts(element, this.state.options)
-            this.chart.render()
+            if (this.chart != null) {
+                this.chart.updateOptions(this.state.options)
+            } else {
+                this.chart = new ApexCharts(element, this.state.options)
+                this.chart.render()
+            }
         }
 
 
-        return (
-            <Box border={1}>
-                {React.createElement('div', {
-                    ref: React.createRef
-                        ? this.chartRef
-                        : this.setRef,
-                })}
-
-            </Box>
-        )
+        return React.createElement('div', {
+            ref: React.createRef
+                ? this.chartRef
+                : this.setRef,
+        })
     }
 }
 

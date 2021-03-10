@@ -21,7 +21,7 @@ const styles = theme => ({
         borderWidth: theme.border.width,
         borderColor: theme.border.color,
         borderStyle: 'solid',
-    }
+    },
 })
 
 class VS extends Component {
@@ -30,18 +30,15 @@ class VS extends Component {
         this.renderParticipant = this.renderParticipant.bind(this)
     }
 
-    static renderProfileIcon(icon_id) {
-        const url = 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + icon_id + '.png'
-        return <Image width={"40px"} src={url}/>
-    }
 
     renderParticipant(participant) {
+        const classes = this.props.classes
+        const url = 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + participant.profile_icon_id + '.png'
         return (
-            <Grid item lg={1} key={participant.name}>
-                <Box flexDirection={"column"} display={"flex"} justify="center" alignItems="center" pt={1}>
-                    {VS.renderProfileIcon(participant.profile_icon_id)}
-                    <Typography variant="body2">{participant.name}</Typography>
-                </Box>
+            <Grid item container lg={1} key={participant.name} display={'flex'} alignItems={"center"} justify={"center"}>
+                <Grid item>
+                    <Image width={"55px"} src={url} roundedCircle/>
+                </Grid>
             </Grid>
         )
     }

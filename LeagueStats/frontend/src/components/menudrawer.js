@@ -15,6 +15,7 @@ import {Typography, Box, PropTypes} from "@material-ui/core";
 import {withRouter} from "react-router";
 import {Image} from "react-bootstrap";
 import Slide from '@material-ui/core/Slide';
+import {axiosInstance} from "../axiosApi";
 
 const drawerWidth = 240
 
@@ -64,6 +65,7 @@ class MenuDrawer extends Component {
         }
     }
 
+
     render() {
         const classes = this.props.classes
 
@@ -103,7 +105,6 @@ class MenuDrawer extends Component {
                                               icon={<TrendingUpSharpIcon/>}/>
                             <ListButtonRouter open={open} path={'/matches'} name={'Matches'}
                                               icon={<ListAltSharpIcon/>}/>
-                            <ListButtonRouter open={open} path={'/login'} name={'Login'} icon={<AccountBoxIcon/>}/>
                             <ListButtonRouter open={open} path={'/account'} name={'Account'} icon={<AccountBoxIcon/>}/>
                         </List>
                     </Box>
@@ -127,11 +128,12 @@ function MenuProfile(props) {
     const summoner_name = props.profile.user.username
 
     return (
-        <Slide direction="right" in={props.open} timeout={800}>
+        <Slide direction="right" in={props.open} timeout={500}>
             <Box height={"100%"} display={"flex"} flexDirection={"column"} alignItems={"center"}
                  justifyContent={"center"}>
                 <Image width={"150px"} src={icon_url} roundedCircle/>
-                <Typography>{summoner_name} - {props.profile.game_info.level}</Typography>
+                <Typography variant={'h5'}>{summoner_name}</Typography>
+                <Typography variant={'h6'}>Level {props.profile.game_info.level}</Typography>
             </Box>
         </Slide>
     )

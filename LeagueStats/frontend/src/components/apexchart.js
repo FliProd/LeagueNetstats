@@ -19,6 +19,10 @@ const styles = theme => ({
     },
     verticalCheckboxes: {
         maxWidth: 210
+    },
+    apexchartsTooltip: {
+        backgroundColor:  '#14253D',
+        color: '#EBE0CB',
     }
 })
 
@@ -81,12 +85,12 @@ class ApexChart extends Component {
                 'CREEP': false,
                 'NEUTRAL': false,
                 'LEVEL': false,
-                'PING': true,
+                'PING': false,
                 'JITTER': true,
                 'IN_BANDWIDTH': false,
                 'OUT_BANDWIDTH': false,
-                'LOSS': false,
-                'CHAMPION_KILL': false,
+                'LOSS': true,
+                'CHAMPION_KILL': true,
                 'CHAMPION_DEATH': false,
                 'WARD_PLACED': false,
                 'WARD_KILLED': false,
@@ -101,7 +105,7 @@ class ApexChart extends Component {
                 'PORO_KING_SUMMON': false,
                 'ASCENDED_EVENT': false,
             },
-            options: ApexChart.setOptions()
+            options: this.setOptions()
         }
 
 
@@ -122,7 +126,7 @@ class ApexChart extends Component {
 
     }
 
-    static setOptions() {
+    setOptions() {
         return {
             annotations: {
                 xaxis: []
@@ -150,7 +154,7 @@ class ApexChart extends Component {
                         zoomin: false,
                         zoomout: false,
                         pan: false,
-                        reset: true | '<img src="/static/icons/reset.png" width="20">',
+                        reset: true,
                         customIcons: []
                     },
                 },
@@ -166,7 +170,7 @@ class ApexChart extends Component {
                 },
                 y: {
                     formatter: ApexChart.formatTooltip
-                }
+                },
             },
             xaxis: {
                 labels: {
@@ -200,7 +204,6 @@ class ApexChart extends Component {
 
     static getDerivedStateFromProps(props, state) {
         if (!state.loaded_data || props.new_data) {
-            console.log('getDerivedStateFromProps')
             let networklogs
             let frames
             let events
@@ -231,8 +234,8 @@ class ApexChart extends Component {
                 }
                 state.chart_data = {}
 
-                state.options = ApexChart.setOptions()
-                console.log('cleared annotations')
+                //now set in preparecharts
+                //state.options = ApexChart.setOptions()
             } else {
                 errors = true
             }
@@ -310,7 +313,6 @@ class ApexChart extends Component {
 
             return state
         } else {
-            console.log('getDerivedStateFromProps state not loaded')
             return null
         }
     }
@@ -321,7 +323,8 @@ class ApexChart extends Component {
     3. adds annotations according to datashown
     */
     prepareChart() {
-        console.log('prepare chart')
+        this.state.options = this.setOptions()
+
         for (const [type, series] of Object.entries(this.state.all_series)) {
             if (this.state.data_shown[type] && series.data.length > 0 && this.state.chart_data[type] == undefined) {
                 this.state.chart_data[type] = true
@@ -353,7 +356,6 @@ class ApexChart extends Component {
     adds/removes a series from options (and its axis) and updates the chart
     */
     updateChart(name, add) {
-        console.log('update chart')
         if (ApexChart.isAnnotation(name)) {
             if (add) {
                 this.state.options.annotations.xaxis = this.state.options.annotations.xaxis.concat(this.state.all_annotations[name])
@@ -476,7 +478,6 @@ class ApexChart extends Component {
     }
 
     setEvent(annotation_id, type) {
-        console.log('setevent')
         for (const event_index in this.state.all_events[type]) {
             const event = this.state.all_events[type][event_index]
             if (event.type + event.timestamp == annotation_id) {
@@ -511,7 +512,6 @@ class ApexChart extends Component {
     render() {
         const classes = this.props.classes
 
-        console.log('render')
         if (this.state.loaded_data && !this.state.added_data || this.props.new_data) {
             this.prepareChart()
             this.state.added_data = true
@@ -531,26 +531,25 @@ class ApexChart extends Component {
                                 : this.setRef,
                         })}
                     </Box>
-                    <Box display={'flex'} flexDirection={'column'} flexGrow={1} justifyContent={'center'}
-                         alignItems={'flex-start'}
-                         className={clsx(classes.verticalCheckboxes)}>
-                        <Typography variant={'h5'} align={'center'}
-                                    className={classes.full_width}>Events</Typography>
+                    <Box display={'flex'} flexDirection={'column'} flexGrow={1} justifyContent={'space-evenly'}
+                         alignItems={'center'}
+                         className={clsx(classes.verticalCheckboxes)}
+                    pr={1}>
                         <CheckboxList
-                            checked={this.state.data_shown}
-                            setVisibility={(name) => this.setVisibility(name)}
-                            groups={{
-                                'Events': Object.keys(this.state.all_events)
-                            }}
-                            direction={'column'}
-                        />
-                        <Typography variant={'h5'} align={'center'}
-                                    className={classes.full_width}>Graphs</Typography>
-                        <CheckboxList
+                            title={'Graphs'}
                             checked={this.state.data_shown}
                             setVisibility={(name) => this.setVisibility(name)}
                             groups={{
                                 'Series': Object.keys(this.state.all_series)
+                            }}
+                            direction={'column'}
+                        />
+                        <CheckboxList
+                            title={'Events'}
+                            checked={this.state.data_shown}
+                            setVisibility={(name) => this.setVisibility(name)}
+                            groups={{
+                                'Events': Object.keys(this.state.all_events)
                             }}
                             direction={'column'}
                         />
@@ -610,7 +609,7 @@ class ApexChart extends Component {
     }
 
 
-    static(value, {series, seriesIndex, dataPointIndex, w}) {
+    static formatTooltip(value, {series, seriesIndex, dataPointIndex, w}) {
         const seriesName = w.globals.seriesNames[seriesIndex]
         const units = {
             'EXP': 'XP',
