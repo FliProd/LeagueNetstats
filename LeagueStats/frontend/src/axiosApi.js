@@ -23,12 +23,14 @@ axiosInstance.interceptors.response.use(
         console.log(error.response)
 
         if(error.response.status === 401 && originalRequest.url === '/api/profile/get/') {
-            window.location.href = '/login/'
+            console.log('/api/profile/get/')
+            //window.location.href = '/login/'
             return Promise.reject(error);
         }
 
         if (error.response.status === 401 && originalRequest.url === '/api/token/refresh/') {
-            window.location.href = '/login/';
+             console.log('/api/token/refresh/')
+            //window.location.href = '/login/'
             return Promise.reject(error);
         }
 

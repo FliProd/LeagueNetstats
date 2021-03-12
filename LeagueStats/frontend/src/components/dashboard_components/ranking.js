@@ -23,7 +23,7 @@ const styles = theme => ({
         alignItems: 'flex-start',
     },
     icon: {
-        paddingLeft: 10
+        paddingLeft: 10,
     },
     fieldbox: {
         display: 'flex',
@@ -37,6 +37,7 @@ const styles = theme => ({
         alignItems: 'center',
         height: '100%',
         width: '100%',
+        overflow: 'hidden',
     }
 })
 
@@ -52,45 +53,45 @@ class Ranking extends Component {
         const icon_url = 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + particpant.profile_icon_id + '.png'
         return (
             <Grid container className={clsx(classes.full_width, classes.padded)} key={particpant.name}>
-                <Grid container item md={4}>
-                    <Grid item md={3} key={'icon'} className={classes.icon}>
+                <Grid container item xs={4}>
+                    <Grid item xs={3} key={'icon'} className={classes.icon}>
                         {!unitrow &&
                         <Image width={"30px"} src={icon_url} rounded/>
                         }
                     </Grid>
-                    <Grid item md={9} key={'name'} className={classes.field}>
+                    <Grid item xs={9} key={'name'} className={classes.field}>
                         <Box className={classes.titlebox}>
                             <Typography variant={'body2'}>{particpant.name}</Typography>
                         </Box>
                     </Grid>
                 </Grid>
-                <Grid container item md={8}>
-                    <Grid item md={3} key={'gold_earned'} className={classes.field}>
+                <Grid container item xs={8}>
+                    <Grid item xs={3} key={'gold_earned'} className={classes.field}>
                         <Box className={classes.fieldbox}>
                             <Typography variant={'body2'}>{particpant.gold_earned}</Typography>
                         </Box>
                     </Grid>
-                    <Grid item md={3} key={'total_dmg'} className={classes.field}>
+                    <Grid item xs={3} key={'total_dmg'} className={classes.field}>
                         <Box className={classes.fieldbox}>
                             <Typography variant={'body2'} align={'center'}>{particpant.total_dmg}</Typography>
                         </Box>
                     </Grid>
-                    <Grid item md={3} key={'total_damage_taken'} className={classes.field}>
+                    <Grid item xs={3} key={'total_damage_taken'} className={classes.field}>
                         <Box className={classes.fieldbox}>
                             <Typography variant={'body2'} align={'center'}>{particpant.total_damage_taken}</Typography>
                         </Box>
                     </Grid>
-                    <Grid item md={1} key={'assists'} className={classes.field}>
+                    <Grid item xs={1} key={'assists'} className={classes.field}>
                         <Box className={classes.fieldbox}>
                             <Typography variant={'body2'} align={'center'}>{particpant.assists}</Typography>
                         </Box>
                     </Grid>
-                    <Grid item md={1} key={'kills'} className={classes.field}>
+                    <Grid item xs={1} key={'kills'} className={classes.field}>
                         <Box className={classes.fieldbox}>
                             <Typography variant={'body2'} align={'center'}>{particpant.kills}</Typography>
                         </Box>
                     </Grid>
-                    <Grid item md={1} key={'deaths'} className={classes.field}>
+                    <Grid item xs={1} key={'deaths'} className={classes.field}>
                         <Box className={classes.fieldbox}>
 
                             <Typography variant={'body2'} align={'center'}>{particpant.deaths}</Typography>

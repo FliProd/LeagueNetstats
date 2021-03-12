@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from "react";
 import {Box, ListItem, List, Typography, Grid, Paper, Button} from "@material-ui/core";
-import SummonerList from "./summoner";
+import SummonerList from "./user/summoner";
 import {Alert} from "react-bootstrap";
 import {forEach} from "react-bootstrap/ElementChildren";
 import {axiosInstance} from "../axiosApi";
@@ -237,7 +237,7 @@ class Upload extends Component {
             <Fragment>
                 <Grid className={"signup-grid"} container spacing={5} direction="row" alignItems="center"
                       justify="center">
-                    <Grid item md={6}>
+                    <Grid item xs={6}>
                         <Paper variant="outlined"
                                style={{'minHeight': '100px', 'minWidth': '300px'}} mt={5} border={1} py={3}
                                onDragEnter={this.onDragEnter}
@@ -249,7 +249,7 @@ class Upload extends Component {
                             </Box>
                         </Paper>
                     </Grid>
-                    <Grid item md={6}>
+                    <Grid item xs={6}>
                         <Paper variant="outlined">
                             <List>
                                 {matchList}

@@ -10,12 +10,14 @@ import ListItemText from '@material-ui/core/ListItemText'
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import TrendingUpSharpIcon from '@material-ui/icons/TrendingUpSharp';
 import ListAltSharpIcon from '@material-ui/icons/ListAltSharp';
+import FeedbackIcon from '@material-ui/icons/Feedback';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import {Typography, Box, PropTypes} from "@material-ui/core";
+import {Typography, Box} from "@material-ui/core";
 import {withRouter} from "react-router";
 import {Image} from "react-bootstrap";
 import Slide from '@material-ui/core/Slide';
-import {axiosInstance} from "../axiosApi";
+import { useTranslation } from 'react-i18next'
+
 
 const drawerWidth = 240
 
@@ -101,16 +103,15 @@ class MenuDrawer extends Component {
                     </Box>
                     <Box height={'57%'}>
                         <List>
-                            <ListButtonRouter open={open} path={'/dashboard'} name={'Dashboard'}
-                                              icon={<TrendingUpSharpIcon/>}/>
-                            <ListButtonRouter open={open} path={'/matches'} name={'Matches'}
-                                              icon={<ListAltSharpIcon/>}/>
-                            <ListButtonRouter open={open} path={'/account'} name={'Account'} icon={<AccountBoxIcon/>}/>
+                            <ListButtonRouter open={open} path={'/dashboard'} name={'menudrawer.dashboard'} icon={<TrendingUpSharpIcon/>}/>
+                            <ListButtonRouter open={open} path={'/matches'} name={'menudrawer.matches'} icon={<ListAltSharpIcon/>}/>
+                            <ListButtonRouter open={open} path={'/account'} name={'menudrawer.account'} icon={<AccountBoxIcon/>}/>
+                            <ListButtonRouter open={open} path={'/feedback'} name={'menudrawer.feedback'} icon={<FeedbackIcon/>}/>
                         </List>
                     </Box>
                     <Box display={'flex'} alignItems={'flex-end'} height={'10%'}>
                         <List>
-                            <ListButtonRouter path={'/logout'} name={'Logout'} icon={<ExitToAppIcon/>}/>
+                            <ListButtonRouter path={'/logout'} name={'menudrawer.logout'} icon={<ExitToAppIcon/>}/>
                         </List>
                     </Box>
                 </Drawer>
@@ -123,6 +124,7 @@ export default withStyles(styles)(MenuDrawer)
 
 
 function MenuProfile(props) {
+
 
     const icon_url = 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + props.profile.game_info.icon_id + '.png'
     const summoner_name = props.profile.user.username
@@ -150,18 +152,23 @@ const ListItemTextStyles = (theme) => ({
 });
 
 function ListButton(props) {
+
+
+    const { t } = useTranslation()
+
+    const {classes} = props;
+
     const onClick = (event) => {
         event.stopPropagation()
         event.preventDefault()
         props.history.push(props.path)
     }
-    const {classes} = props;
 
     return (
         <ListItem onClick={onClick} button key={props.name}>
             <Box display={"flex"} justifyContent={"center"}>
                 <ListItemIcon>{props.icon}</ListItemIcon>
-                <ListItemText className={classes.root}>{props.name}</ListItemText>
+                <ListItemText className={classes.root}>{t(props.name)}</ListItemText>
             </Box>
         </ListItem>
     )

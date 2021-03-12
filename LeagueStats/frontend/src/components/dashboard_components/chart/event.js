@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Image} from "react-bootstrap";
 import Box from "@material-ui/core/Box";
 import {Grid, Typography} from "@material-ui/core";
-import ApexChart from "./chart";
+import ApexChart from './apexchart';
 
 class Event extends Component {
     constructor(props) {
@@ -37,7 +37,7 @@ class Event extends Component {
         const url = 'http://ddragon.leagueoflegends.com/cdn/11.4.1/img/item/' + item_id + '.png'
         return (
             <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"} height={"100%"}>
-                <Image width={"60px"} src={url}/>
+                <Image width={"60px"} src={url} rounded/>
             </Box>
         )
     }
@@ -45,13 +45,13 @@ class Event extends Component {
     static renderParticipant(participant) {
         return (
             <Grid container direction={"column"} justify="center" alignItems="center">
-                <Grid item md={8} >
+                <Grid item xs={8}>
                     <Box pt={1}>
                         {Event.renderProfileIcon(participant.profile_icon_id)}
                     </Box>
                 </Grid>
-                <Grid container item md={4} alignItems={"center"} justify={"center"}>
-                    <Typography>{participant.name}</Typography>
+                <Grid container item xs={4} alignItems={"center"} justify={"center"}>
+                    <Typography style={{overflow: 'hidden'}}>{participant.name}</Typography>
                 </Grid>
             </Grid>
         )
@@ -65,19 +65,31 @@ class Event extends Component {
         event_parts.passive_participant = Event.renderParticipant(event.passive_participant)
         event_parts.relation = (<Typography> killed </Typography>)
         event_parts.additional_info = (
-            <Grid container direction={"row"} justify={"center"} alignItems={"center"} height={"100%"}>
-                {event.assisting_participants.map(assist => (
-                    <Grid item md={12 / event.assisting_participants.length}>
-                        {Event.renderParticipant(assist)}
-                    </Grid>))
-                }
+            <Grid container direction={'row'}>
+                <Grid item xs={3}>
+                    <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"}
+                         height={"100%"}>
+                        <Typography>assisted by</Typography>
+                    </Box>
+                </Grid>
+                <Grid item xs={9}>
+                    <Grid container direction={"row"} justify={"center"} alignItems={"center"} height={"100%"}>
+                        {event.assisting_participants.map(assist => (
+                            <Grid item xs={12 / event.assisting_participants.length} key={assist.name}>
+                                {Event.renderParticipant(assist)}
+                            </Grid>))
+                        }
+                    </Grid>
+                </Grid>
+
             </Grid>
+
         )
 
-        event_parts.len_act_part = 3
+        event_parts.len_act_part = 2
         event_parts.len_relation = 1
-        event_parts.len_pass_part = 3
-        event_parts.len_add_info = 5
+        event_parts.len_pass_part = 2
+        event_parts.len_add_info = 7
 
         return event_parts
     }
@@ -177,11 +189,15 @@ class Event extends Component {
     }
 
     renderTime(time_dec) {
-        const time = parseInt(time_dec) + ':' + Math.round(((time_dec - parseInt(time_dec)) * 60))
+        let minutes = parseInt(time_dec)
+        let seconds = Math.round(((time_dec - parseInt(time_dec)) * 60))
+        minutes = minutes >= 10 ? minutes : '0' + minutes
+        seconds = seconds >= 10 ? seconds : '0' + seconds
+        const time = minutes + ':' + seconds
         return (
             <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"}
                  height={"100%"}>
-                <Typography>{time}</Typography>
+                <Typography variant={'h5'}>{time}</Typography>
             </Box>
         )
     }
@@ -193,29 +209,30 @@ class Event extends Component {
             return (
                 <Box>
                     <Grid container>
-                        <Grid item md={1}>
+                        <Grid item xs={1}>
                             {time}
                         </Grid>
-                        <Grid container direction={"row"} item md={10}>
-                            <Grid item md={rendered_event.len_act_part} key={'active_participant'}>
+                        <Grid container direction={"row"} item xs={11}>
+                            <Grid item xs={rendered_event.len_act_part} key={'active_participant'}>
                                 {rendered_event.active_participant}
                             </Grid>
-                            <Grid item md={rendered_event.len_relation} key={'relation'}>
+                            <Grid item xs={rendered_event.len_relation} key={'relation'}>
                                 <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"}
                                      height={"100%"}>
                                     {rendered_event.relation}
                                 </Box>
                             </Grid>
                             {rendered_event.passive_participant &&
-                            <Grid item md={rendered_event.len_pass_part} key={'passive_participant'}>
-                                <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"} height={"100%"}>
+                            <Grid item xs={rendered_event.len_pass_part} key={'passive_participant'}>
+                                <Box display={"flex"} justifyContent={"center"} alignItems={"center"} width={"100%"}
+                                     height={"100%"}>
 
-                                {rendered_event.passive_participant}
-                            </Box>
+                                    {rendered_event.passive_participant}
+                                </Box>
 
                             </Grid>}
                             {rendered_event.additional_info &&
-                            <Grid item md={rendered_event.len_add_info} key={'additional_info'}>
+                            <Grid item xs={rendered_event.len_add_info} key={'additional_info'}>
                                 {rendered_event.additional_info}
                             </Grid>}
                         </Grid>

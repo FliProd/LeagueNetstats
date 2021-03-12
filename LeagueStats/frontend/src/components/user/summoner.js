@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from "react";
-import {axiosInstance} from "../axiosApi";
+import {axiosInstance} from "../../axiosApi";
 import {Alert, Image} from "react-bootstrap";
 import {StatusCodes} from 'http-status-codes';
 import {

@@ -76,7 +76,3 @@ class Account(APIView):
             return self.checkUnique(email=new_email)
         return True
 
-    # TODO fix row level security (do it with request.user)
-    def rowLevelSecurity(self, old_instance, user_id):
-        old_username = old_instance.username
-        return old_username == CustomUser.objects.get(user_id=user_id)

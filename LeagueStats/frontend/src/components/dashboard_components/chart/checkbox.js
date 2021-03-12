@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from "react";
-import {axiosInstance} from "../axiosApi";
+import {axiosInstance} from "../../../axiosApi";
 import {CheckBox} from "@material-ui/icons";
 import {Box, Checkbox, Grid, Typography} from "@material-ui/core";
 import clsx from "clsx";
@@ -7,17 +7,24 @@ import {withStyles} from "@material-ui/core/styles";
 
 const styles = theme => ({
     unchecked: {
+        borderRadius: 5,
+        borderWidth: theme.border.width,
+        borderStyle: 'solid',
+        borderColor: theme.palette.background.default,
         backgroundColor: theme.palette.background.default,
         color: theme.palette.primary.main,
     },
     checked: {
+        borderRadius: 5,
+        borderWidth: theme.border.width,
+        borderStyle: 'solid',
+        borderColor: theme.palette.background.default,
         backgroundColor: theme.palette.primary.main,
         color: theme.palette.background.default,
     },
     checkbox: {
         width: 'min-content',
         height: 'min-content',
-        flexGrow: 1
     },
     containerBox: {
         marginTop: '10%',

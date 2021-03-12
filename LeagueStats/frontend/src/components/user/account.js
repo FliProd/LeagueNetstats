@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from "react";
-import {axiosInstance} from "../axiosApi";
+import {axiosInstance} from "../../axiosApi";
 import {Alert, Form, Image} from "react-bootstrap";
 import {
     Paper,
@@ -198,17 +198,17 @@ class Account extends Component {
             <Fragment>
                 <Grid container spacing={2} direction={"row"} display={"flex"} justify={"center"}
                       alignItems={"center"}>
-                    <Grid item md={2}>
+                    <Grid item xs={2}>
                         <Image style={{"width": "130px"}}
                                src={'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + this.state.game_info.icon_id + '.png'}
                                roundedCircle/>
                     </Grid>
-                    <Grid item md={9}>
+                    <Grid item xs={9}>
                         <Typography
                             variant={"h3"}>{this.state.user.username + ' - ' + this.state.game_info.level}</Typography>
                         <Typography variant={"h5"}>{this.state.game_info.game_region}</Typography>
                     </Grid>
-                    <Grid item md={1}>
+                    <Grid item xs={1}>
                         <IconButton onClick={(event) => this.setState({anchorEl: event.currentTarget,})}>
                             <EditIcon/>
                         </IconButton>
@@ -262,12 +262,12 @@ class Account extends Component {
         return (
             <Fragment>
                 <Grid container direction={"row"}>
-                    <Grid item md={2}>
+                    <Grid item xs={2}>
                         <Typography variant={"h5"}>User</Typography>
                     </Grid>
-                    <Grid item md={10}>
+                    <Grid item xs={10}>
                         <Grid container direction={"row"}>
-                            <Grid item md={11}>
+                            <Grid item xs={11}>
                                 {this.state.edited["email"] && (
                                     <Form.Group controlId="formBasicEmail">
                                     <Form.Control name="email" type="text" value={this.state.user.email} onChange={this.handleChange}/>
@@ -280,13 +280,13 @@ class Account extends Component {
                                 <Alert variant={"danger"}>{this.state.errors.user.email}</Alert>
                                 }
                             </Grid>
-                            <Grid item md={1}>
+                            <Grid item xs={1}>
                                 {this.renderButton("email", () => this.handleEdit("email"))}
 
                             </Grid>
                         </Grid>
                         <Grid container direction={"row"}>
-                            <Grid item md={11}>
+                            <Grid item xs={11}>
                                 {this.state.edited["password"] && (
                                     <Form.Group controlId="formBasicEmail">
                                     <Form.Control name="password" type="text" value={'************'} onChange={this.handleChange}/>
@@ -299,7 +299,7 @@ class Account extends Component {
                                 <Alert variant={"danger"}>{this.state.errors.user.password}</Alert>
                                 }
                             </Grid>
-                            <Grid item md={1}>
+                            <Grid item xs={1}>
                                 {this.renderButton("password", () => this.handleEdit("password"))}
                             </Grid>
                         </Grid>
@@ -314,10 +314,10 @@ class Account extends Component {
         return (
             <Fragment>
                 <Grid container direction={"row"}>
-                    <Grid item md={2}>
+                    <Grid item xs={2}>
                         <Typography variant={"h5"}>Location</Typography>
                     </Grid>
-                    <Grid item md={5}>
+                    <Grid item xs={5}>
                         <Typography>{this.state.location.country}</Typography>
                         <Typography>{this.state.location.state}</Typography>
                         <Typography>{this.state.location.city}</Typography>
@@ -339,13 +339,13 @@ class Account extends Component {
                     <Paper style={{"width": "80%"}} variant="outlined">
                         <Box display={"flex"} p={3}>
                             <Grid container spacing={4} alignItems="center" justify="center">
-                                <Grid item my={3} md={12}>
+                                <Grid item my={3} xs={12}>
                                     {this.renderSummoner()}
                                 </Grid>
-                                <Grid item my={3} md={12}>
+                                <Grid item my={3} xs={12}>
                                     {this.renderUser()}
                                 </Grid>
-                                <Grid item my={3} md={12}>
+                                <Grid item my={3} xs={12}>
                                     {this.renderLocation()}
                                 </Grid>
                                 <Grid item my={3}>

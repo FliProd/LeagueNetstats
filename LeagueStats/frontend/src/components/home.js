@@ -3,9 +3,7 @@ import Upload from "./upload"
 import axiosInstance from "../axiosApi"
 import Box from "@material-ui/core/Box"
 import Button from "@material-ui/core/Button"
-import Chart from "./chart"
-import ApexChart from "./chart"
-import MapPlot from "./mapplot"
+import MapPlot from "./dashboard_components/mapplot"
 
 class Home extends Component {
     constructor(props) {

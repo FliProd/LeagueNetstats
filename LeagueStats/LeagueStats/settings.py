@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_cassiopeia',
     'geo',
     'riotapi',
+    'feedback',
 ]
 
 CASSIOPEIA_VERSION_FROM_MATCH = "patch"

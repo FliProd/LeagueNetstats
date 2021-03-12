@@ -1,15 +1,14 @@
 import React, {Component} from "react"
 import {Switch, Route} from "react-router-dom"
 import {ThemeProvider, createMuiTheme, withStyles, responsiveFontSizes} from '@material-ui/core/styles';
-import {Container} from "react-bootstrap"
-import Login from "./login"
-import Logout from "./logout"
+import Login from "./user/login"
+import Logout from "./user/logout"
 import Signup from "./signup"
-import Home from "./home"
-import Account from "./account"
+import Account from "./user/account"
 import MenuDrawer from "./menudrawer";
 import {axiosInstance} from "../axiosApi";
 import Dashboard from "./dashboard";
+import Feedback from "./feedback";
 
 let theme = createMuiTheme({
     palette: {
@@ -111,6 +110,7 @@ class App extends Component {
                             <Route exact path={"/logout/"} component={Logout}/>
                             <Route exact path={"/signup/"} component={Signup}/>
                             <Route exact path={"/account/"} component={Account}/>
+                            <Route exact path={"/feedback/"} component={Feedback}/>
                             <Route path={"/dashboard"} render={() => <Dashboard profile={this.state.profile}/>}/>
                             <Route path={"/"} render={() => <Dashboard profile={this.state.profile}/>}/>
                         </Switch>

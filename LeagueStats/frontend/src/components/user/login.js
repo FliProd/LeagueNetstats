@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import {axiosInstance} from "../axiosApi";
+import {axiosInstance} from "../../axiosApi";
 import { Button, Form, Alert } from "react-bootstrap";
 import { Grid, Paper, Box} from "@material-ui/core";
 import SummonerList from "./summoner";
@@ -71,7 +71,7 @@ class Login extends Component {
         const Form = this.renderForm();
         return (
             <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
-                <Grid item md={6}>
+                <Grid item xs={6}>
                     <Paper variant="outlined">
                         <Box p={2}>
                             {Form}

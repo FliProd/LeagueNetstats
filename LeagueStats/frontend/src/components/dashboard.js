@@ -7,8 +7,8 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faChevronRight, faChevronLeft} from '@fortawesome/free-solid-svg-icons'
 import axiosInstance from "../axiosApi";
 import VS from './dashboard_components/vs'
-import ApexChart from "./apexchart";
-import MapPlot from "./mapplot";
+import ApexChart from "./dashboard_components/chart/apexchart";
+import MapPlot from "./dashboard_components/mapplot";
 import Upload from "./upload";
 import Ranking from "./dashboard_components/ranking"
 
@@ -31,6 +31,8 @@ const styles = theme => ({
     },
     graph_row: {
         width: '100%',
+        minHeight: 750,
+        height: window.innerHeight - 577
     },
     map_row: {
         width: '100%',
@@ -145,7 +147,7 @@ class Dashboard extends Component {
             <Grid container className={clsx(classes.container, classes.full_width)}>
                 <Grid item className={clsx(classes.padded, classes.arrows)}>
                     <StyledItemBox>
-                        <FontAwesomeIcon icon={faChevronLeft} size="5x" onClick={() => this.changeMatch('next')}/>
+                        <FontAwesomeIcon icon={faChevronLeft} size={'4x'} onClick={() => this.changeMatch('next')}/>
                     </StyledItemBox>
                 </Grid>
                 <Grid item className={clsx(classes.padded, classes.teams)}>
@@ -157,7 +159,8 @@ class Dashboard extends Component {
                 </Grid>
                 <Grid item className={clsx(classes.padded, classes.arrows)}>
                     <StyledItemBox>
-                        <FontAwesomeIcon icon={faChevronRight} size="5x" onClick={() => this.changeMatch('previous')}/>
+                        <FontAwesomeIcon icon={faChevronRight} size={'4x'}
+                                         onClick={() => this.changeMatch('previous')}/>
                     </StyledItemBox>
                 </Grid>
             </Grid>
@@ -169,7 +172,7 @@ class Dashboard extends Component {
         const classes = this.props.classes
 
         return (
-            <Grid item md={'auto'} className={clsx(classes.graph_row, classes.padded)}>
+            <Grid item xs={'auto'} className={clsx(classes.graph_row, classes.padded)}>
                 <StyledItemBox>
                     <ApexChart data={this.state.match} new_data={this.state.change_match}/>
                 </StyledItemBox>
@@ -192,32 +195,32 @@ class Dashboard extends Component {
 
             return (
                 <Grid container>
-                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
                             <StyledInfoBox data={{name: 'avg_ping', value: avg_ping, unit: 'ms'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
                             <StyledInfoBox data={{name: 'avg_up', value: avg_up, unit: 'kB/s'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
                             <StyledInfoBox data={{name: 'avg_down', value: avg_down, unit: 'kB/s'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
                             <StyledInfoBox data={{name: 'avg_jitter', value: avg_jitter, unit: 'ms'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
                             <StyledInfoBox data={{name: 'avg_loss', value: avg_loss, unit: 'packages'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item md={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
                             <StyledInfoBox data={[{name: 'min_ping', value: min_ping, unit: 'ms'}, {
                                 name: 'max_ping',
@@ -238,16 +241,17 @@ class Dashboard extends Component {
 
         return (
             <Grid container className={clsx(classes.container, classes.map_row)}>
+                <Grid item sm={12} md className={clsx(classes.padded)}>
+                    <StyledItemBox>
+                        <Ranking match={this.state.match.game_info} teams={this.state.match.teams}/>
+                    </StyledItemBox>
+                </Grid>
                 <Grid item className={clsx(classes.padded)}>
                     <StyledItemBox>
                         <MapPlot events={this.state.match.events} new_data={this.state.change_match}/>
                     </StyledItemBox>
                 </Grid>
-                <Grid item md className={clsx(classes.padded)}>
-                    <StyledItemBox>
-                        <Ranking match={this.state.match.game_info} teams={this.state.match.teams}/>
-                    </StyledItemBox>
-                </Grid>
+
             </Grid>
         )
     }
@@ -256,12 +260,12 @@ class Dashboard extends Component {
         const classes = this.props.classes
 
         return (
-            <Box display={'flex'} flexDirection={'column'}>
+            <Fragment>
                 {this.renderGamesRow()}
                 {this.renderGraphRow()}
                 {this.renderAvgRow()}
                 {this.renderMapRow()}
-            </Box>
+            </Fragment>
         )
     }
 
@@ -303,6 +307,7 @@ const ItemBoxStyles = (theme) => ({
         borderWidth: theme.border.width,
         borderColor: theme.border.color,
         borderStyle: 'solid',
+        borderRadius: '5px',
         height: '100%'
     },
     centerContent: {

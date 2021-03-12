@@ -1,4 +1,4 @@
-import {axiosInstance} from "../axiosApi";
+import {axiosInstance} from "../../axiosApi";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box"
 import React, {Component, Fragment} from 'react'

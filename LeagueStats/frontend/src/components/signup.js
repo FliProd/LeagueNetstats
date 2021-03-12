@@ -3,7 +3,7 @@ import {axiosInstance} from "../axiosApi";
 import {Alert, Button, Form} from "react-bootstrap";
 import {Grid, Paper, Box} from '@material-ui/core';
 import {StatusCodes} from 'http-status-codes';
-import SummonerList from "./summoner";
+import SummonerList from "./user/summoner";
 
 
 class Signup extends Component {
@@ -225,7 +225,7 @@ class Signup extends Component {
         const Form = this.renderForm();
         return (
             <Grid className={"signup-grid"} container spacing={5} direction="row" alignItems="center" justify="center">
-                <Grid item md={6}>
+                <Grid item xs={6}>
                     <Paper variant="outlined">
                         <Box p={2}>
                             {Form}
@@ -233,7 +233,7 @@ class Signup extends Component {
 
                     </Paper>
                 </Grid>
-                <Grid item md={6}>
+                <Grid item xs={6}>
                     <Paper variant="outlined">
                         <SummonerList
                             ref={this.summonerListElement}
