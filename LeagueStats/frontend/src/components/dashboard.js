@@ -64,7 +64,9 @@ class Dashboard extends Component {
 
             if (match_ids_response.data.match_ids.length == 0) {
                 this.setState({
-                    errors: 'You havent uploaded any matches jet.'
+                    errors: {
+                        upload: 'You havent uploaded any matches yet.'
+                    }
                 })
                 return
             } else {
@@ -256,17 +258,29 @@ class Dashboard extends Component {
         )
     }
 
+    renderUpload() {
+        const classes = this.props.classes
+        return (
+            <Box display={'flex'} alignItems={'center'} justifyContent={'center'} className={clsx(classes.full_height, classes.full_width)}>
+                <Upload />
+            </Box>
+        )
+    }
+
     render() {
         const classes = this.props.classes
-
-        return (
-            <Fragment>
-                {this.renderGamesRow()}
-                {this.renderGraphRow()}
-                {this.renderAvgRow()}
-                {this.renderMapRow()}
-            </Fragment>
-        )
+        if (this.state.errors && this.state.errors.upload) {
+            return this.renderUpload()
+        } else {
+            return (
+                <Fragment>
+                    {this.renderGamesRow()}
+                    {this.renderGraphRow()}
+                    {this.renderAvgRow()}
+                    {this.renderMapRow()}
+                </Fragment>
+            )
+        }
     }
 
     static calcNetstats(networklogs) {

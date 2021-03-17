@@ -31,13 +31,11 @@ class Feedback extends Component {
     }
 
     handleChange(event) {
-        console.log(event)
         this.setState({feedback: event.target.value})
     }
 
     async handleSubmit(event) {
         event.preventDefault()
-        console.log(event)
 
         try {
             const response = await axiosInstance.post('/feedback/create/', {
@@ -67,12 +65,12 @@ class Feedback extends Component {
                     <Typography variant={'h3'}>feedback.title</Typography>
                     <Typography variant={"body1"}>feedback.info</Typography>
                     <Form.Control name="feedback" as="textarea" rows={8} value={this.state.feedback}
-                                  onChange={this.handleChange}/>
+                                  onChange={this.handleChange} autoComplete={'off'}/>
                     <Button variant={'contained'} type={'Submit'} className={classes.button}>
                         <Typography>submit</Typography>
                     </Button>
                     {this.state.errors &&
-                    <Alert variant={"danger"}>{this.state.errors.feedback}</Alert>
+                    <Alert variant={"danger"}>{this.state.errors.detail}{this.state.errors.feedback}</Alert>
                     }
                     {this.state.success &&
                     <Alert variant={"success"}>{this.state.success}</Alert>

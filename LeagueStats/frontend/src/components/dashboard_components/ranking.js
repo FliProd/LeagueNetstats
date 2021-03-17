@@ -49,8 +49,8 @@ class Ranking extends Component {
 
     renderParticipant(particpant, unitrow) {
         const classes = this.props.classes
+        const icon_url = particpant.profile_icon_id != '' ? 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + particpant.profile_icon_id + '.png' : ''
 
-        const icon_url = 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + particpant.profile_icon_id + '.png'
         return (
             <Grid container className={clsx(classes.full_width, classes.padded)} key={particpant.name}>
                 <Grid container item xs={4}>

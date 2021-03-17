@@ -12,7 +12,7 @@ class Event extends Component {
                 'CHAMPION_KILL': this.renderChampionKill,
                 'CHAMPION_DEATH': this.renderChampionKill,
                 'WARD_PLACED': this.renderObjectInteraction,
-                'WARD_KILLED': this.renderObjectInteraction,
+                'WARD_KILL': this.renderObjectInteraction,
                 'BUILDING_KILL': this.renderObjectInteraction,
                 'ELITE_MONSTER_KILL': this.renderObjectInteraction,
                 'ITEM_PURCHASED': this.renderItem,
@@ -94,12 +94,12 @@ class Event extends Component {
         return event_parts
     }
 
-    //ward_killed, building_kill, elite_monster_kill, ward_placed
+    //ward_kill, building_kill, elite_monster_kill, ward_placed
     renderObjectInteraction(event) {
         let event_parts = {}
         event_parts.active_participant = Event.renderParticipant(event.active_participant)
         switch (event.type) {
-            case 'WARD_KILLED':
+            case 'WARD_KILL':
                 event_parts.relation = (<Typography> killed </Typography>)
                 event_parts.passive_participant = (<Typography>a Ward </Typography>)
                 break

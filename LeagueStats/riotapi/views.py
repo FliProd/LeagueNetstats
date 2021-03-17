@@ -62,69 +62,65 @@ class MatchView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        profile = get_object_or_404(Profile, user=request.user)
-        region = translateRegion(profile.game_region)
-        summoner = cass.Summoner(account_id=profile.account_id, region=region)
-        match_ids = json.loads(request.data['date_match_map'])
         user_id = request.user.id
+        summoner_name = request.user.username
 
-        response = {
-            'errors': [],
-            'successes': [],
-        }
+        match_id = int(json.loads(request.data['match_id']))
+        match_region = translateRegionR3(json.loads(request.data['region']))
 
-        for filename in request.FILES:
+        netlog = request.FILES['netlog']
+        match = cass.get_match(id=match_id, region=match_region)
+        timeline_json = match.timeline
 
-            netlog = request.FILES[filename]
-            date = time.strptime(netlog.name, "%Y-%m-%dT%H-%M-%S_netlog.txt")
-            match_date = netlog.name.replace('_netlog.txt', '');
-            match_id = int(match_ids[match_date])
-
-            match = cass.get_match(id=match_id, region=region)
-            timeline_json = match.timeline
-
-            log_owner_id = 0
+        try:
+            log_owner_id = -1
             for participant in match.participants:
-                if participant.summoner.name == summoner.name:
-                    log_owner_id = participant.id
+                # sometimes participantidentities arent saved see match 942186746
+                if participant.summoner is not None:
+                    if participant.summoner.name == summoner_name:
+                        log_owner_id = participant.id
 
-            netstats = parse_netlog(netlog, match_id, user_id)
-            match_to_save = parse_match(match, user_id)
-            [frames, events] = parse_timeline(timeline_json, log_owner_id, match_id, user_id)
+            if log_owner_id != -1:
+                netstats = parse_netlog(netlog, match_id, user_id)
+                match_to_save = parse_match(match, user_id)
+                [frames, events] = parse_timeline(timeline_json, log_owner_id, match_id, user_id)
 
-            matchserializer = MatchSerializer(data=match_to_save)
-            netlogserializer = NetworkLogSerializer(data=netstats, many=True)
-            eventserializer = EventSerializer(data=events, many=True)
-            frameserializer = FrameSerializer(data=frames, many=True)
+                if match_to_save and netstats and frames and events:
+                    matchserializer = MatchSerializer(data=match_to_save)
+                    netlogserializer = NetworkLogSerializer(data=netstats, many=True)
+                    eventserializer = EventSerializer(data=events, many=True)
+                    frameserializer = FrameSerializer(data=frames, many=True)
 
-            valid = True
-            valid &= matchserializer.is_valid()
-            valid &= netlogserializer.is_valid()
-            valid &= eventserializer.is_valid()
-            valid &= frameserializer.is_valid()
+                    valid = True
+                    valid &= matchserializer.is_valid()
+                    valid &= netlogserializer.is_valid()
+                    valid &= eventserializer.is_valid()
+                    valid &= frameserializer.is_valid()
 
-            if valid:
-                match = matchserializer.save()
-                netlogs = netlogserializer.save()
-                events = eventserializer.save()
-                frames = frameserializer.save()
+                    if valid:
+                        match = matchserializer.save()
+                        netlogs = netlogserializer.save()
+                        events = eventserializer.save()
+                        frames = frameserializer.save()
 
-                if match and netlogs and events and frames:
-                    response['successes'].append(match_date)
+                        if match and netlogs and events and frames:
+                            return Response(str(match_id) + ' success', status=status.HTTP_200_OK)
+                    else:
+                        errors = {
+                            'matchserializer': matchserializer.errors,
+                            'netlogserializer': netlogserializer.errors,
+                            'eventserializer': eventserializer.errors,
+                            'frameserializer': frameserializer.errors,
+
+                        }
+                        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response('Failure while parsing match, networklogs, frames and events.')
             else:
-                errors = {
-                    'matchserializer': matchserializer.errors,
-                    'netlogserializer': netlogserializer.errors,
-                    'eventserializer': eventserializer.errors,
-                    'frameserializer': frameserializer.errors,
+                return Response('Participants not in Match JSON received from RIOT API.')
+        except NotFoundError:
+            return Response('Cant find match ' + str(match_id), status=status.HTTP_400_BAD_REQUEST)
 
-                }
-                response['errors'].append(errors)
-
-        if len(response['successes']) > 0:
-            return Response(response, status=status.HTTP_200_OK)
-        else:
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, pk):
         user_id = request.user.id
@@ -155,6 +151,21 @@ class MatchView(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+def translateRegionR3(region):
+    mapping = {'BR1': 'BR',
+               'EUN1': 'EUNE',
+               'EUW1': 'EUW',
+               'JP1': 'JP',
+               'KR': 'KR',
+               'LA1': 'LAN',
+               'LA2': 'LAS',
+               'NA1': 'NA',
+               'OC1': 'OCE',
+               'TR1': 'TR',
+               'RU1': 'RU'}
+    return mapping[region]
+
+
 def translateRegion(region):
     mapping = {'Region.brazil': 'BR',
                'Region.europe_north_east': 'EUNE',
@@ -181,4 +192,3 @@ class MatchesByUserId(APIView):
             match_ids.append(match.match_id)
 
         return Response({'match_ids': match_ids}, status=status.HTTP_200_OK)
-

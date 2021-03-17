@@ -21,6 +21,7 @@ class LogoutAndBlacklistRefreshTokenForUserView(APIView):
 
     def post(self, request):
         try:
+            print('blacklisted token')
             refresh_token = request.data["refresh_token"]
             token = RefreshToken(refresh_token)
             token.blacklist()

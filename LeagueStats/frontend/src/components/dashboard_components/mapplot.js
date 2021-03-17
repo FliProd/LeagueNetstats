@@ -87,7 +87,6 @@ class MapPlot extends Component {
 
     static getDerivedStateFromProps(props, state) {
         if (!state.loaded || props.new_data) {
-            //console.log('getDerivedStateFromProps')
             let events
             if (props.events != undefined) {
                 events = props.events
@@ -112,6 +111,7 @@ class MapPlot extends Component {
                 state.options.series[2].data = buildings
                 state.loaded = true
             }
+
 
             return state
         } else {

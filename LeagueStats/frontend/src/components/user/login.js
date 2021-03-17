@@ -1,8 +1,19 @@
-import React, { Component, Fragment } from "react";
+import React, {Component, Fragment} from "react";
 import {axiosInstance} from "../../axiosApi";
-import { Button, Form, Alert } from "react-bootstrap";
-import { Grid, Paper, Box} from "@material-ui/core";
+import {Form, Alert} from "react-bootstrap";
+import {Grid, Paper, Box, Button} from "@material-ui/core";
 import SummonerList from "./summoner";
+import {withStyles} from "@material-ui/core/styles";
+
+const styles = theme => ({
+    border: {
+        borderWidth: theme.border.width,
+        borderColor: theme.border.color,
+        borderStyle: 'solid',
+        borderRadius: '5px',
+    },
+})
+
 
 class Login extends Component {
     constructor(props) {
@@ -10,8 +21,6 @@ class Login extends Component {
         this.state = {
             email: "",
             password: "",
-            error_description: "",
-            error_occurred: "",
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -25,21 +34,19 @@ class Login extends Component {
 
     async handleSubmit(event) {
         event.preventDefault();
-        try {
-            const response = await axiosInstance.post('/api/token/obtain/', {
-                email: this.state.email,
-                password: this.state.password
-            });
+        axiosInstance.post('/api/token/obtain/', {
+            email: this.state.email,
+            password: this.state.password
+        }).then(response => {
             axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access;
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
-            window.location.href = '/';
+            window.location.href = '/'
             return response.data;
-        } catch (error) {
-            console.log(error.response);
-            this.setState({error_occurred: true});
-            this.setState({error_description: error.response.data['detail']});
-        }
+        }).catch(error => {
+            this.setState({errors: error.response.data});
+        })
+
     }
 
     renderForm() {
@@ -50,16 +57,20 @@ class Login extends Component {
                     <Form.Group controlId="formBasicEmail">
                         <Form.Label>Email</Form.Label>
                         <Form.Control name="email" type="text" value={this.state.email}
-                                      onChange={this.handleChange}/>
+                                      onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
+                    {this.state.errors && this.state.errors.email &&
+                    <Alert className={"margin-t"} variant={"danger"}>{this.state.errors.email}</Alert>}
                     <Form.Group controlId="formBasicPassword">
                         <Form.Label>Password</Form.Label>
                         <Form.Control name="password" type="password" value={this.state.password}
-                                      onChange={this.handleChange}/>
+                                      onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
-                    {this.state.error_occurred &&
-                    <Alert className={"margin-t"} variant={"danger"}>{this.state.error_description}</Alert>}
-                    <Button className={"margin-t"} variant={'dark'} type={'Submit'}>
+                    {this.state.errors && this.state.errors.password &&
+                    <Alert className={"margin-t"} variant={"danger"}>{this.state.errors.password}</Alert>}
+                    {this.state.errors && this.state.errors.detail &&
+                    <Alert className={"margin-t"} variant={"danger"}>{this.state.errors.detail}</Alert>}
+                    <Button className={"margin-t"} variant={'contained'} type={'Submit'}>
                         Submit
                     </Button>
                 </Form>
@@ -68,18 +79,18 @@ class Login extends Component {
     }
 
     render() {
+        const classes = this.props.classes
         const Form = this.renderForm();
         return (
             <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
-                <Grid item xs={6}>
-                    <Paper variant="outlined">
-                        <Box p={2}>
-                            {Form}
-                        </Box>
-                    </Paper>
+                <Grid item xs={6} className={classes.border}>
+                    <Box p={2}>
+                        {Form}
+                    </Box>
                 </Grid>
             </Grid>
         );
     }
 }
-export default Login;
+
+export default withStyles(styles)(Login)

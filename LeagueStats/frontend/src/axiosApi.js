@@ -2,6 +2,8 @@ import axios from 'axios'
 
 const baseURL = 'http://127.0.0.1:8000/'
 const csrftoken = getCookie('csrftoken');
+//prevent data race on /api/token/refresh when two or more requests fail
+let isRefreshing = false
 
 export const axiosInstance = axios.create({
     baseURL: baseURL,
@@ -18,19 +20,12 @@ axiosInstance.interceptors.response.use(
     error => {
         const originalRequest = error.config;
 
-        // Prevent infinite loops
-        console.log(originalRequest)
-        console.log(error.response)
-
-        if(error.response.status === 401 && originalRequest.url === '/api/profile/get/') {
-            console.log('/api/profile/get/')
-            //window.location.href = '/login/'
-            return Promise.reject(error);
-        }
-
         if (error.response.status === 401 && originalRequest.url === '/api/token/refresh/') {
-             console.log('/api/token/refresh/')
-            //window.location.href = '/login/'
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            axiosInstance.defaults.headers['Authorization'] = null;
+            console.log('deleted tokens')
+            window.location.href = '/login/';
             return Promise.reject(error);
         }
 
@@ -39,41 +34,40 @@ axiosInstance.interceptors.response.use(
             error.response.statusText === "Unauthorized") {
             const refreshToken = localStorage.getItem('refresh_token');
 
-            if (refreshToken) {
-                const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
+            if (!isRefreshing) {
+                if (refreshToken) {
+                    isRefreshing = true
+                    const tokenParts = JSON.parse(atob(refreshToken.split('.')[1]));
 
-                // exp date in token is expressed in seconds, while now() returns milliseconds:
-                const now = Math.ceil(Date.now() / 1000);
+                    // exp date in token is expressed in seconds, while now() returns milliseconds:
+                    const now = Math.ceil(Date.now() / 1000);
 
-                if (tokenParts.exp > now) {
-                    return axiosInstance
-                        .post('/api/token/refresh/', {refresh: refreshToken, csrftoken: csrftoken})
-                        .then((response) => {
+                    if (tokenParts.exp > now) {
+                        return axiosInstance
+                            .post('/api/token/refresh/', {refresh: refreshToken, csrftoken: csrftoken})
+                            .then((response) => {
 
-                            localStorage.setItem('access_token', response.data.access);
-                            localStorage.setItem('refresh_token', response.data.refresh);
+                                localStorage.setItem('access_token', response.data.access);
+                                localStorage.setItem('refresh_token', response.data.refresh);
 
-                            axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access;
-                            originalRequest.headers['Authorization'] = "JWT " + response.data.access;
+                                axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access;
+                                originalRequest.headers['Authorization'] = "JWT " + response.data.access;
+                                isRefreshing = false
 
-                            return axiosInstance(originalRequest);
-                        })
-                        .catch(err => {
-                            console.log(err)
-                        });
+                                return axiosInstance(originalRequest);
+                            })
+                            .catch(err => {
+                                console.log(err)
+                            });
+                    } else {
+                        window.location.href = '/login/';
+                    }
                 } else {
-                    console.log("Refresh token is expired", tokenParts.exp, now);
-                    //window.location.href = '/login/';
+                    window.location.href = '/login/';
                 }
-            } else {
-                console.log("Refresh token not available.")
-                //window.location.href = '/login/';
             }
+            return Promise.reject(error);
         }
-
-
-        // specific error handling done elsewhere
-        return Promise.reject(error);
     }
 );
 

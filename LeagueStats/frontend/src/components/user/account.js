@@ -193,7 +193,6 @@ class Account extends Component {
     }
 
     renderSummoner() {
-        console.log(this.state)
         return (
             <Fragment>
                 <Grid container spacing={2} direction={"row"} display={"flex"} justify={"center"}
@@ -270,7 +269,7 @@ class Account extends Component {
                             <Grid item xs={11}>
                                 {this.state.edited["email"] && (
                                     <Form.Group controlId="formBasicEmail">
-                                    <Form.Control name="email" type="text" value={this.state.user.email} onChange={this.handleChange}/>
+                                    <Form.Control name="email" type="text" value={this.state.user.email} onChange={this.handleChange} autoComplete={'off'}/>
                                     </Form.Group>
                                     )}
                                 {!this.state.edited["email"] && (
@@ -289,7 +288,7 @@ class Account extends Component {
                             <Grid item xs={11}>
                                 {this.state.edited["password"] && (
                                     <Form.Group controlId="formBasicEmail">
-                                    <Form.Control name="password" type="text" value={'************'} onChange={this.handleChange}/>
+                                    <Form.Control name="password" type="text" value={'************'} onChange={this.handleChange} autoComplete={'off'}/>
                                     </Form.Group>
                                 )}
                                 {!this.state.edited["password"] && (

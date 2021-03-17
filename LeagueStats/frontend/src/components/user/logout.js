@@ -17,7 +17,7 @@ class Logout extends Component {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
             axiosInstance.defaults.headers['Authorization'] = null;
-            //window.location.href = '/login/'
+            window.location.href = '/'
         } catch (e) {
             console.log(e);
         }

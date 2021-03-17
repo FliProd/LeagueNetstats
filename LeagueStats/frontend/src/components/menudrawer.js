@@ -16,7 +16,7 @@ import {Typography, Box} from "@material-ui/core";
 import {withRouter} from "react-router";
 import {Image} from "react-bootstrap";
 import Slide from '@material-ui/core/Slide';
-import { useTranslation } from 'react-i18next'
+import {useTranslation} from 'react-i18next'
 
 
 const drawerWidth = 240
@@ -74,7 +74,7 @@ class MenuDrawer extends Component {
         const open = this.state.open
 
         const handleDrawerOpen = () => {
-            this.setState({open: true})
+            this.setState({open: this.props.logged_in})
         }
 
         const handleDrawerClose = () => {
@@ -83,7 +83,6 @@ class MenuDrawer extends Component {
 
         return (
             <div className={classes.root}>
-                <CssBaseline/>
                 <Drawer
                     variant="permanent"
                     className={clsx(classes.drawer, {
@@ -99,25 +98,32 @@ class MenuDrawer extends Component {
                     onClick={open ? handleDrawerClose : handleDrawerOpen}
                 >
                     <Box height={'33%'}>
-                        <MenuProfile profile={this.props.profile} open={open} className={this.props.classes.menuitem}/>
+                        <MenuProfile profile={this.props.profile} open={open}
+                                     className={this.props.classes.menuitem}/>
                     </Box>
                     <Box height={'57%'}>
                         <List>
-                            <ListButtonRouter open={open} path={'/dashboard'} name={'menudrawer.dashboard'} icon={<TrendingUpSharpIcon/>}/>
-                            <ListButtonRouter open={open} path={'/matches'} name={'menudrawer.matches'} icon={<ListAltSharpIcon/>}/>
-                            <ListButtonRouter open={open} path={'/account'} name={'menudrawer.account'} icon={<AccountBoxIcon/>}/>
-                            <ListButtonRouter open={open} path={'/feedback'} name={'menudrawer.feedback'} icon={<FeedbackIcon/>}/>
+                            <ListButtonRouter open={open} path={'/dashboard'} name={'menudrawer.dashboard'}
+                                              icon={<TrendingUpSharpIcon/>}/>
+                            <ListButtonRouter open={open} path={'/matches'} name={'menudrawer.matches'}
+                                              icon={<ListAltSharpIcon/>}/>
+                            <ListButtonRouter open={open} path={'/account'} name={'menudrawer.account'}
+                                              icon={<AccountBoxIcon/>}/>
+                            <ListButtonRouter open={open} path={'/feedback'} name={'menudrawer.feedback'}
+                                              icon={<FeedbackIcon/>}/>
                         </List>
                     </Box>
                     <Box display={'flex'} alignItems={'flex-end'} height={'10%'}>
                         <List>
                             <ListButtonRouter path={'/logout'} name={'menudrawer.logout'} icon={<ExitToAppIcon/>}/>
                         </List>
+
                     </Box>
                 </Drawer>
             </div>
         )
     }
+
 }
 
 export default withStyles(styles)(MenuDrawer)
@@ -125,12 +131,13 @@ export default withStyles(styles)(MenuDrawer)
 
 function MenuProfile(props) {
 
-
-    const icon_url = 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + props.profile.game_info.icon_id + '.png'
+    const icon_url = props.profile.game_info.icon_id != '' ? 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + props.profile.game_info.icon_id + '.png' : ''
     const summoner_name = props.profile.user.username
 
     return (
-        <Slide direction="right" in={props.open} timeout={500}>
+
+        <Slide direction="right" in={props.open}
+               timeout={500}>
             <Box height={"100%"} display={"flex"} flexDirection={"column"} alignItems={"center"}
                  justifyContent={"center"}>
                 <Image width={"150px"} src={icon_url} roundedCircle/>
@@ -141,20 +148,22 @@ function MenuProfile(props) {
     )
 }
 
-const ListItemTextStyles = (theme) => ({
-    root: {
-        flex: '1 1 auto',
-        minWidth: 0,
-        marginTop: 1,
-        marginBottom: 7,
-    },
+const ListItemTextStyles = (theme) => (
+    {
+        root: {
+            flex: '1 1 auto',
+            minWidth: 0,
+            marginTop: 1,
+            marginBottom: 7,
+        },
+    }
+)
 
-});
 
 function ListButton(props) {
 
 
-    const { t } = useTranslation()
+    const {t} = useTranslation()
 
     const {classes} = props;
 

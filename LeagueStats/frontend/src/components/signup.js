@@ -1,14 +1,25 @@
-import React, {Component, Fragment} from "react";
-import {axiosInstance} from "../axiosApi";
-import {Alert, Button, Form} from "react-bootstrap";
-import {Grid, Paper, Box} from '@material-ui/core';
-import {StatusCodes} from 'http-status-codes';
-import SummonerList from "./user/summoner";
+import React, {Component, Fragment} from "react"
+import {axiosInstance} from "../axiosApi"
+import {Alert, Form} from "react-bootstrap"
+import {Grid, Paper, Box, Button} from '@material-ui/core'
+import {StatusCodes} from 'http-status-codes'
+import SummonerList from "./user/summoner"
+import {withStyles} from "@material-ui/core/styles"
+
+const styles = theme => ({
+    border: {
+        borderWidth: theme.border.width,
+        borderColor: theme.border.color,
+        borderStyle: 'solid',
+        borderRadius: '5px',
+        height: '100%',
+    },
+})
 
 
 class Signup extends Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
             user: {
                 username: "",
@@ -24,48 +35,47 @@ class Signup extends Component {
                 country: "",
                 zipcode: 0,
             },
-        };
-        this.summonerListElement = React.createRef();
+        }
+        this.summonerListElement = React.createRef()
 
         this.handleLocation = this.handleLocation.bind(this)
-        this.handleChange = this.handleChange.bind(this);
-        this.getLocation = this.getLocation.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.setSummoner = this.setSummoner.bind(this);
-        this.renderForm = this.renderForm.bind(this);
+        this.handleChange = this.handleChange.bind(this)
+        this.getLocation = this.getLocation.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this)
+        this.setSummoner = this.setSummoner.bind(this)
+        this.renderForm = this.renderForm.bind(this)
     }
 
     handleChange(event) {
         this.setState(prevstate => {
-            return prevstate.user[event.target.name] = event.target.value;
-        });
+            return prevstate.user[event.target.name] = event.target.value
+        })
 
         if (event.target.name == 'username') {
             if (this.state.typing_timeout) {
-                clearTimeout(this.state.typing_timeout);
+                clearTimeout(this.state.typing_timeout)
             }
             this.setState({
                 typing_timeout: setTimeout(() => {
-                    this.summonerListElement.current.getSummonerInfo(event.target.value);
+                    this.summonerListElement.current.getSummonerInfo(event.target.value)
                 }, 2000),
-            });
+            })
         }
 
     }
 
     setSummoner(summoner) {
-        this.setState({account: summoner});
+        this.setState({account: summoner})
     }
 
     async handleLocation(latitude, longitude) {
         try {
-            console.log('handlelocation');
             const response = await axiosInstance.post('/geo/discreteLocation/', {
                 location: {
                     latitude: latitude,
                     longitude: longitude,
                 }
-            });
+            })
             this.setState({
                 location: {
                     city: response.data.city,
@@ -77,32 +87,28 @@ class Signup extends Component {
         } catch (error) {
             this.setState({
                 errors: {location: "Something went wrong while handling your Location."},
-            });
+            })
         }
     }
 
     getLocation(event) {
-        console.log('getLocation');
         if (event.target.checked) {
             if ("geolocation" in navigator) {
-                console.log('requesting');
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
-                        console.log('successcallback')
-                        this.handleLocation(position.coords.latitude, position.coords.longitude);
+                        this.handleLocation(position.coords.latitude, position.coords.longitude)
                     },
                     (error) => {
                         this.setState({
                             errors: {location: error.message},
-                        });
+                        })
                         console.log(error)
                     }
-                );
-                console.log('requested');
+                )
             } else {
                 this.setState({
                     errors: {location: "Your Location cant be accessed. Try giving the right permission to your Browser."},
-                });
+                })
             }
         } else {
             this.setState({
@@ -112,26 +118,26 @@ class Signup extends Component {
                     country: "",
                     zipcode: "",
                 }
-            });
+            })
         }
     }
 
     async handleSubmit(event) {
-        event.preventDefault();
+        event.preventDefault()
 
         try {
             if(this.state.location.country == "") {
                 this.setState({
-                    errors: {location: 'Your Location cant be loaded. Make sure your Browser and Operating System have allowed Locaiton access for this site.'},
+                    errors: {location: 'Your Location cant be loaded. Make sure your Browser and Operating System have allowed Location access for this site.'},
                 })
                 return
             }
 
             if(this.state.account.puuid == undefined) {
-                throw TypeError;
+                throw TypeError
             }
 
-            const account = this.state.account;
+            const account = this.state.account
 
             const response = await axiosInstance.post('/api/profile/create/', {
                 user: {
@@ -150,29 +156,29 @@ class Signup extends Component {
                 country: this.state.location.country,
                 zipcode: this.state.location.zipcode,
 
-            });
+            })
 
             if (response.status != StatusCodes.BAD_REQUEST) {
                 const response = await axiosInstance.post('/api/token/obtain/', {
                     email: this.state.user.email,
                     password: this.state.user.password
-                });
-                axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access;
-                localStorage.setItem('access_token', response.data.access);
-                localStorage.setItem('refresh_token', response.data.refresh);
-                window.location.href = '/';
+                })
+                axiosInstance.defaults.headers['Authorization'] = "JWT " + response.data.access
+                localStorage.setItem('access_token', response.data.access)
+                localStorage.setItem('refresh_token', response.data.refresh)
+                window.location.href = '/'
             } else {
-                return response;
+                return response
             }
         } catch (error) {
             if (error == TypeError) {
                 this.setState({
                     errors: {account: "Give a valid Summonername and choose a Summoner."},
-                });
+                })
             } else {
                 this.setState({
                     errors: error.response.data,
-                });
+                })
             }
         }
     }
@@ -185,7 +191,7 @@ class Signup extends Component {
                     <Form.Group controlId="formBasicUsername">
                         <Form.Label>Summoner Name</Form.Label>
                         <Form.Control name="username" type="text" value={this.state.user.username}
-                                      onChange={this.handleChange}/>
+                                      onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.user && this.state.errors.user.username) &&
                         <Alert variant={"danger"}>{this.state.errors.user.username}</Alert>
@@ -193,7 +199,7 @@ class Signup extends Component {
                     <Form.Group controlId="formBasicEmail">
                         <Form.Label>Email</Form.Label>
                         <Form.Control name="email" type="text" value={this.state.user.email}
-                                      onChange={this.handleChange}/>
+                                      onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.user && this.state.errors.user.email) &&
                         <Alert variant={"danger"}>{this.state.errors.user.email}</Alert>
@@ -201,7 +207,7 @@ class Signup extends Component {
                     <Form.Group controlId="formBasicPassword">
                         <Form.Label>Password</Form.Label>
                         <Form.Control name="password" type="password" value={this.state.user.password}
-                                      onChange={this.handleChange}/>
+                                      onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.user && this.state.errors.user.password) &&
                         <Alert variant={"danger"}>{this.state.errors.user.password}</Alert>
@@ -213,28 +219,27 @@ class Signup extends Component {
                     {(this.state.errors && this.state.errors.location) &&
                         <Alert variant={"danger"}>{this.state.errors.location}</Alert>
                     }
-                    <Button variant={'dark'} type={'Submit'}>
+                    <Button variant={'contained'} type={'Submit'}>
                         Submit
                     </Button>
                 </Form>
             </Fragment>
-        );
+        )
     }
 
     render() {
-        const Form = this.renderForm();
+        const classes = this.props.classes
+
+        const Form = this.renderForm()
+
         return (
-            <Grid className={"signup-grid"} container spacing={5} direction="row" alignItems="center" justify="center">
+            <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
                 <Grid item xs={6}>
-                    <Paper variant="outlined">
                         <Box p={2}>
                             {Form}
                         </Box>
-
-                    </Paper>
                 </Grid>
-                <Grid item xs={6}>
-                    <Paper variant="outlined">
+                <Grid item xs={6} className={classes.border}>
                         <SummonerList
                             ref={this.summonerListElement}
                             setSummoner={(summoner) => this.setSummoner(summoner)}
@@ -245,12 +250,11 @@ class Signup extends Component {
                         {(this.state.errors && this.state.errors.account) &&
                             <Alert variant={"danger"}>{this.state.errors.account}</Alert>
                         }
-                    </Paper>
                 </Grid>
             </Grid>
         )
     }
 }
 
-export default Signup;
+export default withStyles(styles)(Signup)
 

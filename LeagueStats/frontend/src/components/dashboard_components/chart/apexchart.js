@@ -39,7 +39,7 @@ class ApexChart extends Component {
                 'CHAMPION_KILL': [],
                 'CHAMPION_DEATH': [],
                 'WARD_PLACED': [],
-                'WARD_KILLED': [],
+                'WARD_KILL': [],
                 'BUILDING_KILL': [],
                 'ELITE_MONSTER_KILL': [],
                 'ITEM_PURCHASED': [],
@@ -55,7 +55,7 @@ class ApexChart extends Component {
                 'CHAMPION_KILL': [],
                 'CHAMPION_DEATH': [],
                 'WARD_PLACED': [],
-                'WARD_KILLED': [],
+                'WARD_KILL': [],
                 'BUILDING_KILL': [],
                 'ELITE_MONSTER_KILL': [],
                 'ITEM_PURCHASED': [],
@@ -93,7 +93,7 @@ class ApexChart extends Component {
                 'CHAMPION_KILL': true,
                 'CHAMPION_DEATH': false,
                 'WARD_PLACED': false,
-                'WARD_KILLED': false,
+                'WARD_KILL': false,
                 'BUILDING_KILL': false,
                 'ELITE_MONSTER_KILL': false,
                 'ITEM_PURCHASED': false,
@@ -300,7 +300,6 @@ class ApexChart extends Component {
                 })
             } else {
                 errors = true
-                console.log('errors')
             }
 
             if (!errors) {
@@ -508,7 +507,7 @@ class ApexChart extends Component {
                 this.setState({
                     loaded_event: loaded_event,
                 })
-                        this.chart.updateOptions(this.state.options)
+                this.chart.updateOptions(this.state.options)
 
             }
         }
@@ -521,6 +520,7 @@ class ApexChart extends Component {
             this.prepareChart()
             this.state.added_data = true
         }
+
 
         return (
             <Box display={'flex'} flexDirection={'column'}
@@ -586,7 +586,7 @@ class ApexChart extends Component {
     }
 
     static isAnnotation(name) {
-        const annotations = ['CHAMPION_KILL', 'CHAMPION_DEATH', 'WARD_PLACED', 'WARD_KILLED', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'ITEM_PURCHASED', 'ITEM_SOLD', 'ITEM_DESTROYED', 'ITEM_UNDO', 'SKILL_LEVEL_UP', 'CAPTURE_POINT', 'PORO_KING_SUMMON', 'ASCENDED_EVENT',]
+        const annotations = ['CHAMPION_KILL', 'CHAMPION_DEATH', 'WARD_PLACED', 'WARD_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'ITEM_PURCHASED', 'ITEM_SOLD', 'ITEM_DESTROYED', 'ITEM_UNDO', 'SKILL_LEVEL_UP', 'CAPTURE_POINT', 'PORO_KING_SUMMON', 'ASCENDED_EVENT',]
         return annotations.includes(name)
     }
 
@@ -596,7 +596,7 @@ class ApexChart extends Component {
             case 'CHAMPION_DEATH':
                 return '#d63d54'
             case 'WARD_PLACED':
-            case 'WARD_KILLED':
+            case 'WARD_KILL':
             case 'BUILDING_KILL':
             case 'ELITE_MONSTER_KILL':
                 return '#12bf80'

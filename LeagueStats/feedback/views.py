@@ -2,10 +2,12 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from .serializers import Feedbackerializer
-from rest_framework import status
+from rest_framework import status, permissions
+
 
 
 class Feedback(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
 
 
     def get(self, request, pk, format=None):

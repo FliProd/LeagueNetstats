@@ -37,8 +37,8 @@ class Event(models.Model):
     timestamp = models.PositiveBigIntegerField()
     x = models.PositiveIntegerField()
     y = models.PositiveIntegerField()
-    active_participant = models.CharField(blank=True, null=True, max_length=16)
-    passive_participant = models.CharField(blank=True, null=True, max_length=16)
+    active_participant = models.CharField(blank=True, null=True, max_length=64)
+    passive_participant = models.CharField(blank=True, null=True, max_length=64)
     assisting_participants = ArrayField(models.PositiveIntegerField(), blank=True, null=True)
     type = models.CharField(max_length=32)
 

@@ -56,40 +56,43 @@ def parse_match(match, user_id):
         'winner': [],
         'loser': [],
     }
+    try:
+        for participant in match.participants:
+            participant_to_save = {
+                'name': participant.summoner.name,
+                'profile_icon_id': participant.summoner.profile_icon.id,
+                'id': participant.id,
+                'champion': participant.champion.id,
+                'role': participant.role.value,
+                'kills': participant.stats.kills,
+                'deaths': participant.stats.deaths,
+                'assists': participant.stats.assists,
+                'total_dmg': participant.stats.total_damage_dealt,
+                'total_damage_taken': participant.stats.total_damage_taken,
+                'gold_earned': participant.stats.gold_earned,
+            }
+            if participant.team.win:
+                teams['winner'].append(participant_to_save)
+            else:
+                teams['loser'].append(participant_to_save)
 
-    for participant in match.participants:
-        participant_to_save = {
-            'name': participant.summoner.name,
-            'profile_icon_id': participant.summoner.profile_icon.id,
-            'id': participant.id,
-            'champion': participant.champion.id,
-            'role': participant.role.value,
-            'kills': participant.stats.kills,
-            'deaths': participant.stats.deaths,
-            'assists': participant.stats.assists,
-            'total_dmg': participant.stats.total_damage_dealt,
-            'total_damage_taken': participant.stats.total_damage_taken,
-            'gold_earned': participant.stats.gold_earned,
+        match_to_save = {
+            'user_id': user_id,
+            'match_id': match.id,
+            'queue_id': match.queue.value,
+            'game_type': match.type.value,
+            'game_duration': int(match.duration.total_seconds() * 1000),
+            'game_start': match.creation.timestamp,
+            'platform_id': match.platform.value,
+            'season_id': match.season.value,
+            'map_id': match.map.id,
+            'game_mode': match.mode.value,
+            'teams': json.dumps(teams)
         }
-        if participant.team.win:
-            teams['winner'].append(participant_to_save)
-        else:
-            teams['loser'].append(participant_to_save)
+        return match_to_save
 
-    match_to_save = {
-        'user_id': user_id,
-        'match_id': match.id,
-        'queue_id': match.queue.value,
-        'game_type': match.type.value,
-        'game_duration': int(match.duration.total_seconds() * 1000),
-        'game_start': match.creation.timestamp,
-        'platform_id': match.platform.value,
-        'season_id': match.season.value,
-        'map_id': match.map.id,
-        'game_mode': match.mode.value,
-        'teams': json.dumps(teams)
-    }
-    return match_to_save
+    except AttributeError:
+        return False
 
 
 def parse_event(event, pov_id, match_id, events, user_id):

@@ -9,6 +9,9 @@ import MenuDrawer from "./menudrawer";
 import {axiosInstance} from "../axiosApi";
 import Dashboard from "./dashboard";
 import Feedback from "./feedback";
+import Home from "./home";
+import clsx from "clsx";
+import CssBaseline from "@material-ui/core/CssBaseline";
 
 let theme = createMuiTheme({
     palette: {
@@ -34,7 +37,7 @@ let theme = createMuiTheme({
         color: '#B6893A',
         width: 1,
     }
-});
+})
 theme = responsiveFontSizes(theme);
 
 
@@ -65,54 +68,79 @@ class App extends Component {
                     city: '',
                     zipcode: '',
                 },
-            }
+            },
+            logged_in: false
         }
     }
 
     componentDidMount() {
-        if(window.location.pathname != '/login/') {
-            this.getAccount()
-        }
+        this.getAccount()
     }
 
     async getAccount() {
-        const response = await axiosInstance.get('/api/profile/get/');
-        this.setState({
-            profile: {
-                user: {
-                    username: response.data.user.username,
-                    email: response.data.user.email,
+        if (this.loggedIn()) {
+            const response = await axiosInstance.get('/api/profile/get/');
+            this.setState({
+                profile: {
+                    user: {
+                        username: response.data.user.username,
+                        email: response.data.user.email,
+                    },
+                    game_info: {
+                        puuid: response.data.puuid,
+                        game_region: response.data.game_region,
+                        icon_id: response.data.icon_id,
+                        level: response.data.level,
+                    },
+                    location: {
+                        country: response.data.country,
+                        state: response.data.state,
+                        city: response.data.city,
+                        zipcode: response.data.zipcode,
+                    },
                 },
-                game_info: {
-                    puuid: response.data.puuid,
-                    game_region: response.data.game_region,
-                    icon_id: response.data.icon_id,
-                    level: response.data.level,
-                },
-                location: {
-                    country: response.data.country,
-                    state: response.data.state,
-                    city: response.data.city,
-                    zipcode: response.data.zipcode,
-                },
-            }
-        })
+            })
+        }
+    }
+
+    loggedIn() {
+        if (!localStorage.getItem('access_token') || !localStorage.getItem('refresh_token')) {
+            return false
+        } else {
+            return true
+        }
     }
 
     render() {
+        const classes = this.props.classes
+
+        const logged_in = this.loggedIn()
+
+        let home
+        if (logged_in) {
+            home = <Route path={"/"} render={() => <Dashboard profile={this.state.profile}/>}/>
+        } else {
+            home = <Route path={"/"} component={Home}/>
+        }
+
+
         return (
             <div className={"site"}>
                 <ThemeProvider theme={theme}>
-                    <MenuDrawer profile={this.state.profile}/>
-                    <main className={this.props.classes.container}>
+                    <CssBaseline/>
+                    {logged_in &&
+                    <MenuDrawer profile={this.state.profile} logged_in={logged_in}/>
+                    }
+                    <main className={clsx({[classes.container]: logged_in})}>
                         <Switch>
-                            <Route exact path={"/login/"} component={Login}/>
-                            <Route exact path={"/logout/"} component={Logout}/>
+                            <Route exact path={"/login/"} render={() => <Login/>}/>
+                            <Route exact path={"/logout/"} render={() => <Logout/>}/>
                             <Route exact path={"/signup/"} component={Signup}/>
                             <Route exact path={"/account/"} component={Account}/>
                             <Route exact path={"/feedback/"} component={Feedback}/>
+                            <Route exact path={"/matches/"} component={Home}/>
                             <Route path={"/dashboard"} render={() => <Dashboard profile={this.state.profile}/>}/>
-                            <Route path={"/"} render={() => <Dashboard profile={this.state.profile}/>}/>
+                            {home}
                         </Switch>
                     </main>
                 </ThemeProvider>
