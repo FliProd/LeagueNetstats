@@ -22,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '3#432)841&qi%mubbx6ajfy^mg%u(qk$%1f^^pffi9e(3ip#%b'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -57,7 +57,7 @@ CASSIOPEIA_LOGGING = {
     "DEFAULT": "WARNING",
     "CORE": "WARNING"
 }
-CASSIOPEIA_RIOT_API_KEY = os.environ["RIOT_API_KEY"]
+CASSIOPEIA_RIOT_API_KEY = os.environ.get("RIOT_API_KEY")
 CASSIOPEIA_LIMITING_SHARE = 1.0
 CASSIOPEIA_API_ERROR_HANDLING = {
     "404": ["t"],
@@ -155,26 +155,9 @@ WSGI_APPLICATION = 'LeagueStats.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-#django-pgcrypt-fields
-#BASEDIR = os.path.dirname(os.path.dirname(__file__))
-# BASEDIR = os.environ["BASEDIR"]
-# print(BASEDIR)
-# PUBLIC_PGP_KEY_PATH = os.path.abspath(os.path.join(BASEDIR, 'public.key'))
-# PRIVATE_PGP_KEY_PATH = os.path.abspath(os.path.join(BASEDIR, 'private.key'))
-#
-# # Used by PGPPublicKeyField used by default if not specified by the db
-# PUBLIC_PGP_KEY = open(PUBLIC_PGP_KEY_PATH).read()
-# PRIVATE_PGP_KEY = open(PRIVATE_PGP_KEY_PATH).read()
-#
 # # Used by TextHMACField and PGPSymmetricKeyField if not specified by the db
 PGCRYPTO_KEY ='ultrasecret'
 
-# DIFF_PUBLIC_PGP_KEY_PATH = os.path.abspath(
-#     os.path.join(BASEDIR, 'tests/keys/public_diff.key')
-# )
-# DIFF_PRIVATE_PGP_KEY_PATH = os.path.abspath(
-#     os.path.join(BASEDIR, 'tests/keys/private_diff.key')
-# )
 
 DATABASES = {
     'default': {
