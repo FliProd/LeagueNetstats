@@ -1,13 +1,6 @@
-import React, {Component, Fragment, isValidElement} from "react"
-import Box from "@material-ui/core/Box"
-import Chart from "react-apexcharts"
+import React, {Component} from "react"
 import ApexCharts from 'apexcharts'
-import CheckboxList from "./checkbox"
-import {Grid, Paper, Typography} from "@material-ui/core"
-import {Image} from "react-bootstrap";
-import Event from "./event";
 import {withStyles} from "@material-ui/core/styles";
-import clsx from "clsx";
 
 
 const styles = theme => ({

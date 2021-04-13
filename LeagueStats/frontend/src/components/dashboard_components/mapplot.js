@@ -1,6 +1,6 @@
-import React, {Component, Fragment, isValidElement} from "react"
-import Box from "@material-ui/core/Box"
+import React, {Component} from "react"
 import ApexCharts from 'apexcharts'
+import {withTranslation} from "react-i18next";
 
 
 class MapPlot extends Component {
@@ -11,7 +11,7 @@ class MapPlot extends Component {
             chart_series: {},
             kills: [],
             deaths: [],
-            options: MapPlot.setOptions(),
+            options: MapPlot.setOptions(props.t),
         }
         //TODO go over this references
         if (React.createRef) {
@@ -21,12 +21,13 @@ class MapPlot extends Component {
         }
     }
 
-    static setOptions() {
+    static setOptions(t) {
         return {
             series: [
-                {name: "CHAMPION_KILLS", data: []},
-                {name: "CHAMPION_DEATHS", data: []},
-                {name: "BUILDING_KILL", data: []},
+                {name: t("annotation.CHAMPION_KILL"), data: []},
+                {name: t("annotation.CHAMPION_DEATH"), data: []},
+                {name: t("annotation.BUILDING_KILL"), data: []},
+                {name: t("annotation.BUILDING_KILL"), data: []},
             ],
             chart: {
                 parentHeightOffset: 0,
@@ -39,7 +40,7 @@ class MapPlot extends Component {
                 zoom: {
                     enabled: false,
                 },
-                background: 'url(/static/img/map_400x400.png)'
+                background: 'url(/static/img/map/map_400x400.png)'
             },
             xaxis: {
                 labels: {
@@ -90,7 +91,7 @@ class MapPlot extends Component {
             let events
             if (props.events != undefined) {
                 events = props.events
-                state.options = MapPlot.setOptions()
+                state.options = MapPlot.setOptions(props.t)
             }
 
             let kills = []
@@ -115,14 +116,12 @@ class MapPlot extends Component {
 
             return state
         } else {
-            //console.log('getDerivedStateFromProps state not loaded')
             return null
         }
     }
 
 
     render() {
-        //console.log('render')
         if (this.state.loaded || this.props.new_data) {
             const element = React.createRef() ? this.chartRef.current : this.chartRef
             if (this.chart != null) {
@@ -142,4 +141,4 @@ class MapPlot extends Component {
     }
 }
 
-export default MapPlot
+export default withTranslation()(MapPlot)

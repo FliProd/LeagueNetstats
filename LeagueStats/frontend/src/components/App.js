@@ -1,15 +1,19 @@
 import React, {Component} from "react"
 import {Switch, Route} from "react-router-dom"
-import {ThemeProvider, createMuiTheme, withStyles, responsiveFontSizes} from '@material-ui/core/styles';
+import {ThemeProvider} from '@material-ui/core/styles';
+import responsiveFontSizes from '@material-ui/core/styles/responsiveFontSizes';
+import withStyles from '@material-ui/core/styles/withStyles';
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
 import Login from "./user/login"
 import Logout from "./user/logout"
-import Signup from "./signup"
+import Signup from "./user/signup"
 import Account from "./user/account"
 import MenuDrawer from "./menudrawer";
 import {axiosInstance} from "../axiosApi";
 import Dashboard from "./dashboard";
 import Feedback from "./feedback";
 import Home from "./home";
+import Matches from "./matches";
 import clsx from "clsx";
 import CssBaseline from "@material-ui/core/CssBaseline";
 
@@ -138,8 +142,12 @@ class App extends Component {
                             <Route exact path={"/signup/"} component={Signup}/>
                             <Route exact path={"/account/"} component={Account}/>
                             <Route exact path={"/feedback/"} component={Feedback}/>
-                            <Route exact path={"/matches/"} component={Home}/>
-                            <Route path={"/dashboard"} render={() => <Dashboard profile={this.state.profile}/>}/>
+                            <Route exact path={"/matches/"} render={() => <Matches profile={this.state.profile}/>}/>
+                            <Route path={"/dashboard"} render={({location, history}) => {
+                                let match_id = location.search.match(/\d{9}/)
+                                match_id = match_id && match_id.length > 0 ? match_id[0] : undefined
+                                return <Dashboard match_id={match_id} profile={this.state.profile}/>
+                            }}/>
                             {home}
                         </Switch>
                     </main>

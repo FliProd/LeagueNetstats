@@ -1,12 +1,14 @@
 import React, {Component, Fragment} from "react"
-import {Box, ListItem, List, Typography, Grid, Paper, Button} from "@material-ui/core"
-import SummonerList from "./user/summoner"
+import Button from "@material-ui/core/Button"
+import Typography from "@material-ui/core/Typography"
+import Grid from "@material-ui/core/Grid"
+import Box from "@material-ui/core/Box"
 import {Alert} from "react-bootstrap"
-import {forEach} from "react-bootstrap/ElementChildren"
 import {axiosInstance} from "../axiosApi"
-import {StatusCodes} from "http-status-codes"
-import {withStyles} from "@material-ui/core/styles"
+import { withStyles } from "@material-ui/core/styles"
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { withTranslation } from 'react-i18next'
+
 
 const styles = (theme) => ({
     border: {
@@ -40,6 +42,7 @@ class Upload extends Component {
             failures: 0,
             uploading: false,
             uploaded: false,
+            file_errors: []
         }
 
         this.onDrop = this.onDrop.bind(this)
@@ -220,7 +223,6 @@ class Upload extends Component {
                     'Content-Type': 'multipart/form-data'
                 }
             }).then(response => {
-                console.log(index + ' success')
                 this.setState(prevstate => {
                     prevstate.progress += progress_per_file
                     prevstate.successes += 1
@@ -234,15 +236,15 @@ class Upload extends Component {
                     prevstate.failures += 1
                     prevstate.total -= 1
                     prevstate.uploaded = prevstate.total == 0
+                    prevstate.file_errors.push(error.response.data)
                     return prevstate
                 })
-                console.log(error)
             })
         })
     }
 
     render() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
 
         const matchList = this.state.matches
         const num_matches = matchList.length
@@ -256,12 +258,12 @@ class Upload extends Component {
             filePrompt = (
                 <Box display={'flex'} flexDirection={'column'} justifyContent={'center'}>
                     <Typography variant={'body1'} align={'center'}>
-                        Upload {num_matches} matches?
+                        {t('upload.upload')} {num_matches} {t('upload.matches')}?
                     </Typography>
                     <Box mx={"auto"}>
                         <Button variant={"contained"} className={classes.control} type={"Submit"}
                                 onClick={this.handleSubmit}>
-                            Upload
+                            {t('upload.upload')}
                         </Button>
                         <Button variant={"contained"} className={classes.control}
                                 onClick={() => this.setState({
@@ -271,7 +273,7 @@ class Upload extends Component {
                                     found: false,
                                     cancelled: true
                                 })}>
-                            Cancel
+                            <Typography>{t('cancel')}</Typography>
                         </Button>
                     </Box>
                 </Box>
@@ -280,7 +282,7 @@ class Upload extends Component {
             filePrompt = (
                 <Box display={'flex'} flexDirection={'column'} justifyContent={'center'}>
                     <Typography variant={'body1'} align={'center'}>
-                        Uploading {num_matches} matches.
+                        {t('upload.uploading')} {num_matches} {t('upload.matches')}.
                     </Typography>
                     <BorderLinearProgress variant={'determinate'} value={this.state.progress}
                                           className={classes.progressbar}/>
@@ -290,7 +292,7 @@ class Upload extends Component {
             filePrompt = (
                 <Box display={'flex'} flexDirection={'column'} justifyContent={'center'}>
                     <Typography variant={'body1'} align={'center'}>
-                        Successfully uploaded {this.state.successes} matches out of {this.state.files.length} matches.
+                        {t('upload.succesfully_uploaded')} {this.state.successes} {t('upload.matches_out_of')} {this.state.files.length} {t('upload.matches')}.
                     </Typography>
                     <Button variant={"contained"} className={classes.control}
                             onClick={() => window.location.href = '/'}>
@@ -303,10 +305,10 @@ class Upload extends Component {
                 <Fragment>
                     <div>
                         <Box display={"flex"} justifyContent={"center"}>
-                            <Typography>Drag&Drop</Typography>
+                            <Typography>{t('upload.drag_and_drop')}</Typography>
                         </Box>
                         <Box display={"flex"} justifyContent={"center"}>
-                            <Typography>or</Typography>
+                            <Typography>{t('or')}</Typography>
                         </Box>
                         <Box className={"filepicker"}>
                             <input type="file" id="filepicker" name="fileList" webkitdirectory={"true"} multiple
@@ -314,13 +316,16 @@ class Upload extends Component {
                         </Box>
                         <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
                             {found == false && this.state.searched == true && this.state.cancelled == false &&
-                            <Alert variant={"danger"}>No League of Legends Logs found in this directory, choose a
-                                different one.</Alert>}
+                            <Alert variant={"danger"}><Typography>{t('upload.no_logs')}</Typography></Alert>}
                         </Box>
                     </div>
                 </Fragment>
             )
         }
+
+        const file_errors = this.state.file_errors.map((error, index) =>
+            <Alert variant={"danger"}>{t('upload.file')}: {error}</Alert>
+        )
 
         return (
             <Fragment>
@@ -336,6 +341,7 @@ class Upload extends Component {
                                  alignItems={"center"} justifyContent={"center"}>
                                 {filePrompt}
                             </Box>
+                            {file_errors}
                         </Box>
                     </Grid>
                 </Grid>
@@ -345,7 +351,7 @@ class Upload extends Component {
 }
 
 
-export default withStyles(styles)(Upload)
+export default withStyles(styles)(withTranslation()(Upload))
 
 const BorderLinearProgress = withStyles((theme) => ({
     root: {
@@ -358,5 +364,4 @@ const BorderLinearProgress = withStyles((theme) => ({
     bar: {
         borderRadius: 5,
         backgroundColor: '#B6893A',
-    },
-}))(LinearProgress);
+    },}))(LinearProgress);

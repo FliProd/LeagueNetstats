@@ -2,7 +2,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import User
-from .models import Profile, CustomUser
+from .models import Profile, CustomUser, ValidationToken
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -12,6 +12,19 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
 
         return token
+
+class ValidationTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ValidationToken
+        fields = ('user', 'token')
+
+        def create(self, validated_data):
+            user = validated_data.pop('user')
+            user_serializer = CustomUserSerializer()
+            user = user_serializer.create(validated_data=user)
+            validation_token = self.Meta.model(user=user, **validated_data)
+            validation_token.save()
+            return validation_token
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -50,7 +63,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('user', 'puuid', 'account_id', 'game_region', 'city', 'country', 'state', 'zipcode', 'level', 'icon_id')
+        fields = ('user', 'user_id', 'verificated', 'puuid', 'account_id', 'game_region', 'city', 'country', 'state', 'zipcode', 'level', 'icon_id')
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
@@ -61,19 +74,30 @@ class ProfileSerializer(serializers.ModelSerializer):
         return profile
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user')
-        user = instance.user
-        user_serializer = CustomUserSerializer()
-        user_serializer.update(instance=user, validated_data=user_data)
+        try:
+            user_data = validated_data.pop('user')
+            user = instance.user
+            user_serializer = CustomUserSerializer()
+            user_serializer.update(instance=user, validated_data=user_data)
+        except KeyError as err:
+            print(err)
 
-        instance.puuid = validated_data.get('puuid')
-        instance.account_id = validated_data.get('account_id')
-        instance.level = validated_data.get('level')
-        instance.game_region = validated_data.get('game_region')
-        instance.icon_id = validated_data.get('icon_id')
-        instance.country = validated_data.get('country')
-        instance.state = validated_data.get('state')
-        instance.city = validated_data.get('city')
-        instance.zipcode = validated_data.get('zipcode')
+        fields = ['verificated', 'puuid','account_id','level','game_region',
+                    'icon_id''country','state','city','zipcode']
+        for field in fields:
+            field_value = validated_data.get(field)
+            if field_value:
+                setattr(instance, field, field_value)
+
+        # instance.verificated = validated_data.get('verificated')
+        # instance.puuid = validated_data.get('puuid')
+        # instance.account_id = validated_data.get('account_id')
+        # instance.level = validated_data.get('level')
+        # instance.game_region = validated_data.get('game_region')
+        # instance.icon_id = validated_data.get('icon_id')
+        # instance.country = validated_data.get('country')
+        # instance.state = validated_data.get('state')
+        # instance.city = validated_data.get('city')
+        # instance.zipcode = validated_data.get('zipcode')
         instance.save()
         return instance

@@ -1,8 +1,9 @@
 import React, {Component, Fragment} from 'react'
 import clsx from 'clsx'
 import {withStyles} from "@material-ui/core/styles";
-import {Typography, Box, PropTypes, Container} from "@material-ui/core";
-import {Grid} from "@material-ui/core";
+import Box from '@material-ui/core/Box'
+import Grid from '@material-ui/core/Grid'
+import Typography from "@material-ui/core/Typography";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faChevronRight, faChevronLeft} from '@fortawesome/free-solid-svg-icons'
 import axiosInstance from "../axiosApi";
@@ -11,6 +12,8 @@ import ApexChart from "./dashboard_components/chart/apexchart";
 import MapPlot from "./dashboard_components/mapplot";
 import Upload from "./upload";
 import Ranking from "./dashboard_components/ranking"
+import { withTranslation, useTranslation } from 'react-i18next'
+
 
 
 const styles = theme => ({
@@ -31,18 +34,20 @@ const styles = theme => ({
     },
     graph_row: {
         width: '100%',
-        minHeight: 750,
-        height: window.innerHeight - 577
+        minHeight: 550,
+        height: window.innerHeight - 580
     },
     map_row: {
         width: '100%',
     },
     teams: {
-        flexGrow: 20
+        flexGrow: 15
     },
     arrows: {
-        flexGrow: 1
+        flexGrow: 1,
+        cursor: 'pointer',
     },
+
 })
 
 class Dashboard extends Component {
@@ -56,6 +61,8 @@ class Dashboard extends Component {
             index: 0,
             change_match: false,
         }
+
+        this.renderAvgRow = this.renderAvgRow.bind(this)
     }
 
     async componentDidMount() {
@@ -65,19 +72,26 @@ class Dashboard extends Component {
             if (match_ids_response.data.match_ids.length == 0) {
                 this.setState({
                     errors: {
-                        upload: 'You havent uploaded any matches yet.'
+                        upload: 'dashboard.no_matches'
                     }
                 })
                 return
             } else {
-                this.setState({
-                    match_ids: match_ids_response.data.match_ids,
+                this.setState(prevstate => {
+                    prevstate.match_ids = match_ids_response.data.match_ids
+                    if(this.props.match_id) {
+                        prevstate.index = match_ids_response.data.match_ids.indexOf(parseInt(this.props.match_id))
+                    } else {
+                        prevstate.index = 0
+                    }
+
+                    return prevstate
                 })
                 this.loadMatch(this.state.index)
             }
 
         } catch (error) {
-            console.log(error)
+            //console.log(error)
         }
     }
 
@@ -117,7 +131,7 @@ class Dashboard extends Component {
                 })
 
             } catch (error) {
-                console.log(error)
+                //console.log(error)
             }
         }
     }
@@ -161,8 +175,7 @@ class Dashboard extends Component {
                 </Grid>
                 <Grid item className={clsx(classes.padded, classes.arrows)}>
                     <StyledItemBox>
-                        <FontAwesomeIcon icon={faChevronRight} size={'4x'}
-                                         onClick={() => this.changeMatch('previous')}/>
+                        <FontAwesomeIcon icon={faChevronRight} size={'4x'} onClick={() => this.changeMatch('previous')}/>
                     </StyledItemBox>
                 </Grid>
             </Grid>
@@ -183,7 +196,8 @@ class Dashboard extends Component {
     }
 
     renderAvgRow() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
+
         if (this.state.match.networklogs != undefined) {
             let {
                 avg_ping,
@@ -197,35 +211,35 @@ class Dashboard extends Component {
 
             return (
                 <Grid container>
-                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
-                            <StyledInfoBox data={{name: 'avg_ping', value: avg_ping, unit: 'ms'}}/>
+                            <StyledInfoBox data={{name: 'dashboard.avg_ping', value: avg_ping, unit: 'ms'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
-                            <StyledInfoBox data={{name: 'avg_up', value: avg_up, unit: 'kB/s'}}/>
+                            <StyledInfoBox data={{name: 'dashboard.avg_up', value: avg_up, unit: 'kB/s'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
-                            <StyledInfoBox data={{name: 'avg_down', value: avg_down, unit: 'kB/s'}}/>
+                            <StyledInfoBox data={{name: 'dashboard.avg_down', value: avg_down, unit: 'kB/s'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
-                            <StyledInfoBox data={{name: 'avg_jitter', value: avg_jitter, unit: 'ms'}}/>
+                            <StyledInfoBox data={{name: 'dashboard.avg_jitter', value: avg_jitter, unit: 'ms'}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
-                            <StyledInfoBox data={{name: 'avg_loss', value: avg_loss, unit: 'packages'}}/>
+                            <StyledInfoBox data={{name: 'dashboard.avg_loss', value: avg_loss, unit: t('dashboard.packages')}}/>
                         </StyledItemBox>
                     </Grid>
-                    <Grid item xs={2} className={clsx(classes.padded, classes.averages)}>
+                    <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
-                            <StyledInfoBox data={[{name: 'min_ping', value: min_ping, unit: 'ms'}, {
-                                name: 'max_ping',
+                            <StyledInfoBox data={[{name: 'dashboard.min_ping', value: min_ping, unit: 'ms'}, {
+                                name: 'dashboard.max_ping',
                                 value: max_ping,
                                 unit: 'ms'
                             }]}/>
@@ -313,11 +327,13 @@ class Dashboard extends Component {
     }
 }
 
-export default withStyles(styles)(Dashboard)
+export default withStyles(styles)(withTranslation()(Dashboard))
 
 
 const ItemBoxStyles = (theme) => ({
     border: {
+        position: 'relative',
+        zIndex: 5,
         borderWidth: theme.border.width,
         borderColor: theme.border.color,
         borderStyle: 'solid',
@@ -328,6 +344,17 @@ const ItemBoxStyles = (theme) => ({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    glow: {
+        "&:hover": {
+            boxShadow: ' 0px 0px 20px -10px rgba(0,225,255,0.8)',
+        },
+    },
+    grow: {
+        transition:' all .2s ease-in-out' ,
+        '&:hover': {
+            transform: 'scale(1.01)'
+        }
     }
 })
 
@@ -335,7 +362,7 @@ function ItemBox(props) {
     const {classes} = props;
 
     return (
-        <Box className={clsx(classes.border, classes.centerContent)}>
+        <Box className={clsx(classes.border, classes.glow, classes.centerContent)}>
             {props.children && props.children}
         </Box>)
 }
@@ -354,6 +381,7 @@ const InfoBoxStyles = (theme) => ({
 
 function Infobox(props) {
     const {classes} = props
+    const {t} = useTranslation()
 
     if (props.data.length) {
         return (
@@ -361,12 +389,12 @@ function Infobox(props) {
                  className={classes.full_width}>
                 <Box display={'flex'} flexDirection={'row'} alignItems={'center'} justifyContent={'space-around'}
                      className={classes.full_width}>
-                    <Typography variant={'h6'}>{props.data[0].name}</Typography>
+                    <Typography variant={'h6'}>{t(props.data[0].name)}</Typography>
                     <Typography>{Math.round(props.data[0].value * 100) / 100} {props.data[0].unit}</Typography>
                 </Box>
                 <Box display={'flex'} flexDirection={'row'} alignItems={'center'} justifyContent={'space-around'}
                      className={classes.full_width}>
-                    <Typography align={"left"} variant={'h6'}>{props.data[1].name}</Typography>
+                    <Typography align={"left"} variant={'h6'}>{t(props.data[1].name)}</Typography>
                     <Typography>{Math.round(props.data[1].value * 100) / 100} {props.data[1].unit}</Typography>
                 </Box>
             </Box>
@@ -375,11 +403,11 @@ function Infobox(props) {
         return (
             <Box display={'flex'} flexDirection={'column'} alignItems={'center'} justifyContent={'center'}
                  className={clsx(classes.full_width, classes.padded)}>
-                <Typography className={classes.full_width} variant={'h5'}>{props.data.name}</Typography>
+                <Typography className={classes.full_width} variant={'h5'}>{t(props.data.name)}</Typography>
                 <Typography>{Math.round(props.data.value * 100) / 100} {props.data.unit}</Typography>
             </Box>
         )
     }
 }
 
-const StyledInfoBox = withStyles(InfoBoxStyles)(Infobox)
+const StyledInfoBox = withStyles(InfoBoxStyles)(withTranslation()(Infobox))

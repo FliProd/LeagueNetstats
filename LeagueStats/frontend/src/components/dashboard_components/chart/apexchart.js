@@ -1,13 +1,11 @@
-import React, {Component, Fragment, isValidElement} from "react"
+import React, {Component} from "react"
 import Box from "@material-ui/core/Box"
-import Chart from "react-apexcharts"
 import ApexCharts from 'apexcharts'
 import CheckboxList from "./checkbox"
-import {Grid, Paper, Typography} from "@material-ui/core"
-import {Image} from "react-bootstrap";
 import Event from "./event";
 import {withStyles} from "@material-ui/core/styles";
 import clsx from "clsx";
+import {withTranslation} from "react-i18next";
 
 
 const styles = theme => ({
@@ -18,12 +16,15 @@ const styles = theme => ({
         height: '100%'
     },
     verticalCheckboxes: {
-        maxWidth: 210
+        //maxWidth: 210
     },
     apexchartsTooltip: {
         backgroundColor: '#14253D',
         color: '#EBE0CB',
-    }
+    },
+    chartBox: {
+        marginBottom: '-2%',
+    },
 })
 
 
@@ -70,9 +71,9 @@ class ApexChart extends Component {
             all_series: {
                 'EXP': {type: 'line', name: 'EXP', data: []},
                 'GOLD': {type: 'line', name: 'GOLD', data: []},
+                'LEVEL': {type: 'line', name: 'LEVEL', data: []},
                 'CREEP': {type: 'line', name: 'CREEP', data: []},
                 'NEUTRAL': {type: 'line', name: 'NEUTRAL', data: []},
-                'LEVEL': {type: 'line', name: 'LEVEL', data: []},
                 'PING': {type: 'line', name: 'PING', data: []},
                 'JITTER': {type: 'line', name: 'JITTER', data: []},
                 'IN_BANDWIDTH': {type: 'line', name: 'IN_BANDWIDTH', data: []},
@@ -116,7 +117,7 @@ class ApexChart extends Component {
         }
         this.chart = null
 
-
+        this.isAnnotation = this.isAnnotation.bind(this)
         this.handleClick = this.handleClick.bind(this)
         this.prepareChart = this.prepareChart.bind(this)
         this.updateChart = this.updateChart.bind(this)
@@ -296,7 +297,7 @@ class ApexChart extends Component {
                         'y': ApexChart.calculateY(event.type, event.timestamp)
                     })*/
                     state.all_events[event.type].push(event)
-                    state.all_annotations[event.type].push(ApexChart.createAnnotation(event))
+                    state.all_annotations[event.type].push(ApexChart.createAnnotation(event, props.t))
                 })
             } else {
                 errors = true
@@ -356,7 +357,7 @@ class ApexChart extends Component {
     adds/removes a series from options (and its axis) and updates the chart
     */
     updateChart(name, add) {
-        if (ApexChart.isAnnotation(name)) {
+        if (this.isAnnotation(name, false)) {
             if (add) {
                 this.state.options.annotations.xaxis = this.state.options.annotations.xaxis.concat(this.state.all_annotations[name])
             } else {
@@ -389,7 +390,7 @@ class ApexChart extends Component {
     handleClick(event, chartContext, config, setEvent) {
         const type = event.target.innerHTML
 
-        if (ApexChart.isAnnotation(type)) {
+        if (this.isAnnotation(type, true)) {
             const annotation_id = event.target.classList[event.target.classList.length - 1]
             setEvent(annotation_id, type)
         }
@@ -451,7 +452,7 @@ class ApexChart extends Component {
         return axis
     }
 
-    static createAnnotation(event) {
+    static createAnnotation(event, t) {
         const color = ApexChart.getColor(event.type)
         return {
             id: event.type + event.timestamp,
@@ -463,7 +464,7 @@ class ApexChart extends Component {
             label: {
                 borderColor: color,
                 orientation: 'vertical',
-                text: event.type,
+                text: t('annotation.' + event.type),
                 style: {
                     cssClass: 'annotation',
                     background: color
@@ -477,7 +478,9 @@ class ApexChart extends Component {
         this.updateChart(name, !this.state.data_shown[name])
     }
 
-    async setEvent(annotation_id, type) {
+    setEvent(annotation_id, type) {
+        const {t} = this.props
+        type = t('annotation.' + type)
         for (const event_index in this.state.all_events[type]) {
             const event = this.state.all_events[type][event_index]
             if (event.type + event.timestamp == annotation_id) {
@@ -508,7 +511,6 @@ class ApexChart extends Component {
                     loaded_event: loaded_event,
                 })
                 this.chart.updateOptions(this.state.options)
-
             }
         }
     }
@@ -528,7 +530,7 @@ class ApexChart extends Component {
                 <Box>
                     <Event event={this.state.loaded_event}/>
                 </Box>
-                <Box display={'flex'} flexDirection={'row'} flexGrow={5}
+                <Box display={'flex'} flexDirection={'column'} flexGrow={5}
                      className={clsx(classes.full_height, classes.full_width)}>
                     <Box display={'flex'} flexDirection={'column'} flexGrow={5} className={clsx(classes.chartBox)}>
                         {React.createElement('div', {
@@ -537,12 +539,12 @@ class ApexChart extends Component {
                                 : this.setRef,
                         })}
                     </Box>
-                    <Box display={'flex'} flexDirection={'column'} flexGrow={1} justifyContent={'space-evenly'}
+                    <Box display={'flex'} flexDirection={'row'} flexGrow={1} justifyContent={'space-evenly'}
                          alignItems={'center'}
                          className={clsx(classes.verticalCheckboxes)}
                          pr={1}>
                         <CheckboxList
-                            title={'Graphs'}
+                            title={'dashboard.chart.graphs'}
                             checked={this.state.data_shown}
                             setVisibility={(name) => this.setVisibility(name)}
                             groups={{
@@ -551,7 +553,7 @@ class ApexChart extends Component {
                             direction={'column'}
                         />
                         <CheckboxList
-                            title={'Events'}
+                            title={'dashboard.chart.events'}
                             checked={this.state.data_shown}
                             setVisibility={(name) => this.setVisibility(name)}
                             groups={{
@@ -585,7 +587,11 @@ class ApexChart extends Component {
         return false
     }
 
-    static isAnnotation(name) {
+    isAnnotation(name, translate) {
+        const {t} = this.props
+        if(translate) {
+            name = t('annotation.' + name)
+        }
         const annotations = ['CHAMPION_KILL', 'CHAMPION_DEATH', 'WARD_PLACED', 'WARD_KILL', 'BUILDING_KILL', 'ELITE_MONSTER_KILL', 'ITEM_PURCHASED', 'ITEM_SOLD', 'ITEM_DESTROYED', 'ITEM_UNDO', 'SKILL_LEVEL_UP', 'CAPTURE_POINT', 'PORO_KING_SUMMON', 'ASCENDED_EVENT',]
         return annotations.includes(name)
     }
@@ -638,8 +644,4 @@ class ApexChart extends Component {
 
 }
 
-export default withStyles(styles)
-
-(
-    ApexChart
-)
+export default withStyles(styles)(withTranslation()(ApexChart))

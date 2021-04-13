@@ -112,7 +112,7 @@ class Exampleplot extends Component {
                 zoom: {
                     enabled: false,
                 },
-                background: 'url(/static/img/map_400x400.png)'
+                background: 'url(/static/img/map/map_400x400.png)'
             },
             xaxis: {
                 labels: {

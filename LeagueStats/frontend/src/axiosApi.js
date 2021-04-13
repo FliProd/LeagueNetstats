@@ -24,7 +24,6 @@ axiosInstance.interceptors.response.use(
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
             axiosInstance.defaults.headers['Authorization'] = null;
-            console.log('deleted tokens')
             window.location.href = '/login/';
             return Promise.reject(error);
         }
@@ -57,7 +56,7 @@ axiosInstance.interceptors.response.use(
                                 return axiosInstance(originalRequest);
                             })
                             .catch(err => {
-                                console.log(err)
+                                //console.log(err)
                             });
                     } else {
                         window.location.href = '/login/';
@@ -68,6 +67,7 @@ axiosInstance.interceptors.response.use(
             }
             return Promise.reject(error);
         }
+        return Promise.reject(error)
     }
 );
 

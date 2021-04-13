@@ -6,23 +6,28 @@ import {
     Box,
     Grid,
     Typography,
-    TextField,
     IconButton,
     Button,
     Popover,
-    CircularProgress
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
 import {makeStyles} from '@material-ui/core/styles';
 import SummonerList from "./summoner";
+import {withTranslation} from "react-i18next";
+import {withStyles} from "@material-ui/styles";
 
 
-const useStyles = makeStyles((theme) => ({
-    backdrop: {
-        zIndex: theme.zIndex.drawer + 1,
-        color: '#fff',
+
+
+const styles = theme => ({
+    border: {
+        borderWidth: theme.border.width,
+        borderColor: theme.border.color,
+        borderStyle: 'solid',
+        borderRadius: '5px',
+        padding: 5,
     },
-}));
+})
 
 
 class Account extends Component {
@@ -50,7 +55,7 @@ class Account extends Component {
             anchorEl: null
         };
 
-        this.summonerListElement = React.createRef();
+        //this.summonerListElement = React.createRef();
 
         this.handleEdit = this.handleEdit.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -175,6 +180,7 @@ class Account extends Component {
                     email: user.email,
                     password: user.password,
                 },
+                verificated: game_info.verificated,
                 puuid: game_info.puuid,
                 account_id: game_info.account_id,
                 game_region: game_info.game_region,
@@ -199,7 +205,7 @@ class Account extends Component {
                       alignItems={"center"}>
                     <Grid item xs={2}>
                         <Image style={{"width": "130px"}}
-                               src={'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + this.state.game_info.icon_id + '.png'}
+                               src={'/static/img/profileicon/' + this.state.game_info.icon_id + '.png'}
                                roundedCircle/>
                     </Grid>
                     <Grid item xs={9}>
@@ -247,7 +253,7 @@ class Account extends Component {
             >
                 <Box p={2}>
                     <SummonerList
-                        ref={this.summonerListElement}
+                        //ref={this.summonerListElement}
                         setSummoner={(summoner) => this.setSummoner(summoner)}
                         askname={true}
                         loading={false}
@@ -258,11 +264,13 @@ class Account extends Component {
     }
 
     renderUser() {
+        const { t } = this.props
+
         return (
             <Fragment>
                 <Grid container direction={"row"}>
                     <Grid item xs={2}>
-                        <Typography variant={"h5"}>User</Typography>
+                        <Typography variant={"h5"}>{t('user')}</Typography>
                     </Grid>
                     <Grid item xs={10}>
                         <Grid container direction={"row"}>
@@ -310,11 +318,13 @@ class Account extends Component {
     }
 
     renderLocation() {
+        const { t } = this.props
+
         return (
             <Fragment>
                 <Grid container direction={"row"}>
                     <Grid item xs={2}>
-                        <Typography variant={"h5"}>Location</Typography>
+                        <Typography variant={"h5"}>{t('location')}</Typography>
                     </Grid>
                     <Grid item xs={5}>
                         <Typography>{this.state.location.country}</Typography>
@@ -331,13 +341,15 @@ class Account extends Component {
     }
 
 
+
     render() {
+        const {classes} = this.props
         return (
             <Fragment>
                 <Box style={{"height": "100%"}} display={"flex"} justifyContent={"center"} alignItems={"center"}>
                     <Paper style={{"width": "80%"}} variant="outlined">
                         <Box display={"flex"} p={3}>
-                            <Grid container spacing={4} alignItems="center" justify="center">
+                            <Grid container spacing={4} alignItems="center" justify="center" className={classes.border}>
                                 <Grid item my={3} xs={12}>
                                     {this.renderSummoner()}
                                 </Grid>
@@ -362,6 +374,6 @@ class Account extends Component {
     }
 }
 
-export default Account;
+export default withTranslation()(withStyles(styles)(Account));
 
 

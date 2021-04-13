@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react";
 import {axiosInstance} from "../../axiosApi";
 import {Form, Alert} from "react-bootstrap";
 import {Grid, Paper, Box, Button} from "@material-ui/core";
-import SummonerList from "./summoner";
+import { withTranslation } from 'react-i18next'
 import {withStyles} from "@material-ui/core/styles";
 
 const styles = theme => ({
@@ -50,19 +50,21 @@ class Login extends Component {
     }
 
     renderForm() {
+        const { t } = this.props
+
         return (
             <Fragment>
-                <h2>Login</h2>
+                <h2>{t('login')}</h2>
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group controlId="formBasicEmail">
-                        <Form.Label>Email</Form.Label>
+                        <Form.Label>{t('email')}</Form.Label>
                         <Form.Control name="email" type="text" value={this.state.email}
                                       onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
                     {this.state.errors && this.state.errors.email &&
                     <Alert className={"margin-t"} variant={"danger"}>{this.state.errors.email}</Alert>}
                     <Form.Group controlId="formBasicPassword">
-                        <Form.Label>Password</Form.Label>
+                        <Form.Label>{t('password')}</Form.Label>
                         <Form.Control name="password" type="password" value={this.state.password}
                                       onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
@@ -71,7 +73,7 @@ class Login extends Component {
                     {this.state.errors && this.state.errors.detail &&
                     <Alert className={"margin-t"} variant={"danger"}>{this.state.errors.detail}</Alert>}
                     <Button className={"margin-t"} variant={'contained'} type={'Submit'}>
-                        Submit
+                        {t('submit')}
                     </Button>
                 </Form>
             </Fragment>
@@ -93,4 +95,4 @@ class Login extends Component {
     }
 }
 
-export default withStyles(styles)(Login)
+export default withStyles(styles)(withTranslation()(Login))

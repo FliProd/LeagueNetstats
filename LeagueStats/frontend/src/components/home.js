@@ -1,14 +1,16 @@
-import React, {Component, Fragment} from "react"
-import axiosInstance from "../axiosApi"
-import {Typography} from "@material-ui/core";
+import React, {Component} from "react"
+import Typography from "@material-ui/core/Typography";
 import {withStyles} from "@material-ui/core/styles";
-import {Grid, Box, Button} from "@material-ui/core";
-import ApexChart from "./dashboard_components/chart/apexchart";
+import Button from '@material-ui/core/Button'
+import Box from '@material-ui/core/Box'
+import Grid from '@material-ui/core/Grid'
 import Examplechart from "./dashboard_components/chart/examplechart";
 import Exampleplot from "./dashboard_components/exampleplot";
 import Ranking from "./dashboard_components/ranking";
 import clsx from "clsx";
-import Signup from "./signup";
+import Signup from "./user/signup";
+import { withTranslation } from 'react-i18next'
+
 
 const styles = theme => ({
     root: {
@@ -36,6 +38,10 @@ const styles = theme => ({
         padding: 10,
         marginRight: 20,
         marginLeft: 30,
+    },
+    subtitle: {
+        marginTop: 15,
+        marginBottom: 25,
     },
     halfbox: {
         height: '100%',
@@ -2618,14 +2624,15 @@ class Home extends Component {
 
 
     render() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
+
 
         return (
             <Grid container direction={'column'} alignItems={'stretch'} justify={'center'} className={classes.root}>
                 <Grid item key={'title'} className={classes.title}>
                     <Box display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
                         <Box justifyContent={'right'}>
-                            <Typography variant={'h2'}>platform.name</Typography>
+                            <Typography variant={'h2'}>{t('platform.name')}</Typography>
                         </Box>
                         <Box display={'flex'} justifyContent={'left'} alignItems={'center'}>
                             <Button variant={'contained'} className={classes.navigation}
@@ -2633,14 +2640,14 @@ class Home extends Component {
                                         event.stopPropagation()
                                         window.location.href = '/login/'
                                     }}>
-                                login
+                                {t('login')}
                             </Button>
                             <Button variant={'contained'} className={classes.navigation}
                                     onClick={(event) => {
                                         event.stopPropagation()
                                         this.sign_up.current.scrollIntoView()
                                     }}>
-                                signup
+                                {t('signup')}
                             </Button>
                         </Box>
                     </Box>
@@ -2652,8 +2659,8 @@ class Home extends Component {
                             <Examplechart/>
                         </Box>
                         <Box className={clsx(classes.halfbox, classes.textbox)}>
-                            <Typography variant={'h5'}>home.graph.right.title</Typography>
-                            <Typography variant={'body1'}>home.graph.right.text</Typography>
+                            <Typography variant={'h4'} className={classes.subtitle}>{t('home.graph.right.title')}</Typography>
+                            <Typography variant={'h5'}>{t('home.graph.right.text')}</Typography>
                         </Box>
                     </Box>
                 </Grid>
@@ -2661,8 +2668,8 @@ class Home extends Component {
                       className={classes.plot_section}>
                     <Box display={'flex'} flexDirection={'row'} className={classes.full_height}>
                         <Box className={clsx(classes.halfbox, classes.textbox)}>
-                            <Typography variant={'h5'} align={'right'}>home.plot.right.title</Typography>
-                            <Typography variant={'body1'} align={'right'}>home.plot.right.text</Typography>
+                            <Typography variant={'h4'} align={'right'} className={classes.subtitle}>{t('home.plot.right.title')}</Typography>
+                            <Typography variant={'h5'} align={'right'}>{t('home.plot.right.text')}</Typography>
                         </Box>
                         <Box className={classes.halfbox}>
                             <Exampleplot/>
@@ -2678,8 +2685,8 @@ class Home extends Component {
                             }
                         </Box>
                         <Box className={clsx(classes.halfbox, classes.textbox)}>
-                            <Typography variant={'h5'}>home.ranking.right.title</Typography>
-                            <Typography variant={'body1'}>home.ranking.right.text</Typography>
+                            <Typography variant={'h4'} className={classes.subtitle}>{t('home.ranking.right.title')}</Typography>
+                            <Typography variant={'h5'}>{t('home.ranking.right.text')}</Typography>
                         </Box>
                     </Box>
                 </Grid>
@@ -2694,4 +2701,4 @@ class Home extends Component {
 }
 
 
-export default withStyles(styles)(Home)
+export default withStyles(styles)(withTranslation()(Home))

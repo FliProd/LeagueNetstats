@@ -1,9 +1,8 @@
-import React, {Component, Fragment} from 'react'
+import React, {Component} from 'react'
 import clsx from 'clsx'
 import {withStyles} from "@material-ui/core/styles";
 import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
-import CssBaseline from '@material-ui/core/CssBaseline'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
@@ -12,7 +11,8 @@ import TrendingUpSharpIcon from '@material-ui/icons/TrendingUpSharp';
 import ListAltSharpIcon from '@material-ui/icons/ListAltSharp';
 import FeedbackIcon from '@material-ui/icons/Feedback';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import {Typography, Box} from "@material-ui/core";
+import Typography from '@material-ui/core/Typography'
+import Box from '@material-ui/core/Box'
 import {withRouter} from "react-router";
 import {Image} from "react-bootstrap";
 import Slide from '@material-ui/core/Slide';
@@ -130,8 +130,9 @@ export default withStyles(styles)(MenuDrawer)
 
 
 function MenuProfile(props) {
+    const {t} = useTranslation()
 
-    const icon_url = props.profile.game_info.icon_id != '' ? 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + props.profile.game_info.icon_id + '.png' : ''
+    const icon_url = props.profile.game_info.icon_id != '' ? '/static/img/profileicon/' + props.profile.game_info.icon_id + '.png' : ''
     const summoner_name = props.profile.user.username
 
     return (
@@ -142,7 +143,7 @@ function MenuProfile(props) {
                  justifyContent={"center"}>
                 <Image width={"150px"} src={icon_url} roundedCircle/>
                 <Typography variant={'h5'}>{summoner_name}</Typography>
-                <Typography variant={'h6'}>Level {props.profile.game_info.level}</Typography>
+                <Typography variant={'h6'}>{t('level')} {props.profile.game_info.level}</Typography>
             </Box>
         </Slide>
     )
@@ -177,7 +178,7 @@ function ListButton(props) {
         <ListItem onClick={onClick} button key={props.name}>
             <Box display={"flex"} justifyContent={"center"}>
                 <ListItemIcon>{props.icon}</ListItemIcon>
-                <ListItemText className={classes.root}>{t(props.name)}</ListItemText>
+                <ListItemText className={classes.root}><Typography>{t(props.name)}</Typography></ListItemText>
             </Box>
         </ListItem>
     )

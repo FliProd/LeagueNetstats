@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-from django.contrib import auth
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -156,6 +155,27 @@ WSGI_APPLICATION = 'LeagueStats.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+#django-pgcrypt-fields
+#BASEDIR = os.path.dirname(os.path.dirname(__file__))
+# BASEDIR = os.environ["BASEDIR"]
+# print(BASEDIR)
+# PUBLIC_PGP_KEY_PATH = os.path.abspath(os.path.join(BASEDIR, 'public.key'))
+# PRIVATE_PGP_KEY_PATH = os.path.abspath(os.path.join(BASEDIR, 'private.key'))
+#
+# # Used by PGPPublicKeyField used by default if not specified by the db
+# PUBLIC_PGP_KEY = open(PUBLIC_PGP_KEY_PATH).read()
+# PRIVATE_PGP_KEY = open(PRIVATE_PGP_KEY_PATH).read()
+#
+# # Used by TextHMACField and PGPSymmetricKeyField if not specified by the db
+PGCRYPTO_KEY ='ultrasecret'
+
+# DIFF_PUBLIC_PGP_KEY_PATH = os.path.abspath(
+#     os.path.join(BASEDIR, 'tests/keys/public_diff.key')
+# )
+# DIFF_PRIVATE_PGP_KEY_PATH = os.path.abspath(
+#     os.path.join(BASEDIR, 'tests/keys/private_diff.key')
+# )
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -165,8 +185,32 @@ DATABASES = {
         'HOST': 'localhost',
         'PORT': '',
         'ATOMIC_REQUESTS': True,
+        'OPTIONS': {
+            #'sslmode': 'require',
+        },
+    },
+    #for django-pgcrypt-fields
+    'diff_keys': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'leaguestats',
+        'USER': 'leaguestatsadmin',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
+        'OPTIONS': {
+            #'sslmode': 'require',
+        },
+        'PGCRYPTO_KEY': PGCRYPTO_KEY,
+        #'PUBLIC_PGP_KEY': open(DIFF_PUBLIC_PGP_KEY_PATH, 'r').read(),
+        #'PRIVATE_PGP_KEY': open(DIFF_PRIVATE_PGP_KEY_PATH, 'r').read(),
     },
 }
+
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
 
 
 # Password validation
@@ -209,3 +253,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+

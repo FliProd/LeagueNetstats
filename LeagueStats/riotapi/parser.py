@@ -64,6 +64,7 @@ def parse_match(match, user_id):
                 'id': participant.id,
                 'champion': participant.champion.id,
                 'role': participant.role.value,
+                'lane': participant.lane.value,
                 'kills': participant.stats.kills,
                 'deaths': participant.stats.deaths,
                 'assists': participant.stats.assists,

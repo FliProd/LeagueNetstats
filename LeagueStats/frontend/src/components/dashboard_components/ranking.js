@@ -4,6 +4,9 @@ import Box from '@material-ui/core/Box'
 import {withStyles} from "@material-ui/core/styles"
 import {Image} from "react-bootstrap"
 import clsx from "clsx"
+import { withTranslation } from 'react-i18next'
+import {CreeperScore, Damage, Gold} from "../svg-icons";
+
 
 const styles = theme => ({
     full_width: {
@@ -47,9 +50,11 @@ class Ranking extends Component {
 
     }
 
+
     renderParticipant(particpant, unitrow) {
         const classes = this.props.classes
-        const icon_url = particpant.profile_icon_id != '' ? 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + particpant.profile_icon_id + '.png' : ''
+
+        const icon_url = particpant.profile_icon_id != '' ? '/static/img/profileicon/' + particpant.profile_icon_id + '.png' : ''
 
         return (
             <Grid container className={clsx(classes.full_width, classes.padded)} key={particpant.name}>
@@ -68,11 +73,13 @@ class Ranking extends Component {
                 <Grid container item xs={8}>
                     <Grid item xs={3} key={'gold_earned'} className={classes.field}>
                         <Box className={classes.fieldbox}>
+                            {unitrow && <Gold size={'xs'}/>}
                             <Typography variant={'body2'}>{particpant.gold_earned}</Typography>
                         </Box>
                     </Grid>
                     <Grid item xs={3} key={'total_dmg'} className={classes.field}>
                         <Box className={classes.fieldbox}>
+                            {unitrow && <Damage size={'xs'}/>}
                             <Typography variant={'body2'} align={'center'}>{particpant.total_dmg}</Typography>
                         </Box>
                     </Grid>
@@ -105,16 +112,17 @@ class Ranking extends Component {
 
 
     render() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
+
         const units = [this.renderParticipant({
-            name: 'NAME',
-            role: 'ROLE',
-            gold_earned: 'GOLD',
-            assists: 'A',
-            kills: 'K',
-            total_dmg: 'DMG',
-            deaths: 'D',
-            total_damage_taken: 'DMG TAKEN',
+            name: t('ranking.name'),
+            role: t('ranking.role'),
+            gold_earned: t('ranking.gold'),
+            assists: t('ranking.a'),
+            kills: t('ranking.k'),
+            total_dmg: t('ranking.dmg'),
+            deaths: t('ranking.d'),
+            total_damage_taken: t('ranking.dmg_taken'),
         }, true)]
 
         let winner = units
@@ -129,11 +137,11 @@ class Ranking extends Component {
 
             <Box display={'flex'} flexDirection={'column'} className={classes.full_width} pb={1}>
                 <Box flexGrow={6} className={classes.full_width} key={'winner'}>
-                    <Typography variant={'h5'} align={'center'}>Winner</Typography>
+                    <Typography variant={'h5'} align={'center'}>{t('winner')}</Typography>
                     {winner}
                 </Box>
                 <Box flexGrow={6} className={classes.full_width} key={'loser'}>
-                    <Typography variant={'h5'} align={'center'}>Loser</Typography>
+                    <Typography variant={'h5'} align={'center'}>{t('loser')}</Typography>
                     {loser}
                 </Box>
             </Box>
@@ -141,5 +149,5 @@ class Ranking extends Component {
     }
 }
 
-export default withStyles(styles)(Ranking)
+export default withStyles(styles)(withTranslation()(Ranking))
 

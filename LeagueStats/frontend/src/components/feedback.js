@@ -1,10 +1,12 @@
-import React, {Component, Fragment} from "react"
+import React, {Component} from "react"
 import axiosInstance from "../axiosApi"
 import Box from "@material-ui/core/Box"
 import Button from "@material-ui/core/Button"
-import {Typography} from "@material-ui/core"
+import Typography from "@material-ui/core/Typography"
 import {Alert, Form} from "react-bootstrap"
 import {withStyles} from "@material-ui/core/styles";
+import {withTranslation} from "react-i18next";
+import clsx from "clsx";
 
 const styles = theme => ({
     container: {
@@ -17,6 +19,13 @@ const styles = theme => ({
     button: {
         marginTop: 4,
         marginBottom: 4
+    },
+    border: {
+        borderWidth: theme.border.width,
+        borderColor: theme.border.color,
+        borderStyle: 'solid',
+        borderRadius: '5px',
+        padding: 5,
     },
 })
 
@@ -57,17 +66,17 @@ class Feedback extends Component {
 
 
     render() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
         return (
             <Box display={"flex"} flexDirection={'column'} justifyContent={"center"} alignItems={"center"}
                  className={classes.container}>
-                <Form onSubmit={this.handleSubmit} className={classes.form}>
-                    <Typography variant={'h3'}>feedback.title</Typography>
-                    <Typography variant={"body1"}>feedback.info</Typography>
+                <Form onSubmit={this.handleSubmit} className={clsx(classes.form, classes.border)}>
+                    <Typography variant={'h3'}>{t('feedback.title')}</Typography>
+                    <Typography variant={"body1"}>{t('feedback.info')}</Typography>
                     <Form.Control name="feedback" as="textarea" rows={8} value={this.state.feedback}
                                   onChange={this.handleChange} autoComplete={'off'}/>
                     <Button variant={'contained'} type={'Submit'} className={classes.button}>
-                        <Typography>submit</Typography>
+                        <Typography>{t('submit')}</Typography>
                     </Button>
                     {this.state.errors &&
                     <Alert variant={"danger"}>{this.state.errors.detail}{this.state.errors.feedback}</Alert>
@@ -83,4 +92,4 @@ class Feedback extends Component {
 }
 
 
-export default withStyles(styles)(Feedback)
+export default withStyles(styles)(withTranslation()(Feedback))

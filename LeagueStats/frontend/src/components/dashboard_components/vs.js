@@ -3,7 +3,8 @@ import {Grid, Typography} from "@material-ui/core";
 import Box from '@material-ui/core/Box';
 import {withStyles} from "@material-ui/core/styles";
 import {Image} from "react-bootstrap";
-import clsx from "clsx";
+import { withTranslation } from 'react-i18next'
+
 
 
 const styles = theme => ({
@@ -43,7 +44,7 @@ const styles = theme => ({
             display: 'none'
         },
         participant_icon: {
-            width: '60px'
+            width: '45px'
         }
     },
     [theme.breakpoints.down('sm')]: {
@@ -55,7 +56,7 @@ const styles = theme => ({
             display: 'none'
         },
         participant_icon: {
-            width: '50px'
+            width: '45px'
         }
     },
     [theme.breakpoints.down('xs')]: {
@@ -75,7 +76,7 @@ class VS extends Component {
 
     renderParticipant(participant) {
         const classes = this.props.classes
-        const url = 'https://ddragon.leagueoflegends.com/cdn/11.2.1/img/profileicon/' + participant.profile_icon_id + '.png'
+        const url =  '/static/img/profileicon/' + participant.profile_icon_id + '.png'
         return (
             <Grid item container xs={1} key={participant.name} display={'flex'} alignItems={"center"}
                   justify={"center"} className={classes.participant}>
@@ -88,7 +89,8 @@ class VS extends Component {
 
 
     render() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
+
 
         const winner = this.props.teams.winner.map(participant => this.renderParticipant(participant))
         const loser = this.props.teams.loser.map(participant => this.renderParticipant(participant))
@@ -103,7 +105,6 @@ class VS extends Component {
                     <Box display={"flex"} flexDirection={'column'} justifyContent={"center"} alignItems={"center"}
                          className={classes.full_height}>
                         <Typography variant="h5" >{datestring}</Typography>
-                        <Typography variant="h6">VS</Typography>
                     </Box>
                 </Grid>
                 {loser}
@@ -112,5 +113,5 @@ class VS extends Component {
     }
 }
 
-export default withStyles(styles)(VS)
+export default withStyles(styles)(withTranslation()(VS))
 

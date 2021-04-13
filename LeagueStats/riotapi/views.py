@@ -77,6 +77,8 @@ class MatchView(APIView):
             for participant in match.participants:
                 # sometimes participantidentities arent saved see match 942186746
                 if participant.summoner is not None:
+                    print(participant.summoner.name)
+                    print(summoner_name)
                     if participant.summoner.name == summoner_name:
                         log_owner_id = participant.id
 
@@ -115,9 +117,9 @@ class MatchView(APIView):
                         }
                         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    return Response('Failure while parsing match, networklogs, frames and events.')
+                    return Response('Failure while parsing match, networklogs, frames and events.', status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response('Participants not in Match JSON received from RIOT API.')
+                return Response('Participants not in Match JSON received from RIOT API.', status=status.HTTP_400_BAD_REQUEST)
         except NotFoundError:
             return Response('Cant find match ' + str(match_id), status=status.HTTP_400_BAD_REQUEST)
 
@@ -192,3 +194,15 @@ class MatchesByUserId(APIView):
             match_ids.append(match.match_id)
 
         return Response({'match_ids': match_ids}, status=status.HTTP_200_OK)
+
+
+class MatchListByUser(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, start):
+        matches = Match.objects.filter(user_id=request.user.id).order_by('game_start').reverse()[int(start):int(start)+10]
+        matches = MatchSerializer(matches, many=True).data
+
+        return Response({'matches': matches}, status=status.HTTP_200_OK)
+
+
