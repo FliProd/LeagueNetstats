@@ -8,6 +8,42 @@ django = "*"
 djangorestframework = "*"
 djangorestframework-simplejwt = "*"
 
+Pillow="*"
+PyJWT="*"
+arrow="*"
+asgiref="*"
+attrs="*"
+cassiopeia="*"
+certifi="*"
+chardet="*"
+datapipelines="*"
+decorator="*"
+django-cassiopeia="*"
+django-pgcrypto-fields="*"
+django-redis="*"
+geographiclib="*"
+geopy="*"
+idna="*"
+jsonschema="*"
+lz4="*"
+merakicommons="*"
+networkx="*"
+psycopg2-binary="*"
+pyjwt="*"
+pyrsistent="*"
+python-dateutil="*"
+redis="*"
+requests="*"
+setuptools="*"
+six="*"
+sqlparse="*"
+urllib3="*"
+wheel="*"
+
+
+
+
+
 
 [dev-packages]
 

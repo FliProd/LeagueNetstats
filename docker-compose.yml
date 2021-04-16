@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  web:
+    #build from Dockerfile in ./LeagueStats
+    build: ./LeagueStats
+    command: python manage.py runserver 0.0.0.0:8000
+    #map directory on host:directoryy in container
+    volumes:
+      - ./LeagueStats/:/LeagueStats/
+    #map external:internal
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env.dev
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=hello_django
+      - POSTGRES_PASSWORD=hello_django
+      - POSTGRES_DB=hello_django_dev
+
+volumes:
+  postgres_data:

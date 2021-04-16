@@ -5,10 +5,8 @@ from .serializers import Feedbackerializer
 from rest_framework import status, permissions
 
 
-
 class Feedback(APIView):
     permission_classes = (permissions.IsAuthenticated,)
-
 
     def get(self, request, pk, format=None):
         return Response(status=status.HTTP_403_FORBIDDEN)

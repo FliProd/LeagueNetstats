@@ -8,5 +8,3 @@ urlpatterns = [
     path('match/get/<pk>', MatchView.as_view(), name="get_match"),
     path('matches/get/', MatchesByUserId.as_view(), name="get_matches"),
 ]
-
-

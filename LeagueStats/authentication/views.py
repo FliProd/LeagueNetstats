@@ -30,14 +30,14 @@ class LogoutAndBlacklistRefreshTokenForUserView(APIView):
             token = RefreshToken(refresh_token)
             token.blacklist()
             return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
+        except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class Account(APIView):
     permission_classes = [IsPostOrIsAuthenticated]
 
-    #TODO: make sure everything is encrypted
+    # TODO: make sure everything is encrypted
     def post(self, request, format='json'):
         profile_serializer = ProfileSerializer(data=request.data)
         if profile_serializer.is_valid():
@@ -45,18 +45,18 @@ class Account(APIView):
                 profile = profile_serializer.save()
                 if profile:
                     json = profile_serializer.data
-                    #create email validation token
+                    # create email validation token
                     user_id = json['user_id']
                     letters = string.ascii_lowercase
                     token = ''.join(random.choice(letters) for i in range(50))
 
                     validation_token_serializer = ValidationTokenSerializer(data={'user': user_id, 'token': token})
                     if validation_token_serializer.is_valid() and validation_token_serializer.save():
-                        #TODO: change link
+                        # TODO: change link
                         send_mail(subject='Email Verification League Netstats',
                                   message='<h3> Verificate your Email </h3> '
                                   '<p>Please click on below link to verificate your email:</p>'
-                                  '<href src=http://127.0.0.1:8000/api/accountVerification/' + token +'>',
+                                  '<href src=http://127.0.0.1:8000/api/accountVerification/' + token + '>',
                                   from_email='noreply@league-netstats.ethz.ch',
                                   recipient_list=[json['user']['email']],
                                   fail_silently=False)
@@ -102,6 +102,7 @@ class Account(APIView):
 
 class ValidationTokenView(APIView):
     permission_classes = (permissions.AllowAny,)
+
     def get(self, request, token):
 
         saved_token = get_object_or_404(ValidationToken, token=token)
@@ -129,13 +130,7 @@ class DeleteView(APIView):
             Event.objects.filter(user_id=user_id).delete()
             Frame.objects.filter(user_id=user_id).delete()
             NetworkLog.objects.filter(user_id=user_id).delete()
-        except Exception as e:
+        except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         return Response(status=status.HTTP_200_OK)
-
-
-
-
-
-

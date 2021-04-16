@@ -5,7 +5,8 @@ from django.dispatch import receiver
 from django_cassiopeia import cassiopeia as cass
 from pgcrypto import fields
 
-#change email to be unique and username to not be unique
+
+# change email to be unique and username to not be unique
 # TODO: change user id to be random
 class CustomUser(AbstractUser):
 
@@ -14,6 +15,7 @@ class CustomUser(AbstractUser):
 
     def natural_key(self):
         return dict(email=self.email)
+
 
 CustomUser._meta.get_field('email')._unique = True
 CustomUser._meta.get_field('email')._blank = False
@@ -40,4 +42,3 @@ class Profile(models.Model):
 class ValidationToken(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='validation_token')
     token = models.CharField(max_length=256)
-

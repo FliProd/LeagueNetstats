@@ -6,4 +6,3 @@ admin.site.register(Match)
 admin.site.register(Event)
 admin.site.register(Frame)
 admin.site.register(NetworkLog)
-

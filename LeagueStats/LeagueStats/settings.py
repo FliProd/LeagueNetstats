@@ -156,44 +156,42 @@ WSGI_APPLICATION = 'LeagueStats.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 # # Used by TextHMACField and PGPSymmetricKeyField if not specified by the db
-PGCRYPTO_KEY ='ultrasecret'
+PGCRYPTO_KEY = os.environ.get("PGCRYPTO_KEY")
 
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'leaguestats',
-        'USER': 'leaguestatsadmin',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '',
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
         'ATOMIC_REQUESTS': True,
         'OPTIONS': {
-            #'sslmode': 'require',
+            # 'sslmode': 'require',
         },
     },
-    #for django-pgcrypt-fields
+    # for django-pgcrypt-fields
     'diff_keys': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'leaguestats',
-        'USER': 'leaguestatsadmin',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '',
+        "ENGINE": os.environ.get("ENC_SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("ENC_SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("ENC_SQL_USER", "user"),
+        "PASSWORD": os.environ.get("ENC_SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("ENC_SQL_HOST", "localhost"),
+        "PORT": os.environ.get("ENC_SQL_PORT", "5432"),
         'OPTIONS': {
-            #'sslmode': 'require',
+            # 'sslmode': 'require',
         },
         'PGCRYPTO_KEY': PGCRYPTO_KEY,
-        #'PUBLIC_PGP_KEY': open(DIFF_PUBLIC_PGP_KEY_PATH, 'r').read(),
-        #'PRIVATE_PGP_KEY': open(DIFF_PRIVATE_PGP_KEY_PATH, 'r').read(),
+        # 'PUBLIC_PGP_KEY': open(DIFF_PUBLIC_PGP_KEY_PATH, 'r').read(),
+        # 'PRIVATE_PGP_KEY': open(DIFF_PRIVATE_PGP_KEY_PATH, 'r').read(),
     },
 }
 
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
 
 
 # Password validation
@@ -236,5 +234,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-
-
+STATIC_ROOT = os.path.join(BASE_DIR, "static")

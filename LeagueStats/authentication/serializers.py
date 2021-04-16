@@ -13,6 +13,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return token
 
+
 class ValidationTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = ValidationToken
@@ -37,7 +38,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
                 'write_only': True
             },
             'email': {
-                 'validators': [UnicodeUsernameValidator()],
+                'validators': [UnicodeUsernameValidator()],
             }
         }
 
@@ -82,8 +83,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         except KeyError as err:
             print(err)
 
-        fields = ['verificated', 'puuid','account_id','level','game_region',
-                    'icon_id''country','state','city','zipcode']
+        fields = ['verificated', 'puuid', 'account_id', 'level', 'game_region', 'icon_id', 'country', 'state', 'city', 'zipcode']
         for field in fields:
             field_value = validated_data.get(field)
             if field_value:

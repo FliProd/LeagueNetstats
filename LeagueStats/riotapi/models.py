@@ -45,13 +45,10 @@ class Event(models.Model):
 
 class Frame(models.Model):
     match_id = models.PositiveIntegerField()
-    user_id = models.ForeignKey(to=CustomUser, db_column='user_id',on_delete=models.CASCADE)
+    user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
     timestamp = models.PositiveIntegerField()
     exp = models.PositiveIntegerField()
     gold = models.IntegerField()
     creep_score = models.IntegerField()
     neutral_score = models.IntegerField()
     level = models.IntegerField()
-
-
-

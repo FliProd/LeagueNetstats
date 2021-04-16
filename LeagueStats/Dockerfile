@@ -8,12 +8,18 @@ WORKDIR /LeagueStats/
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+#install psycopg2 dependencies
+RUN apk update
+RUN apk add jpeg-dev zlib-dev
+RUN apk add postgresql-dev gcc python3-dev musl-dev
+
 # install dependencies
 RUN pip install --upgrade pip
-RUN pip install pipenv
-COPY Pipfile Pipfile.lock ./
-RUN pipenv lock -r > requirements.txt
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy project
 COPY . .
+
+
+ENTRYPOINT ["/LeagueStats/entrypoint.sh"]

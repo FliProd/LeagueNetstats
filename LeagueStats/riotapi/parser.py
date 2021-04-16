@@ -3,7 +3,7 @@ import json
 
 
 def parse_netlog(file, match_id, user_id):
-    regex = re.compile('\d\d\d\d-\d\d-\d\dT\d\d-\d\d-\d\d')
+    regex = re.compile("\d\d\d\d-\d\d-\d\dT\d\d-\d\d-\d\d")
 
     windows = []
     incoming = [0]
@@ -29,7 +29,7 @@ def parse_netlog(file, match_id, user_id):
 
         try:
             loss_percentage_window = float(tokens[15])
-        except ValueError as e:
+        except ValueError:
             # fill in zero for -nan(ind) error in netlog
             loss_percentage_window = float(0)
 
@@ -50,7 +50,6 @@ def parse_netlog(file, match_id, user_id):
 
 
 def parse_match(match, user_id):
-
 
     teams = {
         'winner': [],

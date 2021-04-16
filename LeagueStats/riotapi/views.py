@@ -123,7 +123,6 @@ class MatchView(APIView):
         except NotFoundError:
             return Response('Cant find match ' + str(match_id), status=status.HTTP_400_BAD_REQUEST)
 
-
     def get(self, request, pk):
         user_id = request.user.id
         match_id = pk
@@ -200,9 +199,7 @@ class MatchListByUser(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, start):
-        matches = Match.objects.filter(user_id=request.user.id).order_by('game_start').reverse()[int(start):int(start)+10]
+        matches = Match.objects.filter(user_id=request.user.id).order_by('game_start').reverse()[int(start):int(start) + 10]
         matches = MatchSerializer(matches, many=True).data
 
         return Response({'matches': matches}, status=status.HTTP_200_OK)
-
-

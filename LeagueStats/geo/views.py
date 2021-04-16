@@ -3,16 +3,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from geopy import Nominatim
 
+
 class discreteLocation(APIView):
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
-
 
     def post(self, request, format='json'):
         geolocator = Nominatim(user_agent="LeagueOfLegendRegionBot")
 
         if request.data['location']:
-            coords = (request.data['location']['latitude'],request.data['location']['longitude'])
+            coords = (request.data['location']['latitude'], request.data['location']['longitude'])
             location = geolocator.reverse(coords, exactly_one=True)
             address = location.raw['address']
             zipcode = address.get('postcode', '')
