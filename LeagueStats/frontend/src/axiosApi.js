@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = 'http://127.0.0.1:8000/'
+const baseURL = 'http://127.0.0.1:1337/'
 const csrftoken = getCookie('csrftoken');
 //prevent data race on /api/token/refresh when two or more requests fail
 let isRefreshing = false

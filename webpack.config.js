@@ -7,7 +7,7 @@ module.exports = {
         // options related to how webpack emits results
 
         // where compiled files go
-        path: path.resolve(__dirname, "LeagueStats/frontend/static/frontend/public/"),
+        path: path.resolve(__dirname, "LeagueStats/static/frontend/public/"),
 
         // 127.0.0.1/static/frontend/public/ where files are served from
         publicPath: "/static/frontend/public/",
