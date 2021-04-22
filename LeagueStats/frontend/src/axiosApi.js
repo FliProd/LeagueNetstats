@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const baseURL = 'http://league-netstats.ethz.ch:1337/'
+const baseURL = 'https://league-netstats.ethz.ch/'
 const csrftoken = getCookie('csrftoken');
 //prevent data race on /api/token/refresh when two or more requests fail
 let isRefreshing = false

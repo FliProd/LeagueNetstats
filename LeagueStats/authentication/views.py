@@ -56,7 +56,7 @@ class Account(APIView):
                         send_mail(subject='Email Verification League Netstats',
                                   message='<h3> Verificate your Email </h3> '
                                   '<p>Please click on below link to verificate your email:</p>'
-                                  '<href src=http://127.0.0.1:8000/api/accountVerification/' + token + '>',
+                                  '<href src=https://127.0.0.1:8000/api/accountVerification/' + token + '>',
                                   from_email='noreply@league-netstats.ethz.ch',
                                   recipient_list=[json['user']['email']],
                                   fail_silently=False)

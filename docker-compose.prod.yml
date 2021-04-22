@@ -1,13 +1,12 @@
 services:
   web:
-    image: nhampp/leaguestats:ssl
+    image: nhampp/leaguestats:ssl_letsencrypt
     build:
       context: ./LeagueStats
       dockerfile: Dockerfile.prod
     command: gunicorn LeagueStats.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_volume:/home/LeagueStats/web/static
-    #expose port to other docker containers
     expose:
       - 8000
     env_file:
@@ -22,20 +21,38 @@ services:
       - 5432:5432
     env_file:
       - ./.env.prod.db
-  nginx:
+  nginx-proxy:
+    image: nhampp/nginx-proxy:ssl_letsencrypt
+    container_name: nginx-proxy
     build: ./nginx
     restart: always
-    image: nhampp/leaguestats_nginx:ssl
     volumes:
       - static_volume:/home/LeagueStats/web/static
-      - certs:/etc/ssl/
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - vhost:/etc/nginx/vhost.d
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     ports:
       - 443:443
       - 80:80
     depends_on:
       - web
+  nginx-proxy-letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    env_file:
+      - .env.prod.proxy-companion
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs
+      - html:/usr/share/nginx/html
+      - vhost:/etc/nginx/vhost.d
+    depends_on:
+      - nginx-proxy
 
 volumes:
   postgres_data:
   static_volume:
+  media_volume:
   certs:
+  html:
+  vhost:
