@@ -1,6 +1,9 @@
+version: '3.7'
+
 services:
   web:
     image: nhampp/leaguestats:ssl_letsencrypt
+    container_name: leaguestats-prod
     build:
       context: ./LeagueStats
       dockerfile: Dockerfile.prod
@@ -13,8 +16,15 @@ services:
       - ./.env.prod
     depends_on:
       - db
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    ports:
+      - 9090:9090
   db:
     image: postgres:12.0-alpine
+    container_name: db-prod
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:

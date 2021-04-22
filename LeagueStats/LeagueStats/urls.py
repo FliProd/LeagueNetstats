@@ -23,4 +23,6 @@ urlpatterns = [
     path('geo/', include('geo.urls')),
     path('feedback/', include('feedback.urls')),
     path('', include('frontend.urls')),
+    path('', include('django_prometheus.urls')),
+
 ]
