@@ -45,7 +45,7 @@ RUN addgroup -S LeagueStats && adduser -S LeagueStats -G LeagueStats
 ENV HOME=/home/LeagueStats
 ENV APP_HOME=/home/LeagueStats/web
 RUN mkdir $APP_HOME
-#make folder beforehand so the docker has enough permissions
+#make static folder beforehand so the docker has enough permissions
 RUN mkdir $APP_HOME/static
 WORKDIR $APP_HOME
 
@@ -61,6 +61,9 @@ COPY ./entrypoint.prod.sh $APP_HOME
 
 # copy project
 COPY . $APP_HOME
+
+
+
 
 # chown all the files to the app user
 RUN chown -R LeagueStats:LeagueStats $APP_HOME
