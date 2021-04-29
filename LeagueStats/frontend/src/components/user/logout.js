@@ -28,7 +28,7 @@ class Logout extends Component {
         const { t } = this.props
         return (
             <Box display={'flex'} justifyContent={'center'} alignItems={'center'} style={{'width': '100%', 'height': '100%'}}>
-                <Typography variant={'h2'}>{t('goodbye')}</Typography>
+                <Typography variant={'h2'}>{t('logout.goodbye')}</Typography>
             </Box>
         )
     }

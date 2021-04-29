@@ -37,7 +37,6 @@ class LogoutAndBlacklistRefreshTokenForUserView(APIView):
 class Account(APIView):
     permission_classes = [IsPostOrIsAuthenticated]
 
-    # TODO: make sure everything is encrypted
     def post(self, request, format='json'):
         profile_serializer = ProfileSerializer(data=request.data)
         if profile_serializer.is_valid():
@@ -52,11 +51,10 @@ class Account(APIView):
 
                     validation_token_serializer = ValidationTokenSerializer(data={'user': user_id, 'token': token})
                     if validation_token_serializer.is_valid() and validation_token_serializer.save():
-                        # TODO: change link
                         send_mail(subject='Email Verification League Netstats',
-                                  message='<h3> Verificate your Email </h3> '
-                                  '<p>Please click on below link to verificate your email:</p>'
-                                  '<href src=https://127.0.0.1:8000/api/accountVerification/' + token + '>',
+                                  message='Please click on the link below to verify your email for League Netstats'
+
+                                  'https://league-netstats.ethz.ch/api/accountVerification/' + token,
                                   from_email='noreply@league-netstats.ethz.ch',
                                   recipient_list=[json['user']['email']],
                                   fail_silently=False)

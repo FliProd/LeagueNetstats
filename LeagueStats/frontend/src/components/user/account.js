@@ -11,10 +11,16 @@ import {
     Popover,
 } from '@material-ui/core';
 import EditIcon from '@material-ui/icons/Edit';
-import {makeStyles} from '@material-ui/core/styles';
 import SummonerList from "./summoner";
 import {withTranslation} from "react-i18next";
 import {withStyles} from "@material-ui/styles";
+import i18n from "i18next";
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+
+
 
 
 
@@ -27,6 +33,13 @@ const styles = theme => ({
         borderRadius: '5px',
         padding: 5,
     },
+    formControl: {
+        margin: theme.spacing(1),
+        minWidth: 120,
+    },
+    language_chooser: {
+        color: theme.palette.text.primary
+    }
 })
 
 
@@ -199,6 +212,7 @@ class Account extends Component {
     }
 
     renderSummoner() {
+        const {t} = this.props
         return (
             <Fragment>
                 <Grid container spacing={2} direction={"row"} display={"flex"} justify={"center"}
@@ -211,7 +225,7 @@ class Account extends Component {
                     <Grid item xs={9}>
                         <Typography
                             variant={"h3"}>{this.state.user.username + ' - ' + this.state.game_info.level}</Typography>
-                        <Typography variant={"h5"}>{this.state.game_info.game_region}</Typography>
+                        <Typography variant={"h5"}>{t(this.state.game_info.game_region)}</Typography>
                     </Grid>
                     <Grid item xs={1}>
                         <IconButton onClick={(event) => this.setState({anchorEl: event.currentTarget,})}>
@@ -296,7 +310,7 @@ class Account extends Component {
                             <Grid item xs={11}>
                                 {this.state.edited["password"] && (
                                     <Form.Group controlId="formBasicEmail">
-                                    <Form.Control name="password" type="text" value={'************'} onChange={this.handleChange} autoComplete={'off'}/>
+                                    <Form.Control name="password" type="text" onChange={this.handleChange} autoComplete={'off'}/>
                                     </Form.Group>
                                 )}
                                 {!this.state.edited["password"] && (
@@ -332,11 +346,32 @@ class Account extends Component {
                         <Typography>{this.state.location.city}</Typography>
                         <Typography>{this.state.location.zipcode}</Typography>
                     </Grid>
-                    <Button onClick={this.getLocation} variant={"contained"}> Reload Location </Button>
+                    <Button onClick={this.getLocation} variant={"contained"}> {t('account.reload_location')} </Button>
                     {(this.state.errors && this.state.errors.location) &&
                     <Alert variant={"danger"}>{this.state.location_msg}</Alert>}
                 </Grid>
             </Fragment>
+        )
+    }
+
+    renderLanguage() {
+        const { classes, t } = this.props
+        const handleLanguage = (event) => {
+            i18n.changeLanguage(event.target.value)
+        }
+
+        return (
+            <FormControl variant="outlined" className={classes.formControl}>
+                <InputLabel id="demo-simple-select-outlined-label" className={classes.language_chooser}>{t('language')}</InputLabel>
+                <Select
+                    labelId="demo-simple-select-outlined-label"
+                    label={t('language')}
+                    onChange={handleLanguage}>
+                    <MenuItem value={'en'}>EN</MenuItem>
+                    <MenuItem value={'de'}>DE</MenuItem>
+                    <MenuItem value={'es'}>ES</MenuItem>
+                </Select>
+            </FormControl>
         )
     }
 
@@ -347,7 +382,6 @@ class Account extends Component {
         return (
             <Fragment>
                 <Box style={{"height": "100%"}} display={"flex"} justifyContent={"center"} alignItems={"center"}>
-                    <Paper style={{"width": "80%"}} variant="outlined">
                         <Box display={"flex"} p={3}>
                             <Grid container spacing={4} alignItems="center" justify="center" className={classes.border}>
                                 <Grid item my={3} xs={12}>
@@ -359,6 +393,9 @@ class Account extends Component {
                                 <Grid item my={3} xs={12}>
                                     {this.renderLocation()}
                                 </Grid>
+                                <Grid item my={3} xs={12}>
+                                    {this.renderLanguage()}
+                                </Grid>
                                 <Grid item my={3}>
                                     <Button variant={"contained"} type={"Submit"} onClick={this.handleSubmit}>
                                         Save Changes
@@ -366,7 +403,6 @@ class Account extends Component {
                                 </Grid>
                             </Grid>
                         </Box>
-                    </Paper>
                 </Box>
                 {this.renderBackdrop()}
             </Fragment>

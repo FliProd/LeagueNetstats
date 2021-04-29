@@ -202,13 +202,13 @@ class Matches extends Component {
         let totalkills = 0
         let player_info
         teams['winner'].forEach(participant => {
-            if (summoner_name == participant.name) {
+            if (summoner_name.toLocaleLowerCase() == participant.name.toLocaleLowerCase()) {
                 player_info = participant
             }
             totalkills += participant.kills
         })
         teams['loser'].forEach(participant => {
-            if (summoner_name == participant.name) {
+            if (summoner_name.toLocaleLowerCase() == participant.name.toLocaleLowerCase()) {
                 player_info = participant
             }
             totalkills += participant.kills
@@ -284,7 +284,6 @@ class Matches extends Component {
 
         const duration = new Date(match.game_duration * 1000)
         const duration_string = Matches.formatTime(duration, 'duration')
-
 
         return (
             <Grid className={clsx(classes.match_container, classes.grow)} item key={match.match_id}>

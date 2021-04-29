@@ -6,6 +6,7 @@ import {StatusCodes} from 'http-status-codes'
 import SummonerList from "./summoner"
 import {withStyles} from "@material-ui/core/styles"
 import CircularProgress from "@material-ui/core/CircularProgress";
+import {withTranslation} from "react-i18next";
 
 const styles = theme => ({
     border: {
@@ -32,11 +33,12 @@ class Signup extends Component {
             loading_summoner: false,
             loading_location: false,
             location: {
-                city: "",
-                state: "",
-                country: "",
+                city: 'none',
+                state: 'none',
+                country: 'none',
                 zipcode: 0,
             },
+            gdpr_consent: false,
         }
         this.summonerListElement = React.createRef()
 
@@ -71,6 +73,7 @@ class Signup extends Component {
     }
 
     async handleLocation(latitude, longitude) {
+        const {t} = this.props
         try {
             const response = await axiosInstance.post('/geo/discreteLocation/', {
                 location: {
@@ -90,12 +93,13 @@ class Signup extends Component {
         } catch (error) {
             this.setState({
                 loading_location: false,
-                errors: {location: "Something went wrong while handling your Location."},
+                errors: {location: t('signup.location_problem')},
             })
         }
     }
 
     getLocation(event) {
+        const {t} = this.props
         if (event.target.checked) {
             this.setState({loading_location: true})
             if ("geolocation" in navigator) {
@@ -112,7 +116,7 @@ class Signup extends Component {
                 )
             } else {
                 this.setState({
-                    errors: {location: "Your Location cant be accessed. Try giving the right permission to your Browser."},
+                    errors: {location: t('signup.location_no_access')},
                 })
             }
         } else {
@@ -129,17 +133,25 @@ class Signup extends Component {
 
     async handleSubmit(event) {
         event.preventDefault()
+        const {t} = this.props
 
-        if (this.state.location.country == "") {
+        /*if (this.state.location.country == "") {
             this.setState({
                 errors: {location: 'Your Location cant be loaded. Make sure your Browser and Operating System have allowed Location access for this site.'},
+            })
+            return
+        }*/
+
+        if(this.state.gdpr_consent == false) {
+            this.setState({
+                errors: {gdpr: t("signup.cookies_problem")},
             })
             return
         }
 
         if (this.state.account.puuid == undefined) {
             this.setState({
-                errors: {account: "Give a valid Summonername and choose a Summoner."},
+                errors: {account: t("signup.no_summoner_chosen")},
             })
             return
         }
@@ -184,12 +196,13 @@ class Signup extends Component {
     }
 
     renderForm() {
+        const {t} = this.props
         return (
             <Fragment>
                 <h2>SignUp</h2>
                 <Form onSubmit={this.handleSubmit}>
                     <Form.Group controlId="formBasicUsername">
-                        <Form.Label>Summoner Name</Form.Label>
+                        <Form.Label>{t('signup.summoner_name')}</Form.Label>
                         <Form.Control name="username" type="text" value={this.state.user.username}
                                       onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
@@ -197,7 +210,7 @@ class Signup extends Component {
                     <Alert variant={"danger"}>{this.state.errors.user.username}</Alert>
                     }
                     <Form.Group controlId="formBasicEmail">
-                        <Form.Label>Email</Form.Label>
+                        <Form.Label>{t('email')}</Form.Label>
                         <Form.Control name="email" type="text" value={this.state.user.email}
                                       onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
@@ -205,7 +218,7 @@ class Signup extends Component {
                     <Alert variant={"danger"}>{this.state.errors.user.email}</Alert>
                     }
                     <Form.Group controlId="formBasicPassword">
-                        <Form.Label>Password</Form.Label>
+                        <Form.Label>{t('password')}</Form.Label>
                         <Form.Control name="password" type="password" value={this.state.user.password}
                                       onChange={this.handleChange} autoComplete={'off'}/>
                     </Form.Group>
@@ -222,17 +235,25 @@ class Signup extends Component {
                                     }
                             </Grid>
                             <Grid item>
-                                  <Form.Check className={"padding"} type="checkbox" label="Allow my location to be saved."
+                                  <Form.Check className={"padding"} type="checkbox" label={t("signup.allow_location")}
                                         onChange={(event) => {
-                                            this.getLocation(event)}} />
+                                            this.setState(event)}} />
                             </Grid>
                         </Grid>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.location) &&
                     <Alert variant={"danger"}>{this.state.errors.location}</Alert>
                     }
+                    <Form.Group controlId="formBasicCheckbox">
+                        <Form.Check className={"padding"} type="checkbox" label={t("signup.allow_cookies")}
+                                        onChange={(event) => {
+                                            this.setState({gdpr_consent: event.target.value})}} />
+                    </Form.Group>
+                    {(this.state.errors && this.state.errors.gdpr) &&
+                    <Alert variant={"danger"}>{this.state.errors.gdpr}</Alert>
+                    }
                     <Button variant={'contained'} type={'Submit'}>
-                        Submit
+                        {t('signup.submit')}
                     </Button>
                 </Form>
             </Fragment>
@@ -268,5 +289,4 @@ class Signup extends Component {
     }
 }
 
-export default withStyles(styles)(Signup)
-
+export default withTranslation()(withStyles(styles)(Signup))

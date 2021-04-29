@@ -324,7 +324,7 @@ class Upload extends Component {
         }
 
         const file_errors = this.state.file_errors.map((error, index) =>
-            <Alert variant={"danger"}>{t('upload.file')}: {error}</Alert>
+            <Alert variant={"danger"}>{t('upload.file')}: {t(error)}</Alert>
         )
 
         return (

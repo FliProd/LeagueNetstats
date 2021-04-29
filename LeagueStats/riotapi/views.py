@@ -11,6 +11,7 @@ from .serializers import EventSerializer, NetworkLogSerializer, FrameSerializer,
 from authentication.models import Profile
 from django.core import serializers
 from django.shortcuts import get_object_or_404, get_list_or_404
+from pprint import pprint
 
 types = {'CHAMPION_KILL': 'CK',
          'WARD_PLACED': 'WP',
@@ -57,7 +58,6 @@ class Summoner(APIView):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-# TODO: safer way to load matches (with match_history API) because region might have changed
 class MatchView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -74,15 +74,19 @@ class MatchView(APIView):
 
         try:
             log_owner_id = -1
+            participants = []
             for participant in match.participants:
                 # sometimes participantidentities arent saved see match 942186746
+                print(participant.summoner)
                 if participant.summoner is not None:
-                    print(participant.summoner.name)
-                    print(summoner_name)
-                    if participant.summoner.name == summoner_name:
+                    participants.append(participant.summoner.name)
+                    if str(participant.summoner.name).casefold() == str(summoner_name).casefold():
                         log_owner_id = participant.id
+                elif log_owner_id == -1:
+                    # sometimes API returns none for the summoners of a match, this is a flag for that
+                    log_owner_id = -2
 
-            if log_owner_id != -1:
+            if not (log_owner_id == -1 or log_owner_id == -2):
                 netstats = parse_netlog(netlog, match_id, user_id)
                 match_to_save = parse_match(match, user_id)
                 [frames, events] = parse_timeline(timeline_json, log_owner_id, match_id, user_id)
@@ -117,11 +121,13 @@ class MatchView(APIView):
                         }
                         return Response(errors, status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    return Response('Failure while parsing match, networklogs, frames and events.', status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response('Participants not in Match JSON received from RIOT API.', status=status.HTTP_400_BAD_REQUEST)
+                    return Response('upload.parsing_error', status=status.HTTP_400_BAD_REQUEST)
+            elif log_owner_id == -1:
+                return Response('upload.participant_not_in_json', status=status.HTTP_400_BAD_REQUEST)
+            elif log_owner_id == -2:
+                return Response('upload.no_summoners_in_json', status=status.HTTP_400_BAD_REQUEST)
         except NotFoundError:
-            return Response('Cant find match ' + str(match_id), status=status.HTTP_400_BAD_REQUEST)
+            return Response('upload.not_found', status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, pk):
         user_id = request.user.id

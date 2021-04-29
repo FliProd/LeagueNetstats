@@ -13,6 +13,7 @@ import MapPlot from "./dashboard_components/mapplot";
 import Upload from "./upload";
 import Ranking from "./dashboard_components/ranking"
 import { withTranslation, useTranslation } from 'react-i18next'
+import {Alert} from "react-bootstrap";
 
 
 
@@ -60,6 +61,7 @@ class Dashboard extends Component {
             match_loaded: false,
             index: 0,
             change_match: false,
+            profile: this.props.profile
         }
 
         this.renderAvgRow = this.renderAvgRow.bind(this)
@@ -282,12 +284,15 @@ class Dashboard extends Component {
     }
 
     render() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
         if (this.state.errors && this.state.errors.upload) {
             return this.renderUpload()
         } else {
             return (
                 <Fragment>
+                    {!this.state.profile.user.verificated && !this.state.dismissed_verification &&
+                        <Alert variant={"danger"} dismissible onClose={() => this.setState({dismissed_verification: true})}>{t('verification.alert')}</Alert>
+                    }
                     {this.renderGamesRow()}
                     {this.renderGraphRow()}
                     {this.renderAvgRow()}

@@ -76,7 +76,7 @@ class Feedback extends Component {
                     <Form.Control name="feedback" as="textarea" rows={8} value={this.state.feedback}
                                   onChange={this.handleChange} autoComplete={'off'}/>
                     <Button variant={'contained'} type={'Submit'} className={classes.button}>
-                        <Typography>{t('submit')}</Typography>
+                        <Typography>{t('feedback.submit')}</Typography>
                     </Button>
                     {this.state.errors &&
                     <Alert variant={"danger"}>{this.state.errors.detail}{this.state.errors.feedback}</Alert>

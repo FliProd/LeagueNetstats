@@ -18,10 +18,13 @@ services:
       - db
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
     volumes:
       - ./prometheus/:/etc/prometheus/
     ports:
       - 9090:9090
+    command: --config.file=/etc/prometheus/prometheus.yml  --web.external-url=https://league-netstats.ethz.ch/prometheus  --web.route-prefix="/"
+
   db:
     image: postgres:12.0-alpine
     container_name: db-prod

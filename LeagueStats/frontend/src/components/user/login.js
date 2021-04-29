@@ -4,6 +4,7 @@ import {Form, Alert} from "react-bootstrap";
 import {Grid, Paper, Box, Button} from "@material-ui/core";
 import { withTranslation } from 'react-i18next'
 import {withStyles} from "@material-ui/core/styles";
+import Link from '@material-ui/core/Link'
 
 const styles = theme => ({
     border: {
@@ -12,6 +13,12 @@ const styles = theme => ({
         borderStyle: 'solid',
         borderRadius: '5px',
     },
+    custom_link: {
+       '&:hover': {
+            color: '#B6893A',
+            textDecoration: 'none'
+        }
+    }
 })
 
 
@@ -73,7 +80,7 @@ class Login extends Component {
                     {this.state.errors && this.state.errors.detail &&
                     <Alert className={"margin-t"} variant={"danger"}>{this.state.errors.detail}</Alert>}
                     <Button className={"margin-t"} variant={'contained'} type={'Submit'}>
-                        {t('submit')}
+                        {t('login.submit')}
                     </Button>
                 </Form>
             </Fragment>
@@ -81,13 +88,16 @@ class Login extends Component {
     }
 
     render() {
-        const classes = this.props.classes
+        const {classes, t} = this.props
         const Form = this.renderForm();
         return (
             <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
                 <Grid item xs={6} className={classes.border}>
                     <Box p={2}>
                         {Form}
+                        <Link className={classes.custom_link} href={"/api/reset_password/"}>
+                            {t('reset_password.link')}
+                        </Link>
                     </Box>
                 </Grid>
             </Grid>

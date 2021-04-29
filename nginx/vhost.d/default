@@ -2,3 +2,7 @@ location /static/ {
   alias /home/LeagueStats/web/static/;
   add_header Access-Control-Allow-Origin *;
 }
+
+location /prometheus/ {
+  proxy_pass http://0.0.0.0:9090/;
+}

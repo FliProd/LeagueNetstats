@@ -15,4 +15,10 @@ then
     echo "PostgreSQL started"
 fi
 
+# python manage.py migrate authentication
+# python manage.py migrate
+
+echo "migrated"
+
+
 exec "$@"

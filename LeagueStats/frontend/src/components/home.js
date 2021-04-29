@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import Typography from "@material-ui/core/Typography";
 import {withStyles} from "@material-ui/core/styles";
-import Button from '@material-ui/core/Button'
 import Box from '@material-ui/core/Box'
 import Grid from '@material-ui/core/Grid'
 import Examplechart from "./dashboard_components/chart/examplechart";
@@ -10,7 +9,7 @@ import Ranking from "./dashboard_components/ranking";
 import clsx from "clsx";
 import Signup from "./user/signup";
 import { withTranslation } from 'react-i18next'
-
+import Link from '@material-ui/core/Link'
 
 const styles = theme => ({
     root: {
@@ -29,7 +28,7 @@ const styles = theme => ({
         height: 'min-content'
     },
     sign_up_section: {
-        height: window.innerHeight,
+        height: window.innerHeight - 40,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -77,6 +76,12 @@ const styles = theme => ({
     },
     navigation: {
         marginLeft: 30,
+    },
+    custom_link: {
+       '&:hover': {
+            color: '#B6893A',
+            textDecoration: 'none'
+        }
     }
 })
 
@@ -96,8 +101,8 @@ class Home extends Component {
                     teams: {
                         "winner": [
                             {
-                                "name": "AgustinPls",
-                                "profile_icon_id": 588,
+                                "name": "Player 1",
+                                "profile_icon_id": 26,
                                 "id": 1,
                                 "champion": 45,
                                 "role": "DUO_SUPPORT",
@@ -109,8 +114,8 @@ class Home extends Component {
                                 "gold_earned": 12496
                             },
                             {
-                                "name": "ClaudinPoonPin",
-                                "profile_icon_id": 4214,
+                                "name": "Player 2",
+                                "profile_icon_id": 52,
                                 "id": 2,
                                 "champion": 59,
                                 "role": "DUO_SUPPORT",
@@ -122,8 +127,8 @@ class Home extends Component {
                                 "gold_earned": 15909
                             },
                             {
-                                "name": "ReeD",
-                                "profile_icon_id": 4271,
+                                "name": "Player 3",
+                                "profile_icon_id": 63,
                                 "id": 3,
                                 "champion": 427,
                                 "role": "DUO_SUPPORT",
@@ -135,8 +140,8 @@ class Home extends Component {
                                 "gold_earned": 11209
                             },
                             {
-                                "name": "HakkunaMattata",
-                                "profile_icon_id": 3587,
+                                "name": "Player 4",
+                                "profile_icon_id": 72,
                                 "id": 4,
                                 "champion": 18,
                                 "role": "DUO_SUPPORT",
@@ -148,8 +153,8 @@ class Home extends Component {
                                 "gold_earned": 14453
                             },
                             {
-                                "name": "MileSith",
-                                "profile_icon_id": 4312,
+                                "name": "Player 5",
+                                "profile_icon_id": 73,
                                 "id": 5,
                                 "champion": 99,
                                 "role": "DUO_SUPPORT",
@@ -163,7 +168,7 @@ class Home extends Component {
                         ],
                         "loser": [
                             {
-                                "name": "S e r g a l",
+                                "name": "Player 6",
                                 "profile_icon_id": 4804,
                                 "id": 6,
                                 "champion": 4,
@@ -176,8 +181,8 @@ class Home extends Component {
                                 "gold_earned": 14416
                             },
                             {
-                                "name": "Hielito",
-                                "profile_icon_id": 4661,
+                                "name": "Player 7",
+                                "profile_icon_id": 4621,
                                 "id": 7,
                                 "champion": 412,
                                 "role": "DUO_SUPPORT",
@@ -189,7 +194,7 @@ class Home extends Component {
                                 "gold_earned": 10180
                             },
                             {
-                                "name": "Roukukun",
+                                "name": "Player 8",
                                 "profile_icon_id": 4804,
                                 "id": 8,
                                 "champion": 36,
@@ -202,8 +207,8 @@ class Home extends Component {
                                 "gold_earned": 9975
                             },
                             {
-                                "name": "xyloom",
-                                "profile_icon_id": 4804,
+                                "name": "Player 9",
+                                "profile_icon_id": 1,
                                 "id": 9,
                                 "champion": 55,
                                 "role": "DUO_SUPPORT",
@@ -215,7 +220,7 @@ class Home extends Component {
                                 "gold_earned": 11818
                             },
                             {
-                                "name": "z0WHAT",
+                                "name": "Player 10",
                                 "profile_icon_id": 4247,
                                 "id": 10,
                                 "champion": 19,
@@ -2632,23 +2637,20 @@ class Home extends Component {
                 <Grid item key={'title'} className={classes.title}>
                     <Box display={'flex'} flexDirection={'row'} justifyContent={'space-between'}>
                         <Box justifyContent={'right'}>
-                            <Typography variant={'h2'}>{t('platform.name')}</Typography>
+                            <Link variant={'h2'} href={'/'} className={classes.custom_link}>{t('platform.name')}</Link>
                         </Box>
                         <Box display={'flex'} justifyContent={'left'} alignItems={'center'}>
-                            <Button variant={'contained'} className={classes.navigation}
-                                    onClick={(event) => {
-                                        event.stopPropagation()
-                                        window.location.href = '/login/'
-                                    }}>
+                            <Link variant={'h4'} className={clsx(classes.custom_link, classes.navigation)}
+                                    href={'/login/'}>
                                 {t('login')}
-                            </Button>
-                            <Button variant={'contained'} className={classes.navigation}
+                            </Link>
+                            <Link variant={'h4'} className={clsx(classes.custom_link, classes.navigation)}
                                     onClick={(event) => {
                                         event.stopPropagation()
                                         this.sign_up.current.scrollIntoView()
-                                    }}>
+                                    }} href={'#signup'}>
                                 {t('signup')}
-                            </Button>
+                            </Link>
                         </Box>
                     </Box>
                 </Grid>
@@ -2694,6 +2696,14 @@ class Home extends Component {
                     <Box className={classes.sign_up}>
                         <Signup/>
                     </Box>
+                </Grid>
+                <Grid item container justify={"center"} alignItems={'center'} key={'footer'}>
+                    <Grid xs={9} item>
+                        <Typography justify={'center'}>{t('home.footer')}</Typography>
+                    </Grid>
+                     <Grid xs={2} item>
+                        <Link className={classes.custom_link} href={'/terms'}>{t('home.terms')}</Link>
+                    </Grid>
                 </Grid>
             </Grid>
         )

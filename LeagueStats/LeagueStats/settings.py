@@ -30,13 +30,13 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
 # for production/remote
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # for local development
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']
 # for production/remote
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -67,7 +67,7 @@ CASSIOPEIA_VERSION_FROM_MATCH = "patch"
 CASSIOPEIA_DEFAULT_REGION = "NA"
 CASSIOPEIA_LOGGING = {
     "PRINT_CALLS": False,
-    "PRINT_RIOT_API_KEY": True,  # dont set to true in production
+    "PRINT_RIOT_API_KEY": False,  # dont set to true in production
     "DEFAULT": "WARNING",
     "CORE": "WARNING"
 }
@@ -152,7 +152,9 @@ ROOT_URLCONF = 'LeagueStats.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend/templates/frontend/')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -205,10 +207,14 @@ DATABASES = {
     },
 }
 
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST_USER = 'leaguenetstats@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+# prod vs dev
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'noreply@league-netstats.ethz.ch'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

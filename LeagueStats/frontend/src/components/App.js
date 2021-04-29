@@ -14,6 +14,7 @@ import Dashboard from "./dashboard";
 import Feedback from "./feedback";
 import Home from "./home";
 import Matches from "./matches";
+import Terms from "./terms"
 import clsx from "clsx";
 import CssBaseline from "@material-ui/core/CssBaseline";
 
@@ -58,7 +59,8 @@ class App extends Component {
             profile: {
                 user: {
                     username: '',
-                    email: ''
+                    email: '',
+                    verificated: '',
                 },
                 game_info: {
                     puuid: '',
@@ -73,7 +75,8 @@ class App extends Component {
                     zipcode: '',
                 },
             },
-            logged_in: false
+            logged_in: false,
+            dismissed_verification: false,
         }
     }
 
@@ -89,6 +92,7 @@ class App extends Component {
                     user: {
                         username: response.data.user.username,
                         email: response.data.user.email,
+                        verificated: response.data.verificated
                     },
                     game_info: {
                         puuid: response.data.puuid,
@@ -116,7 +120,7 @@ class App extends Component {
     }
 
     render() {
-        const classes = this.props.classes
+        const {classes} = this.props
 
         const logged_in = this.loggedIn()
 
@@ -142,6 +146,7 @@ class App extends Component {
                             <Route exact path={"/signup/"} component={Signup}/>
                             <Route exact path={"/account/"} component={Account}/>
                             <Route exact path={"/feedback/"} component={Feedback}/>
+                            <Route exact path={"/terms/"} component={Terms}/>
                             <Route exact path={"/matches/"} render={() => <Matches profile={this.state.profile}/>}/>
                             <Route path={"/dashboard"} render={({location, history}) => {
                                 let match_id = location.search.match(/\d{9}/)
@@ -156,4 +161,4 @@ class App extends Component {
     }
 }
 
-export default withStyles(styles)(App)
+export default  withStyles(styles)(App)

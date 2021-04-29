@@ -11,11 +11,12 @@ import Divider from "@material-ui/core/Divider"
 import Box from "@material-ui/core/Box"
 import CircularProgress from "@material-ui/core/CircularProgress"
 import Typography from "@material-ui/core/Typography"
-
+import {withTranslation} from "react-i18next";
+import {useTranslation} from "react-i18next";
 
 
 function Summoner(props) {
-    const {t} = {t: (arg) => arg}//useTranslation()
+    const {t} = useTranslation()
     const icon_url = '/static/img/profileicon/' + props.icon_id + '.png'
 
     return (
@@ -34,7 +35,7 @@ function Summoner(props) {
 class SummonerList extends Component {
     constructor(props) {
         super(props)
-        const { t } = {t: (arg) => arg}
+        const { t } = props
         this.state = {
             possible_accounts: [{
                 'name': t('summonername'),
@@ -69,7 +70,6 @@ class SummonerList extends Component {
     }
 
     async getSummonerInfo(name) {
-        const { t } = {t: (arg) => arg}
         const timeout = setTimeout(this.handleNoReply, 30000)
         this.setState({loading: true})
         try {
@@ -92,7 +92,6 @@ class SummonerList extends Component {
     }
 
     handleNoReply() {
-        const { t } = {t: (arg) => arg}
         this.setState({
             loading: false,
             errors: {account: "summoner.api_problem"},
@@ -126,8 +125,7 @@ class SummonerList extends Component {
     }
 
     render() {
-        const {t} = {t: (arg) => arg}//this.props
-
+        const {t} = this.props
 
         let list = this.state.possible_accounts.map((summoner, index) => {
             return this.renderSummoner(summoner, index, (index == this.state.account))
@@ -175,5 +173,5 @@ class SummonerList extends Component {
         )
     }
 }
-export default SummonerList
+export default withTranslation('translation',{withRef: true})(SummonerList)
 

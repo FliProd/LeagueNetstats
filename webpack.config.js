@@ -6,11 +6,11 @@ module.exports = {
     output: {
         // options related to how webpack emits results
 
-        // where compiled files go
-        path: path.resolve(__dirname, "LeagueStats/static/frontend/public/"),
+        // where compiled files go prod vs dev
+        path: path.resolve(__dirname, "LeagueStats/frontend/static/frontend/public/"),
 
-        // 127.0.0.1/static/frontend/public/ where files are served from
-        publicPath: "/static/frontend/public/",
+        // 127.0.0.1/static/frontend/public/ where files are served from prod vs dev
+        publicPath: "frontend/static/frontend/public/",
         filename: 'main.js',  // the same one we import in index.html
     },
     module: {

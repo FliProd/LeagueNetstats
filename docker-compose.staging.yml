@@ -14,14 +14,6 @@ services:
       - .env.staging
     depends_on:
       - db
-  prometheus:
-    image: prom/prometheus
-    volumes:
-      - ./prometheus/:/etc/prometheus/
-    ports:
-      - 9090:9090
-    depends_on:
-      - web
   db:
     image: postgres:12.0-alpine
     container_name: db-staging
@@ -59,6 +51,16 @@ services:
       - vhost:/etc/nginx/vhost.d
     depends_on:
       -  nginx-proxy-staging
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+    ports:
+      - 9090:9090
+    command: --config.file=/etc/prometheus/prometheus.yml  --web.external-url=https://league-netstats.ethz.ch/prometheus  --web.route-prefix="/"
+
+
+
 
 volumes:
   postgres_data:
@@ -67,3 +69,4 @@ volumes:
   certs:
   html:
   vhost:
+
