@@ -13,7 +13,6 @@ class Exampleplot extends Component {
             deaths: [],
             options: Exampleplot.setOptions(),
         }
-        //TODO go over this references
         if (React.createRef) {
             this.chartRef = React.createRef()
         } else {
@@ -25,7 +24,7 @@ class Exampleplot extends Component {
         return {
             series: [
                 {
-                    name: "CHAMPION_KILLS", data: [
+                    name: "Kill", data: [
                         [
                             5370,
                             6160
@@ -53,7 +52,7 @@ class Exampleplot extends Component {
                     ]
                 },
                 {
-                    name: "CHAMPION_DEATHS", data: [
+                    name: "Death", data: [
                         [
                             7816,
                             8285
@@ -89,7 +88,7 @@ class Exampleplot extends Component {
                     ]
                 },
                 {
-                    name: "BUILDING_KILL", data: [
+                    name: "Building Destroyed", data: [
                         [
                             3809,
                             3829

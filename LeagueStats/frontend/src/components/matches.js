@@ -8,7 +8,7 @@ import {withStyles} from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography";
 import clsx from "clsx";
 import {withTranslation} from "react-i18next";
-import {JungleLane, TopLane, BottomLane, MidLane, Damage, Gold, Timer} from "./svg-icons";
+import {JungleLane, TopLane, BottomLane, MidLane, Damage, Gold, Timer} from "./Utility/svg-icons";
 
 
 const styles = theme => ({
@@ -65,6 +65,11 @@ const styles = theme => ({
         '&:hover': {
             transform: 'scale(1.001)'
         }
+    },
+    goldndamage: {
+        [theme.breakpoints.down('sm')]: {
+            display: 'none',
+        },
     }
 })
 
@@ -221,7 +226,7 @@ class Matches extends Component {
 
         return (
             <Grid container key={'player'} direction={"row"} alignItems={"center"} justify={"center"}>
-                <Grid xs={4} item container justify={"flex-start"} alignItems={'center'} spacing={1} wrap={"nowrap"}>
+                <Grid xs={6} md={4} item container justify={"flex-start"} alignItems={'center'} spacing={1} wrap={"nowrap"}>
                     <Grid item>
                         {player_info &&
                         <Image className={classes.champion_icon} src={champion_url} rounded/>
@@ -236,7 +241,7 @@ class Matches extends Component {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid xs={4} item direction={'column'} container justify={"center"} alignItems={'center'}>
+                <Grid xs={6} md={4} item direction={'column'} container justify={"center"} alignItems={'center'}>
                     <Grid xs item>
                         {player_info &&
                         <Typography variant={'h5'}>{player_info.kills}/{player_info.deaths}/{player_info.assists}</Typography>
@@ -249,7 +254,7 @@ class Matches extends Component {
                         }
                     </Grid>
                 </Grid>
-                <Grid xs={4} item container direction={'column'}>
+                <Grid xs={4} item container direction={'column'} className={classes.goldndamage}>
                     <Grid item container direction={'row'} key={'gold'}>
                         <Grid xs={3} item container justify={'flex-end'}>
                             <Gold size={"md"}/>
@@ -279,7 +284,7 @@ class Matches extends Component {
         match = match['match']
 
 
-        const date = new Date(match.game_start * 1000)
+        const date = new Date(match.game_start)
         const datestring = Matches.formatTime(date, 'date')
 
         const duration = new Date(match.game_duration * 1000)
@@ -290,10 +295,10 @@ class Matches extends Component {
                 <Grid container direction={'row'} justify={"center"} alignItems={'center'}
                       className={clsx(classes.match, {[classes.won]: won}, {[classes.lost]: !won})}
                       onClick={() => this.showMatchInDashboard(match.match_id)}>
-                     <Grid xs={7} item>
+                     <Grid xs={5} md={7} item>
                         {playerstats}
                     </Grid>
-                    <Grid xs={3} item key={'participants'}>
+                    <Grid xs={5} md={3} item key={'participants'}>
                         {teams}
                     </Grid>
                     <Grid xs={2} item key={'datetime'} className={clsx(classes.match_item, classes.time)}>
@@ -368,7 +373,7 @@ class Matches extends Component {
             seconds = seconds >= 10 ? seconds : '0' + seconds
             return minutes + ':' + seconds
         } else if (type == 'date') {
-            return date.getDay() + '.' + date.getMonth() + '.' + date.getFullYear()
+            return date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
         } else if (type == 'time') {
             return date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
         }

@@ -7,12 +7,14 @@ module.exports = {
         // options related to how webpack emits results
 
         // where compiled files go prod vs dev
-        path: path.resolve(__dirname, "LeagueStats/frontend/static/frontend/public/"),
+        path: path.resolve(__dirname, "LeagueStats/frontend/static/frontend/public/"),//"LeagueStats/static/frontend/public/"),//
 
-        // 127.0.0.1/static/frontend/public/ where files are served from prod vs dev
-        publicPath: "frontend/static/frontend/public/",
+        // where files are served from prod vs dev
+        publicPath: "/frontend/static/frontend/public/",//"/static/frontend/public/",//
         filename: 'main.js',  // the same one we import in index.html
+        sourceMapFilename: "main.js.map",
     },
+    devtool: "source-map",
     module: {
         // configuration regarding modules
         rules: [

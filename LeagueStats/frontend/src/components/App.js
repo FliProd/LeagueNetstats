@@ -14,9 +14,11 @@ import Dashboard from "./dashboard";
 import Feedback from "./feedback";
 import Home from "./home";
 import Matches from "./matches";
-import Terms from "./terms"
+import Terms from "./Utility/terms"
+import Upload from "./upload";
 import clsx from "clsx";
 import CssBaseline from "@material-ui/core/CssBaseline";
+import {loggedIn} from "./Utility/ut_functions"
 
 let theme = createMuiTheme({
     palette: {
@@ -84,45 +86,41 @@ class App extends Component {
         this.getAccount()
     }
 
-    async getAccount() {
-        if (this.loggedIn()) {
-            const response = await axiosInstance.get('/api/profile/get/');
-            this.setState({
-                profile: {
-                    user: {
-                        username: response.data.user.username,
-                        email: response.data.user.email,
-                        verificated: response.data.verificated
+    getAccount() {
+        if (loggedIn()) {
+            axiosInstance.get('/api/profile/get/').then(response => {
+                this.setState({
+                    profile: {
+                        user: {
+                            username: response.data.user.username,
+                            email: response.data.user.email,
+                            verificated: response.data.verificated
+                        },
+                        game_info: {
+                            puuid: response.data.puuid,
+                            game_region: response.data.game_region,
+                            icon_id: response.data.icon_id,
+                            level: response.data.level,
+                        },
+                        location: {
+                            country: response.data.country,
+                            state: response.data.state,
+                            city: response.data.city,
+                            zipcode: response.data.zipcode,
+                        },
                     },
-                    game_info: {
-                        puuid: response.data.puuid,
-                        game_region: response.data.game_region,
-                        icon_id: response.data.icon_id,
-                        level: response.data.level,
-                    },
-                    location: {
-                        country: response.data.country,
-                        state: response.data.state,
-                        city: response.data.city,
-                        zipcode: response.data.zipcode,
-                    },
-                },
+                })
+            }).catch(error => {
+                console.log(error)
             })
         }
-    }
 
-    loggedIn() {
-        if (!localStorage.getItem('access_token') || !localStorage.getItem('refresh_token')) {
-            return false
-        } else {
-            return true
-        }
     }
 
     render() {
         const {classes} = this.props
 
-        const logged_in = this.loggedIn()
+        const logged_in = loggedIn()
 
         let home
         if (logged_in) {
@@ -148,8 +146,9 @@ class App extends Component {
                             <Route exact path={"/feedback/"} component={Feedback}/>
                             <Route exact path={"/terms/"} component={Terms}/>
                             <Route exact path={"/matches/"} render={() => <Matches profile={this.state.profile}/>}/>
+                            <Route exact path={"/upload/"} component={Upload} />
                             <Route path={"/dashboard"} render={({location, history}) => {
-                                let match_id = location.search.match(/\d{9}/)
+                                let match_id = location.search.match(/\d*}/)
                                 match_id = match_id && match_id.length > 0 ? match_id[0] : undefined
                                 return <Dashboard match_id={match_id} profile={this.state.profile}/>
                             }}/>
@@ -157,8 +156,9 @@ class App extends Component {
                         </Switch>
                     </main>
                 </ThemeProvider>
-            </div>)
+            </div>
+        )
     }
 }
 
-export default  withStyles(styles)(App)
+export default withStyles(styles)(App)

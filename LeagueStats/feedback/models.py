@@ -5,5 +5,5 @@ from authentication.models import CustomUser
 
 
 class Feedback(models.Model):
-    user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
+    email = models.EmailField()
     feedback = models.TextField()

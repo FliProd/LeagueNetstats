@@ -184,7 +184,7 @@ class Event extends Component {
         return event_parts
     }
 
-    //TODO rare events
+    //TODO rare events: no examples found until now
     renderCapturePoint() {
 
     }

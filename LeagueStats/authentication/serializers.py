@@ -27,6 +27,7 @@ class ValidationTokenSerializer(serializers.ModelSerializer):
             validation_token.save()
             return validation_token
 
+
 class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:

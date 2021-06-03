@@ -7,6 +7,13 @@ import {Alert, Form} from "react-bootstrap"
 import {withStyles} from "@material-ui/core/styles";
 import {withTranslation} from "react-i18next";
 import clsx from "clsx";
+import {loggedIn} from "./Utility/ut_functions";
+import {Fragment} from "react";
+import Footer from "./Utility/footer";
+import Link from "@material-ui/core/Link";
+import Grid from "@material-ui/core/Grid";
+import Header from "./Utility/header"
+
 
 const styles = theme => ({
     container: {
@@ -27,20 +34,35 @@ const styles = theme => ({
         borderRadius: '5px',
         padding: 5,
     },
+     title: {
+        padding: 10,
+        marginRight: 20,
+        marginLeft: 30,
+        marginBottom: 20,
+    },
+     custom_link: {
+       '&:hover': {
+            color: '#B6893A',
+            textDecoration: 'none'
+        }
+    },
 })
+
 
 class Feedback extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            feedback: ''
+            feedback: '',
+            email: '',
+            authenticated: loggedIn()
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
     }
 
     handleChange(event) {
-        this.setState({feedback: event.target.value})
+        this.setState(prevstate => prevstate[event.target.name] = event.target.value)
     }
 
     async handleSubmit(event) {
@@ -48,12 +70,13 @@ class Feedback extends Component {
 
         try {
             const response = await axiosInstance.post('/feedback/create/', {
-                feedback: this.state.feedback
+                feedback: this.state.feedback,
+                email: this.state.email
             })
 
             if (response.status == 201) {
                 this.setState({
-                    success: 'feedback.success',
+                    success: true,
                 })
             }
             return response
@@ -67,26 +90,55 @@ class Feedback extends Component {
 
     render() {
         const {classes, t} = this.props
+        const authenticated = this.state.authenticated
         return (
-            <Box display={"flex"} flexDirection={'column'} justifyContent={"center"} alignItems={"center"}
-                 className={classes.container}>
-                <Form onSubmit={this.handleSubmit} className={clsx(classes.form, classes.border)}>
-                    <Typography variant={'h3'}>{t('feedback.title')}</Typography>
-                    <Typography variant={"body1"}>{t('feedback.info')}</Typography>
-                    <Form.Control name="feedback" as="textarea" rows={8} value={this.state.feedback}
-                                  onChange={this.handleChange} autoComplete={'off'}/>
-                    <Button variant={'contained'} type={'Submit'} className={classes.button}>
-                        <Typography>{t('feedback.submit')}</Typography>
-                    </Button>
-                    {this.state.errors &&
-                    <Alert variant={"danger"}>{this.state.errors.detail}{this.state.errors.feedback}</Alert>
-                    }
-                    {this.state.success &&
-                    <Alert variant={"success"}>{this.state.success}</Alert>
-                    }
+            <Fragment>
+                {!authenticated &&
+                <Header subtitle={'feedback.title'}/>
+                }
+                <Box display={"flex"} flexDirection={'column'} justifyContent={"center"} alignItems={"center"}
+                     className={classes.container}>
+                    <Form onSubmit={this.handleSubmit} className={clsx(classes.form, classes.border)}>
+                        <Typography variant={'h3'}>{t('feedback.title')}</Typography>
+                        {authenticated &&
+                        <Typography variant={"body1"}>{t('feedback.info')}</Typography>
+                        }
+                        {!authenticated &&
+                        <Form.Group>
+                            {!authenticated &&
+                            <Form.Label>{t('email')}</Form.Label>
+                            }
+                            <Form.Control name="email" type="text" value={this.state.email}
+                                          onChange={this.handleChange} autoComplete={'off'}/>
+                            {this.state.errors && this.state.errors.email &&
+                            <Alert variant={"danger"}>{this.state.errors.email}</Alert>
+                            }
+                        </Form.Group>
+                        }
+                        <Form.Group>
+                            {!authenticated &&
+                            <Form.Label>{t('feedback.title')}</Form.Label>
+                            }
+                            <Form.Control name="feedback" as="textarea" rows={8} value={this.state.feedback}
+                                          onChange={this.handleChange} autoComplete={'off'}/>
+                        </Form.Group>
 
-                </Form>
-            </Box>
+                        <Button variant={'contained'} type={'Submit'} className={classes.button}>
+                            <Typography>{t('feedback.submit')}</Typography>
+                        </Button>
+                        {this.state.errors && this.state.errors.feedback &&
+                        <Alert variant={"danger"}>{this.state.errors.feedback}</Alert>
+                        }
+                        {this.state.success &&
+                        <Alert variant={"success"}>{t('feedback.success')}</Alert>
+                        }
+
+                    </Form>
+                </Box>
+                {!authenticated &&
+                <Footer/>
+                }
+            </Fragment>
         )
     }
 }

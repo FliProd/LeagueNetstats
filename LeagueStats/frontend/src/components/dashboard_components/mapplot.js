@@ -13,7 +13,6 @@ class MapPlot extends Component {
             deaths: [],
             options: MapPlot.setOptions(props.t),
         }
-        //TODO go over this references
         if (React.createRef) {
             this.chartRef = React.createRef()
         } else {

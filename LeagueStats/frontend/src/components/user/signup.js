@@ -39,6 +39,7 @@ class Signup extends Component {
                 zipcode: 0,
             },
             gdpr_consent: false,
+            submitting: false,
         }
         this.summonerListElement = React.createRef()
 
@@ -142,7 +143,7 @@ class Signup extends Component {
             return
         }*/
 
-        if(this.state.gdpr_consent == false) {
+        if (this.state.gdpr_consent == false) {
             this.setState({
                 errors: {gdpr: t("signup.cookies_problem")},
             })
@@ -157,6 +158,8 @@ class Signup extends Component {
         }
 
         const account = this.state.account
+
+        this.setState({submitting: true})
 
         axiosInstance.post('/api/profile/create/', {
             user: {
@@ -191,7 +194,10 @@ class Signup extends Component {
                 return response
             }
         }).catch(error => {
-            this.setState({errors: error.response.data})
+            this.setState({
+                errors: error.response.data,
+                submitting: false
+            })
         })
     }
 
@@ -225,36 +231,45 @@ class Signup extends Component {
                     {(this.state.errors && this.state.errors.user && this.state.errors.user.password) &&
                     <Alert variant={"danger"}>{this.state.errors.user.password}</Alert>
                     }
-                    <Form.Group controlId="formBasicCheckbox">
+                    <Form.Group controlId="formBasicCheckboxLocation">
                         <Grid container direction={'row'}>
                             <Grid item>
-                                    {this.state.loading_location &&
-                                    <Box mr={1}>
-                                        <CircularProgress style={{"color": "white"}} size={25}/>
-                                    </Box>
-                                    }
+                                {this.state.loading_location &&
+                                <Box mr={1}>
+                                    <CircularProgress style={{"color": "white"}} size={25}/>
+                                </Box>
+                                }
                             </Grid>
                             <Grid item>
-                                  <Form.Check className={"padding"} type="checkbox" label={t("signup.allow_location")}
-                                        onChange={(event) => {
-                                            this.setState(event)}} />
+                                <Form.Check className={"padding"} type="checkbox" label={t("signup.allow_location")}
+                                            onChange={(event) => {
+                                                this.getLocation(event)
+                                            }}/>
                             </Grid>
                         </Grid>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.location) &&
                     <Alert variant={"danger"}>{this.state.errors.location}</Alert>
                     }
-                    <Form.Group controlId="formBasicCheckbox">
+                    <Form.Group controlId="formBasicCheckboxGDPR">
                         <Form.Check className={"padding"} type="checkbox" label={t("signup.allow_cookies")}
-                                        onChange={(event) => {
-                                            this.setState({gdpr_consent: event.target.value})}} />
+                                    onChange={(event) => {
+                                        this.setState({gdpr_consent: event.target.value})
+                                    }}/>
                     </Form.Group>
                     {(this.state.errors && this.state.errors.gdpr) &&
                     <Alert variant={"danger"}>{this.state.errors.gdpr}</Alert>
                     }
+                    {!this.state.submitting &&
                     <Button variant={'contained'} type={'Submit'}>
                         {t('signup.submit')}
                     </Button>
+                    }
+                    {this.state.submitting &&
+                    <Box mr={1}>
+                        <CircularProgress style={{"color": "white"}} size={25}/>
+                    </Box>
+                    }
                 </Form>
             </Fragment>
         )
@@ -266,7 +281,7 @@ class Signup extends Component {
         const Form = this.renderForm()
 
         return (
-            <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
+            <Grid display={'flex'} container direction="row" alignItems="center" justify="center">
                 <Grid item xs={6}>
                     <Box p={2}>
                         {Form}

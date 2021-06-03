@@ -12,9 +12,8 @@ import ApexChart from "./dashboard_components/chart/apexchart";
 import MapPlot from "./dashboard_components/mapplot";
 import Upload from "./upload";
 import Ranking from "./dashboard_components/ranking"
-import { withTranslation, useTranslation } from 'react-i18next'
+import {withTranslation, useTranslation} from 'react-i18next'
 import {Alert} from "react-bootstrap";
-
 
 
 const styles = theme => ({
@@ -47,8 +46,14 @@ const styles = theme => ({
     arrows: {
         flexGrow: 1,
         cursor: 'pointer',
+        '&:hover': {
+            color: '#B6893A',
+        }
     },
-
+    alert: {
+        marginBottom: 0,
+        lineHeight: '24px'
+    }
 })
 
 class Dashboard extends Component {
@@ -61,17 +66,14 @@ class Dashboard extends Component {
             match_loaded: false,
             index: 0,
             change_match: false,
-            profile: this.props.profile
         }
 
         this.renderAvgRow = this.renderAvgRow.bind(this)
     }
 
     async componentDidMount() {
-        try {
-            const match_ids_response = await axiosInstance.get('/riotapi/matches/get/')
-
-            if (match_ids_response.data.match_ids.length == 0) {
+        axiosInstance.get('/riotapi/matches/get/').then(response => {
+            if (response.data.match_ids.length == 0) {
                 this.setState({
                     errors: {
                         upload: 'dashboard.no_matches'
@@ -80,9 +82,9 @@ class Dashboard extends Component {
                 return
             } else {
                 this.setState(prevstate => {
-                    prevstate.match_ids = match_ids_response.data.match_ids
-                    if(this.props.match_id) {
-                        prevstate.index = match_ids_response.data.match_ids.indexOf(parseInt(this.props.match_id))
+                    prevstate.match_ids = response.data.match_ids
+                    if (this.props.match_id) {
+                        prevstate.index = response.data.match_ids.indexOf(parseInt(this.props.match_id))
                     } else {
                         prevstate.index = 0
                     }
@@ -91,10 +93,8 @@ class Dashboard extends Component {
                 })
                 this.loadMatch(this.state.index)
             }
+        }).catch(error => console.log(error))
 
-        } catch (error) {
-            //console.log(error)
-        }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -113,16 +113,14 @@ class Dashboard extends Component {
                 match_loaded: true,
             })
         } else {
-            try {
-                const match_response = await axiosInstance.get('/riotapi/match/get/' + match_id)
-
-                const teams = JSON.parse(match_response.data.match.teams)
-                delete match_response.data.match.participants
+            axiosInstance.get('/riotapi/match/get/' + match_id).then(response => {
+                const teams = JSON.parse(response.data.match.teams)
+                delete response.data.match.participants
                 const match = {
-                    networklogs: JSON.parse(match_response.data.networklogs),
-                    frames: JSON.parse(match_response.data.frames),
-                    events: JSON.parse(match_response.data.events),
-                    game_info: match_response.data.match,
+                    networklogs: JSON.parse(response.data.networklogs),
+                    frames: JSON.parse(response.data.frames),
+                    events: JSON.parse(response.data.events),
+                    game_info: response.data.match,
                     teams: teams,
                 }
                 this.setState(prevstate => {
@@ -131,10 +129,7 @@ class Dashboard extends Component {
                     prevstate.match_loaded = true
                     return prevstate
                 })
-
-            } catch (error) {
-                //console.log(error)
-            }
+            }).catch(error => console.log(error))
         }
     }
 
@@ -177,7 +172,8 @@ class Dashboard extends Component {
                 </Grid>
                 <Grid item className={clsx(classes.padded, classes.arrows)}>
                     <StyledItemBox>
-                        <FontAwesomeIcon icon={faChevronRight} size={'4x'} onClick={() => this.changeMatch('previous')}/>
+                        <FontAwesomeIcon icon={faChevronRight} size={'4x'}
+                                         onClick={() => this.changeMatch('previous')}/>
                     </StyledItemBox>
                 </Grid>
             </Grid>
@@ -235,7 +231,8 @@ class Dashboard extends Component {
                     </Grid>
                     <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
                         <StyledItemBox>
-                            <StyledInfoBox data={{name: 'dashboard.avg_loss', value: avg_loss, unit: t('dashboard.packages')}}/>
+                            <StyledInfoBox
+                                data={{name: 'dashboard.avg_loss', value: avg_loss, unit: t('dashboard.packages')}}/>
                         </StyledItemBox>
                     </Grid>
                     <Grid item md={2} xs={4} className={clsx(classes.padded, classes.averages)}>
@@ -277,21 +274,23 @@ class Dashboard extends Component {
     renderUpload() {
         const classes = this.props.classes
         return (
-            <Box display={'flex'} alignItems={'center'} justifyContent={'center'} className={clsx(classes.full_height, classes.full_width)}>
-                <Upload />
+            <Box display={'flex'} alignItems={'center'} justifyContent={'center'}
+                 className={clsx(classes.full_height, classes.full_width)}>
+                <Upload/>
             </Box>
         )
     }
 
     render() {
-        const {classes, t} = this.props
+        const {t, classes} = this.props
         if (this.state.errors && this.state.errors.upload) {
             return this.renderUpload()
         } else {
             return (
                 <Fragment>
-                    {!this.state.profile.user.verificated && !this.state.dismissed_verification &&
-                        <Alert variant={"danger"} dismissible onClose={() => this.setState({dismissed_verification: true})}>{t('verification.alert')}</Alert>
+                    {!this.props.profile.user.verificated && !this.state.dismissed_verification &&
+                    <Alert className={classes.alert} variant={"danger"} dismissible
+                           onClose={() => this.setState({dismissed_verification: true})}>{t('verification.alert')}</Alert>
                     }
                     {this.renderGamesRow()}
                     {this.renderGraphRow()}
@@ -352,11 +351,11 @@ const ItemBoxStyles = (theme) => ({
     },
     glow: {
         "&:hover": {
-            boxShadow: ' 0px 0px 20px -10px rgba(0,225,255,0.8)',
+            boxShadow: ' 0px 0px 20px -10px rgba(182,137,58,0.8)',
         },
     },
     grow: {
-        transition:' all .2s ease-in-out' ,
+        transition: ' all .2s ease-in-out',
         '&:hover': {
             transform: 'scale(1.01)'
         }

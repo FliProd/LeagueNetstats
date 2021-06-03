@@ -23,8 +23,22 @@ services:
       - ./prometheus/:/etc/prometheus/
     ports:
       - 9090:9090
-    command: --config.file=/etc/prometheus/prometheus.yml  --web.external-url=https://league-netstats.ethz.ch/prometheus  --web.route-prefix="/"
-
+    command: --config.file=/etc/prometheus/prometheus.yml  --web.external-url=https://league-netstats.ethz.ch/prometheus  --web.route-prefix="/prometheus" --log.level=debug
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3060:3000
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - ./data/alermanager:/data
+    command:
+      - '--config.file=/etc/prometheus/alert_manager/alertmanager.yml'
+      - '--storage.path=/data'
+    ports:
+      - 9093:9093
   db:
     image: postgres:12.0-alpine
     container_name: db-prod
@@ -34,6 +48,25 @@ services:
       - 5432:5432
     env_file:
       - ./.env.prod.db
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local
+    restart: always
+    user: postgres
+    volumes:
+      - /var/opt/pgbackups:/backups
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    env_file:
+      - ./.env.prod.db
+    environment:
+      - POSTGRES_EXTRA_OPTS=-Z6 --schema=public --blobs
+      - SCHEDULE=@daily
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+      - HEALTHCHECK_PORT=8080
   nginx-proxy:
     image: nhampp/nginx-proxy:ssl_letsencrypt
     container_name: nginx-proxy

@@ -15,13 +15,13 @@ class Logout extends Component {
             const response = await axiosInstance.post('/api/blacklist/', {
                 "refresh_token": localStorage.getItem("refresh_token")
             });
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            axiosInstance.defaults.headers['Authorization'] = null;
-            window.location.href = '/'
         } catch (e) {
-            //console.log(e);
+            console.log(e);
         }
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        axiosInstance.defaults.headers['Authorization'] = null;
+        window.location.href = '/'
     }
 
     render() {

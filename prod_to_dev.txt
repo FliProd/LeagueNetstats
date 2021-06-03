@@ -1,0 +1,25 @@
+axiosAPI.js
+-change baseURL
+
+webpack.config.js
+-change path
+-change publicPath
+
+Transfer
+-run: npm run build
+-build: docker-compose -f docker-compose.prod.yml build web
+-push: docker push nhampp/leaguestats:ssl_letsencrypt
+-run: ./transfer_prod.sh
+
+On Remote
+- docker stop leaguestats-prod
+- docker stop nginx-proxy
+- docker container rm leaguestats-prod nginx-proxy
+- docker volume rm prod_static_volume
+- docker pull nhampp/leaguestats:ssl_letsencrypt
+- docker images
+- docker rmi <none tagged image>
+- docker-compose -f docker-compose.prod.yml up web nginx-proxy
+- docker exec -it <leaguestats container id> /bin/sh
+- python manage.py makemigrations
+- python manage.py migrate

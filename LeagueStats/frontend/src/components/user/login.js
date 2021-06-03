@@ -2,9 +2,11 @@ import React, {Component, Fragment} from "react";
 import {axiosInstance} from "../../axiosApi";
 import {Form, Alert} from "react-bootstrap";
 import {Grid, Paper, Box, Button} from "@material-ui/core";
-import { withTranslation } from 'react-i18next'
+import {withTranslation} from 'react-i18next'
 import {withStyles} from "@material-ui/core/styles";
 import Link from '@material-ui/core/Link'
+import Header from "../Utility/header";
+import Footer from "../Utility/footer";
 
 const styles = theme => ({
     border: {
@@ -14,7 +16,7 @@ const styles = theme => ({
         borderRadius: '5px',
     },
     custom_link: {
-       '&:hover': {
+        '&:hover': {
             color: '#B6893A',
             textDecoration: 'none'
         }
@@ -57,7 +59,7 @@ class Login extends Component {
     }
 
     renderForm() {
-        const { t } = this.props
+        const {t} = this.props
 
         return (
             <Fragment>
@@ -91,16 +93,20 @@ class Login extends Component {
         const {classes, t} = this.props
         const Form = this.renderForm();
         return (
-            <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
-                <Grid item xs={6} className={classes.border}>
-                    <Box p={2}>
-                        {Form}
-                        <Link className={classes.custom_link} href={"/api/reset_password/"}>
-                            {t('reset_password.link')}
-                        </Link>
-                    </Box>
+            <Fragment>
+                <Header subtitle={'login'}/>
+                <Grid className={"signup-grid"} container direction="row" alignItems="center" justify="center">
+                    <Grid item xs={6} className={classes.border}>
+                        <Box p={2}>
+                            {Form}
+                            <Link className={classes.custom_link} href={"/api/reset_password/"}>
+                                {t('reset_password.link')}
+                            </Link>
+                        </Box>
+                    </Grid>
                 </Grid>
-            </Grid>
+                <Footer/>
+            </Fragment>
         );
     }
 }

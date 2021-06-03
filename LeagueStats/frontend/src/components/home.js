@@ -10,6 +10,7 @@ import clsx from "clsx";
 import Signup from "./user/signup";
 import { withTranslation } from 'react-i18next'
 import Link from '@material-ui/core/Link'
+import Footer from "./Utility/footer";
 
 const styles = theme => ({
     root: {
@@ -28,7 +29,7 @@ const styles = theme => ({
         height: 'min-content'
     },
     sign_up_section: {
-        height: window.innerHeight - 40,
+        height: window.innerHeight,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -44,13 +45,29 @@ const styles = theme => ({
     },
     halfbox: {
         height: '100%',
-        width: '50%',
+        width: '40%',
         marginLeft: 30,
         marginRight: 30,
         marginBottom: 30,
         marginTop: 20,
         justifyContent: 'center',
         alignItems: 'center'
+    },
+    graphbox: {
+        height: '100%',
+        width: '60%',
+        marginLeft: 5,
+        marginBottom: 30,
+        marginTop: 20,
+        justifyContent: 'center',
+    },
+    graphtextbox: {
+        height: '100%',
+        width: '30%',
+        marginRight: 30,
+        marginBottom: 30,
+        marginTop: 20,
+        justifyContent: 'center',
     },
     textbox: {
         paddingTop: 30,
@@ -2657,10 +2674,10 @@ class Home extends Component {
                 <Grid item key={'graph_section'}
                       className={classes.graph_section}>
                     <Box display={'flex'} flexDirection={'row'} className={classes.full_height}>
-                        <Box className={classes.halfbox}>
+                        <Box className={classes.graphbox}>
                             <Examplechart/>
                         </Box>
-                        <Box className={clsx(classes.halfbox, classes.textbox)}>
+                        <Box className={clsx(classes.graphtextbox)}>
                             <Typography variant={'h4'} className={classes.subtitle}>{t('home.graph.right.title')}</Typography>
                             <Typography variant={'h5'}>{t('home.graph.right.text')}</Typography>
                         </Box>
@@ -2698,12 +2715,7 @@ class Home extends Component {
                     </Box>
                 </Grid>
                 <Grid item container justify={"center"} alignItems={'center'} key={'footer'}>
-                    <Grid xs={9} item>
-                        <Typography justify={'center'}>{t('home.footer')}</Typography>
-                    </Grid>
-                     <Grid xs={2} item>
-                        <Link className={classes.custom_link} href={'/terms'}>{t('home.terms')}</Link>
-                    </Grid>
+                    <Footer />
                 </Grid>
             </Grid>
         )

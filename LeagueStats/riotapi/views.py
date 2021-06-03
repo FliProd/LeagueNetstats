@@ -1,4 +1,4 @@
-from django_cassiopeia import cassiopeia as cass
+from riotwatcher import LolWatcher, ApiError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions
@@ -12,6 +12,9 @@ from authentication.models import Profile
 from django.core import serializers
 from django.shortcuts import get_object_or_404, get_list_or_404
 from pprint import pprint
+import os
+import requests
+import time
 
 types = {'CHAMPION_KILL': 'CK',
          'WARD_PLACED': 'WP',
@@ -35,23 +38,30 @@ class Summoner(APIView):
 
         possible_accounts = []
 
-        for region in cass.data.Region:
+        lol_watcher = LolWatcher(os.environ.get("RIOT_API_KEY"))
+        regions = ['br1', 'eun1', 'euw1', 'jp1', 'kr', 'la1', 'la2', 'na1', 'oc1', 'tr1', 'ru']
+
+        for region in regions:
             try:
-                summoner = cass.Summoner(name=name, region=region)
-                print(region)
+                summoner = lol_watcher.summoner.by_name(region=region, summoner_name=name)
                 possible_accounts.append({
                     "name": name,
-                    "puuid": summoner.puuid,
-                    "account_id": summoner.account_id,
-                    "region": region.__str__(),
-                    "icon_id": summoner.profile_icon.id,
-                    "level": summoner.level,
+                    "puuid": summoner['puuid'],
+                    "account_id": summoner['accountId'],
+                    "region": translateRegion(region),
+                    "icon_id": summoner['profileIconId'],
+                    "level": summoner['summonerLevel'],
                 })
 
-            except NotFoundError:
-                print('Notfounderror')
             except AttributeError:
                 print('API Key Problems')
+            except requests.exceptions.ConnectionError as ex:
+                print(ex)
+            except ApiError as err:
+                if err.response.status_code == 429:
+                    print('too many requests')
+                elif err.response.status_code == 404:
+                    print('No Summoner with that name')
 
         if len(possible_accounts) > 0:
             return Response({"possible_accounts": possible_accounts}, status=status.HTTP_200_OK)
@@ -64,31 +74,34 @@ class MatchView(APIView):
     def post(self, request):
         user_id = request.user.id
         summoner_name = request.user.username
+        netlog = request.FILES['netlog']
 
         match_id = int(json.loads(request.data['match_id']))
         match_region = translateRegionR3(json.loads(request.data['region']))
 
-        netlog = request.FILES['netlog']
-        match = cass.get_match(id=match_id, region=match_region)
-        timeline_json = match.timeline
-
         try:
+            lol_watcher = LolWatcher(os.environ.get("RIOT_API_KEY"))
+
+            match = lol_watcher.match.by_id(match_id=match_id, region=match_region)
+            timeline_json = lol_watcher.match.timeline_by_match(match_id=match_id, region=match_region)
+
             log_owner_id = -1
             participants = []
-            for participant in match.participants:
-                # sometimes participantidentities arent saved see match 942186746
-                print(participant.summoner)
-                if participant.summoner is not None:
-                    participants.append(participant.summoner.name)
-                    if str(participant.summoner.name).casefold() == str(summoner_name).casefold():
-                        log_owner_id = participant.id
-                elif log_owner_id == -1:
-                    # sometimes API returns none for the summoners of a match, this is a flag for that
-                    log_owner_id = -2
 
-            if not (log_owner_id == -1 or log_owner_id == -2):
+            try:
+                for participant in match['participantIdentities']:
+                    participant_name = participant['player']['summonerName']
+                    participants.append(participant_name)
+                    if str(participant_name).casefold() == str(summoner_name).casefold():
+                        log_owner_id = participant['participantId']
+
+            except KeyError:
+                print(match_id)
+                return Response('upload.no_summoners_in_json', status=status.HTTP_400_BAD_REQUEST)
+
+            if not log_owner_id == -1:
                 netstats = parse_netlog(netlog, match_id, user_id)
-                match_to_save = parse_match(match, user_id)
+                match_to_save = parse_match(match, user_id, summoner_name)
                 [frames, events] = parse_timeline(timeline_json, log_owner_id, match_id, user_id)
 
                 if match_to_save and netstats and frames and events:
@@ -104,6 +117,7 @@ class MatchView(APIView):
                     valid &= frameserializer.is_valid()
 
                     if valid:
+
                         match = matchserializer.save()
                         netlogs = netlogserializer.save()
                         events = eventserializer.save()
@@ -111,6 +125,8 @@ class MatchView(APIView):
 
                         if match and netlogs and events and frames:
                             return Response(str(match_id) + ' success', status=status.HTTP_200_OK)
+                        else:
+                            return Response('error while saving', status=status.HTTP_400_BAD_REQUEST)
                     else:
                         errors = {
                             'matchserializer': matchserializer.errors,
@@ -128,6 +144,8 @@ class MatchView(APIView):
                 return Response('upload.no_summoners_in_json', status=status.HTTP_400_BAD_REQUEST)
         except NotFoundError:
             return Response('upload.not_found', status=status.HTTP_400_BAD_REQUEST)
+        except requests.exceptions.HTTPError:
+            return Response('upload.httperror', status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, pk):
         user_id = request.user.id
@@ -159,32 +177,32 @@ class MatchView(APIView):
 
 
 def translateRegionR3(region):
-    mapping = {'BR1': 'BR',
-               'EUN1': 'EUNE',
-               'EUW1': 'EUW',
-               'JP1': 'JP',
-               'KR': 'KR',
-               'LA1': 'LAN',
-               'LA2': 'LAS',
-               'NA1': 'NA',
-               'OC1': 'OCE',
-               'TR1': 'TR',
-               'RU1': 'RU'}
+    mapping = {'BR1': 'br1',
+               'EUN1': 'eun1',
+               'EUW1': 'euw1',
+               'JP1': 'jp1',
+               'KR': 'kr',
+               'LA1': 'la1',
+               'LA2': 'la2',
+               'NA1': 'na1',
+               'OC1': 'oc1',
+               'TR1': 'tr1',
+               'RU1': 'ru'}
     return mapping[region]
 
 
 def translateRegion(region):
-    mapping = {'Region.brazil': 'BR',
-               'Region.europe_north_east': 'EUNE',
-               'Region.europe_west': 'EUW',
-               'Region.japan': 'JP',
-               'Region.korea': 'KR',
-               'Region.latin_america_north': 'LAN',
-               'Region.latin_america_south': 'LAS',
-               'Region.north_america': 'NA',
-               'Region.oceania': 'OCE',
-               'Region.turkey': 'TR',
-               'Region.russia': 'RU'}
+    mapping = {'br1': 'Region.brazil',
+               'eun1': 'Region.europe_north_east',
+               'euw1': 'Region.europe_west',
+               'jp1': 'Region.japan',
+               'kr': 'Region.korea',
+               'la1': 'Region.latin_america_north',
+               'la2': 'Region.latin_america_south',
+               'na1': 'Region.north_america',
+               'oc1': 'Region.oceania',
+               'tr1': 'Region.turkey',
+               'ru': 'Region.russia'}
     return mapping[region]
 
 

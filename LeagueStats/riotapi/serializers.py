@@ -6,7 +6,7 @@ class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
         fields = ['user_id', 'match_id', 'queue_id', 'game_type', 'game_duration', 'platform_id', 'game_start',
-                  'season_id', 'map_id', 'game_mode', 'teams']
+                  'season_id', 'map_id', 'game_mode', 'teams', 'won']
 
 
 class EventSerializer(serializers.ModelSerializer):

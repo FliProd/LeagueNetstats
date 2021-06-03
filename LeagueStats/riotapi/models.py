@@ -5,7 +5,7 @@ from authentication.models import CustomUser
 
 class Match(models.Model):
     user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
-    match_id = models.PositiveIntegerField()
+    match_id = models.PositiveBigIntegerField()
     queue_id = models.CharField(max_length=32)
     game_type = models.CharField(max_length=64)
     game_duration = models.BigIntegerField()
@@ -15,13 +15,14 @@ class Match(models.Model):
     map_id = models.PositiveSmallIntegerField()
     game_mode = models.CharField(max_length=64)
     teams = models.TextField()
+    won = models.BooleanField()
 
     class Meta:
         unique_together = ('user_id', 'match_id')
 
 
 class NetworkLog(models.Model):
-    match_id = models.PositiveIntegerField()
+    match_id = models.PositiveBigIntegerField()
     user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
     time = models.IntegerField()
     ping = models.IntegerField()
@@ -32,7 +33,7 @@ class NetworkLog(models.Model):
 
 
 class Event(models.Model):
-    match_id = models.PositiveIntegerField()
+    match_id = models.PositiveBigIntegerField()
     user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
     timestamp = models.PositiveBigIntegerField()
     x = models.PositiveIntegerField()
@@ -44,7 +45,7 @@ class Event(models.Model):
 
 
 class Frame(models.Model):
-    match_id = models.PositiveIntegerField()
+    match_id = models.PositiveBigIntegerField()
     user_id = models.ForeignKey(to=CustomUser, db_column='user_id', on_delete=models.CASCADE)
     timestamp = models.PositiveIntegerField()
     exp = models.PositiveIntegerField()

@@ -44,7 +44,7 @@ const styles = theme => ({
             display: 'none'
         },
         participant_icon: {
-            width: '45px'
+            width: '40px'
         }
     },
     [theme.breakpoints.down('sm')]: {
@@ -56,7 +56,7 @@ const styles = theme => ({
             display: 'none'
         },
         participant_icon: {
-            width: '45px'
+            width: '40px'
         }
     },
     [theme.breakpoints.down('xs')]: {
@@ -95,8 +95,8 @@ class VS extends Component {
         const winner = this.props.teams.winner.map(participant => this.renderParticipant(participant))
         const loser = this.props.teams.loser.map(participant => this.renderParticipant(participant))
 
-        const date = new Date(this.props.time * 1000)
-        const datestring = date.getDay() + '.' + date.getMonth() + '.' + date.getFullYear()
+        const date = new Date(this.props.time)
+        const datestring = date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
 
         return (
             <Grid container className={classes.full_height}>

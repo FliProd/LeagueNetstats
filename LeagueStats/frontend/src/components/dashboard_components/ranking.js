@@ -5,7 +5,7 @@ import {withStyles} from "@material-ui/core/styles"
 import {Image} from "react-bootstrap"
 import clsx from "clsx"
 import { withTranslation } from 'react-i18next'
-import {CreeperScore, Damage, Gold} from "../svg-icons";
+import {CreeperScore, Damage, Gold} from "../Utility/svg-icons";
 
 
 const styles = theme => ({

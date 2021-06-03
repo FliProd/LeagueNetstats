@@ -3,7 +3,7 @@ import {Box, Typography} from "@material-ui/core"
 import clsx from "clsx"
 import {withStyles} from "@material-ui/core/styles"
 import { withTranslation } from 'react-i18next'
-import {CreeperScore, Gold, Exp} from "../../svg-icons";
+import {CreeperScore, Gold, Exp} from "../../Utility/svg-icons";
 
 
 const styles = theme => ({

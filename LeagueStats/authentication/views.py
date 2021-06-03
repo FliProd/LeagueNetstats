@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404
 import string
 import random
 from django.core.mail import send_mail
+from django.shortcuts import redirect
 
 
 # add more context to jwt (favorite color in this case)
@@ -45,23 +46,10 @@ class Account(APIView):
                 if profile:
                     json = profile_serializer.data
                     # create email validation token
-                    user_id = json['user_id']
-                    letters = string.ascii_lowercase
-                    token = ''.join(random.choice(letters) for i in range(50))
-
-                    validation_token_serializer = ValidationTokenSerializer(data={'user': user_id, 'token': token})
-                    if validation_token_serializer.is_valid() and validation_token_serializer.save():
-                        send_mail(subject='Email Verification League Netstats',
-                                  message='Please click on the link below to verify your email for League Netstats'
-
-                                  'https://league-netstats.ethz.ch/api/accountVerification/' + token,
-                                  from_email='noreply@league-netstats.ethz.ch',
-                                  recipient_list=[json['user']['email']],
-                                  fail_silently=False)
+                    if self.validateEmail(json['user_id'], json['user']['email']):
+                        return Response(json, status=status.HTTP_201_CREATED)
                     else:
-                        return Response(validation_token_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-                    return Response(json, status=status.HTTP_201_CREATED)
+                        return Response('verification.error', status=status.HTTP_400_BAD_REQUEST)
             return Response({"user": {"email": ["user with this email address already exists."]}},
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -69,15 +57,29 @@ class Account(APIView):
     def put(self, request, format='json'):
         profile = get_object_or_404(Profile, user_id=request.user.id)
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
+        old_email = profile.user.email
+        new_email = request.data['user']['email']
         if serializer.is_valid():
-            if self.checkUniqueNewEmail(profile.user.email, request.data['user']['email']):
+            if self.checkUniqueNewEmail(old_email, new_email):
+                if old_email != new_email:
+                    request.data['verificated'] = False
                 profile = serializer.update(instance=profile, validated_data=request.data)
                 if profile:
                     json = serializer.data
-                    return Response(json, status=status.HTTP_200_OK)
-            return Response({"user": {"email": ["user with this email address already exists."]}},
+                    if old_email != new_email:
+                        if self.validateEmail(json['user_id'], json['user']['email']):
+                            json = serializer.data
+                            return Response(json, status=status.HTTP_200_OK)
+                        else:
+                            return Response('verification.error', status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        return Response(json, status=status.HTTP_200_OK)
+                else:
+                    return Response('serializer.error', status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"user": {"email": ["user with this email address already exists."]}},
                             status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response('serializer.error', status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
         profile = get_object_or_404(Profile, user_id=request.user.id)
@@ -97,20 +99,41 @@ class Account(APIView):
             return self.checkUnique(email=new_email)
         return True
 
+    def validateEmail(self, user_id, user_email):
+        letters = string.ascii_lowercase
+        token = ''.join(random.choice(letters) for i in range(50))
+        print(1)
+
+        validation_token_serializer = ValidationTokenSerializer(data={'user': user_id, 'token': token})
+        if validation_token_serializer.is_valid() and validation_token_serializer.save():
+            print(2)
+            send_mail(subject='Email Verification League Netstats',
+                      message='Please click on the following link to verify your email for League Netstats https://league-netstats.ethz.ch/api/accountVerification/' + token,
+                      from_email='noreply@league-netstats.ethz.ch',
+                      recipient_list=[user_email],
+                      fail_silently=False)
+            return True
+        else:
+            print(validation_token_serializer.errors)
+            return False
 
 class ValidationTokenView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, token):
 
-        saved_token = get_object_or_404(ValidationToken, token=token)
+        try:
+            saved_token = ValidationToken.objects.get(token=token)
+            profile = Profile.objects.get(user_id=saved_token.user)
+            serializer = ProfileSerializer(profile, partial=True)
+            serializer.update(instance=profile, validated_data={'verificated': True})
+            ValidationToken.objects.filter(user=saved_token.user).delete()
+            return redirect('/')
+        except ValidationToken.DoesNotExist:
+            return redirect('/')
+        except Profile.DoesNotExist:
+            return redirect('/')
 
-        profile = get_object_or_404(Profile, user_id=saved_token.user_id)
-        serializer = ProfileSerializer(profile, partial=True)
-        if serializer.update(instance=profile, validated_data={'verificated': True}):
-            return Response({'verificated': True}, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteView(APIView):

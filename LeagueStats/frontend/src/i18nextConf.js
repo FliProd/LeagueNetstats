@@ -22,7 +22,7 @@ i18n
     .use(initReactI18next) // pass the i18n instance to react-i18next.
     .init({
         resources,
-        lng: 'en', // fallback language is english.
+        lng: localStorage.getItem('i18nextLng') ||'en', // fallback language is english.
         fallbackLng: 'en',
 
 

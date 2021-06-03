@@ -7,7 +7,6 @@ from pgcrypto import fields
 
 
 # change email to be unique and username to not be unique
-# TODO: change user id to be random
 class CustomUser(AbstractUser):
 
     USERNAME_FIELD = 'email'
@@ -40,5 +39,5 @@ class Profile(models.Model):
 
 
 class ValidationToken(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='validation_token')
+    user = models.PositiveIntegerField()
     token = models.CharField(max_length=256)

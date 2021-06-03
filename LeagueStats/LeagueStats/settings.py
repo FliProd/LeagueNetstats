@@ -23,20 +23,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# for local development
-# SECRET_KEY = '1234'
 # for production/remote
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
 # for production/remote
-#SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # for local development
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 # for production/remote
-# ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -212,7 +210,6 @@ EMAIL_PORT = 587
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST_USER = 'leaguenetstats@gmail.com'
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-# prod vs dev
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'noreply@league-netstats.ethz.ch'
 

@@ -23,7 +23,7 @@ function Summoner(props) {
         <Fragment>
             <ListItemAvatar>
                 <Box pr={1}>
-                    <Image width={"60px"} src={icon_url} roundedCircle/>
+                    <Image width={"45px"} src={icon_url} roundedCircle/>
                 </Box>
             </ListItemAvatar>
             <ListItemText primary={props.name + '  -  ' + t('level') + ' ' + props.level} secondary={t(props.region)}/>
@@ -72,15 +72,14 @@ class SummonerList extends Component {
     async getSummonerInfo(name) {
         const timeout = setTimeout(this.handleNoReply, 30000)
         this.setState({loading: true})
-        try {
-            const response = await axiosInstance.get('/riotapi/summoner/'.concat(name))
+        axiosInstance.get('/riotapi/summoner/'.concat(name)).then(response => {
             clearTimeout(timeout)
 
             this.setState({
                 possible_accounts: response.data.possible_accounts,
                 loading: false,
             })
-        } catch (error) {
+        }).catch(error => {
             if (response.status == StatusCodes.NOT_FOUND) {
                 this.setState({
                     loading: false,
@@ -88,7 +87,7 @@ class SummonerList extends Component {
                 })
             }
             clearTimeout(timeout)
-        }
+        })
     }
 
     handleNoReply() {
@@ -110,7 +109,10 @@ class SummonerList extends Component {
     renderSummoner(summoner, index, marked) {
         let style
         if (marked) {
-            style = {'backgroundColor': "#919191"}
+            style = {'backgroundColor': "#0e1d33", 'padding-top': '0px', 'padding-bottom': '0px'}
+        } else {
+            style = {'padding-top': '0px', 'padding-bottom': '0px'}
+
         }
         return (
             <ListItem style={style} key={summoner.region} button onClick={() => this.handleChooseSummoner(index)}>

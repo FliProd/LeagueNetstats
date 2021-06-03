@@ -49,7 +49,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -66,7 +66,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -83,7 +83,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -100,7 +100,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -117,7 +117,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -134,7 +134,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -151,7 +151,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -168,7 +168,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"
@@ -185,7 +185,7 @@ class Examplechart extends Component {
                         "label": {
                             "borderColor": "#d63d54",
                             "orientation": "vertical",
-                            "text": "CHAMPION_DEATH",
+                            "text": "Death",
                             "style": {
                                 "cssClass": "annotation",
                                 "background": "#d63d54"

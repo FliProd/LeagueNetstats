@@ -17,6 +17,7 @@ import {withRouter} from "react-router";
 import {Image} from "react-bootstrap";
 import Slide from '@material-ui/core/Slide';
 import {useTranslation} from 'react-i18next'
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 
 const drawerWidth = 240
@@ -104,13 +105,15 @@ class MenuDrawer extends Component {
                     <Box height={'57%'}>
                         <List>
                             <ListButtonRouter open={open} path={'/dashboard'} name={'menudrawer.dashboard'}
-                                              icon={<TrendingUpSharpIcon/>}/>
+                                              icon={<TrendingUpSharpIcon />}/>
                             <ListButtonRouter open={open} path={'/matches'} name={'menudrawer.matches'}
-                                              icon={<ListAltSharpIcon/>}/>
+                                              icon={<ListAltSharpIcon />}/>
+                            <ListButtonRouter open={open} path={'/upload'} name={'menudrawer.upload'}
+                                              icon={<CloudUploadIcon />}/>
                             <ListButtonRouter open={open} path={'/account'} name={'menudrawer.account'}
-                                              icon={<AccountBoxIcon/>}/>
+                                              icon={<AccountBoxIcon />}/>
                             <ListButtonRouter open={open} path={'/feedback'} name={'menudrawer.feedback'}
-                                              icon={<FeedbackIcon/>}/>
+                                              icon={<FeedbackIcon />}/>
                         </List>
                     </Box>
                     <Box display={'flex'} alignItems={'flex-end'} height={'10%'}>

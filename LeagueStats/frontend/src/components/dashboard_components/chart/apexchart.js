@@ -392,7 +392,7 @@ class ApexChart extends Component {
 
         if (this.isAnnotation(type, true)) {
             const annotation_id = event.target.classList[event.target.classList.length - 1]
-            setEvent(annotation_id, type)
+            this.setEvent(annotation_id, type)
         }
     }
 
